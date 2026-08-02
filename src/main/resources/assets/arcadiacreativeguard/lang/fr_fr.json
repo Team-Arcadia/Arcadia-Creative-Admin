@@ -1,0 +1,20 @@
+{
+  "arcadiacreativeguard.prefix": "[Creative Guard] ",
+
+  "arcadiacreativeguard.deny.not_whitelisted": "%s n'est pas autorisé par le profil « %s ».",
+  "arcadiacreativeguard.deny.explicit": "%s est explicitement bloqué sur ce serveur.",
+  "arcadiacreativeguard.deny.unregistered": "Cet objet n'est pas enregistré et ne peut pas être obtenu.",
+  "arcadiacreativeguard.deny.block_entity_data": "%s transporte des données de bloc, ce qui n'est pas autorisé ici.",
+  "arcadiacreativeguard.deny.container_contents": "%s n'est pas vide, et prendre un conteneur rempli n'est pas autorisé ici.",
+  "arcadiacreativeguard.deny.container_depth": "%s imbrique trop de conteneurs pour être vérifié.",
+  "arcadiacreativeguard.deny.internal_error": "La politique créative n'a pas pu être évaluée ; l'action a été refusée.",
+
+  "arcadiacreativeguard.command.reloaded": "Politique rechargée : %s profil(s), appliquée=%s.",
+  "arcadiacreativeguard.command.status": "Appliquée : %s | Profils : %s | Contournement au niveau d'op %s.",
+  "arcadiacreativeguard.command.tabs": "%s onglets créatifs indexés : %s",
+  "arcadiacreativeguard.command.unknown_profile": "Aucun profil nommé « %s ».",
+  "arcadiacreativeguard.command.assigned": "%s joueur(s) affecté(s) au profil « %s ».",
+  "arcadiacreativeguard.command.cleared": "Profil retiré à %s joueur(s).",
+  "arcadiacreativeguard.command.check_allowed": "%s est autorisé sous « %s ».",
+  "arcadiacreativeguard.command.check_denied": "%s est refusé sous « %s » : %s"
+}

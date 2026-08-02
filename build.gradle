@@ -1,0 +1,78 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.142'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    // Human-readable jar name; the mod id itself cannot contain hyphens.
+    archivesName = mod_slug
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+        // The enforcement path only exists on a logical server, so a dedicated server run is the
+        // only environment that exercises it the way a production install does.
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+// Expose gradle.properties values to neoforge.mods.toml
+tasks.named('processResources', ProcessResources).configure {
+    def replacements = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_slug               : mod_slug,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description
+    ]
+    inputs.properties replacements
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replacements
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+// Ship the licensing terms inside the jar. The license states that each release
+// is governed by the version distributed with it, so it has to actually be in
+// the file — a downloaded jar must be able to state its own terms offline.
+tasks.named('jar', Jar).configure {
+    from(file('LICENSE')) { into 'META-INF' }
+}

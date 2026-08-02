@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "net.thefricadelle.arcadiacreativeguard.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "arcadia-creative-guard.refmap.json",
+  "mixins": [
+    "ServerGamePacketListenerImplMixin"
+  ],
+  "client": [
+    "client.CreativeModeInventoryScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
