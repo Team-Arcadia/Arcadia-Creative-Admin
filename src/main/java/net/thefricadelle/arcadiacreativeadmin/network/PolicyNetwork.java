@@ -1,13 +1,13 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.network;
+package net.thefricadelle.arcadiacreativeadmin.network;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -15,11 +15,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.thefricadelle.arcadiacreativeguard.ArcadiaCreativeGuard;
-import net.thefricadelle.arcadiacreativeguard.core.ReceivedTabPolicy;
-import net.thefricadelle.arcadiacreativeguard.core.VisibleTabResolver;
-import net.thefricadelle.arcadiacreativeguard.policy.CreativeProfile;
-import net.thefricadelle.arcadiacreativeguard.policy.PolicyManager;
+import net.thefricadelle.arcadiacreativeadmin.ArcadiaCreativeAdmin;
+import net.thefricadelle.arcadiacreativeadmin.core.ReceivedTabPolicy;
+import net.thefricadelle.arcadiacreativeadmin.core.VisibleTabResolver;
+import net.thefricadelle.arcadiacreativeadmin.policy.CreativeProfile;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyManager;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @author THEFricadelle
  */
-@EventBusSubscriber(modid = ArcadiaCreativeGuard.MOD_ID)
+@EventBusSubscriber(modid = ArcadiaCreativeAdmin.MOD_ID)
 public final class PolicyNetwork {
 
     private static final String PROTOCOL_VERSION = "1";

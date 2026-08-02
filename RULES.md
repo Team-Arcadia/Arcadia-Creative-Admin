@@ -4,10 +4,10 @@
 
 | Field | Value |
 | --- | --- |
-| Project name | Arcadia Creative Guard |
-| Mod ID | `arcadiacreativeguard` (FML `ModInfo` enforces `^[a-z][a-z0-9_]{1,63}$` — **hyphens are rejected**) |
-| File slug | `arcadia-creative-guard` (`mod_slug`, used for jar and file names only) |
-| Package | `net.thefricadelle.arcadiacreativeguard` |
+| Project name | Arcadia Creative Admin |
+| Mod ID | `arcadiacreativeadmin` (FML `ModInfo` enforces `^[a-z][a-z0-9_]{1,63}$` — **hyphens are rejected**) |
+| File slug | `arcadia-creative-admin` (`mod_slug`, used for jar and file names only) |
+| Package | `net.thefricadelle.arcadiacreativeadmin` |
 | Tech stack | Java 21, Minecraft 1.21.1, NeoForge 21.1.241, ModDevGradle 2.0.142, Gradle 8.12, SpongePowered Mixin + MixinExtras |
 | Author | THEFricadelle |
 | License | All Rights Reserved |
@@ -30,7 +30,7 @@ jars with no build or runtime dependency between them. They coexist by chaining 
 
 - All code, comments, logs and identifiers in **English**. User-facing strings go through lang files.
 - Naming: `PascalCase` types, `camelCase` members, `UPPER_SNAKE_CASE` constants.
-- Mixin injector methods **must** be prefixed `arcadiacreativeguard$`.
+- Mixin injector methods **must** be prefixed `arcadiacreativeadmin$`.
 - Comments explain *why*, never *what*.
 
 **What NOT to do — project-specific:**
@@ -56,15 +56,15 @@ jars with no build or runtime dependency between them. They coexist by chaining 
 ## 4. Project Structure
 
 ```
-Arcadia-Creative-Guard/
+Arcadia-Creative-Admin/
 ├── build.gradle                  ModDevGradle setup, client + dedicated server runs
 ├── gradle.properties             Version and metadata single source of truth
 ├── RULES.md                      This file
 ├── README.md                     Bilingual EN/FR documentation
 ├── CHANGELOG.md                  Bilingual EN/FR changelog
 └── src/main/
-    ├── java/net/thefricadelle/arcadiacreativeguard/
-    │   ├── ArcadiaCreativeGuard.java             Entry point, server + command + login events
+    ├── java/net/thefricadelle/arcadiacreativeadmin/
+    │   ├── ArcadiaCreativeAdmin.java             Entry point, server + command + login events
     │   ├── policy/
     │   │   ├── CreativeProfile.java              One named strict whitelist
     │   │   ├── PolicyEvaluator.java              Pure function: (profile, stack) -> Decision
@@ -75,7 +75,7 @@ Arcadia-Creative-Guard/
     │   │   ├── TabItemIndex.java                 Creative tab id -> items, built server-side
     │   │   ├── VisibleTabResolver.java           Profile -> tabs worth displaying, cached
     │   │   └── ReceivedTabPolicy.java            Client-held advice; no client-only types
-    │   ├── command/CreativeGuardCommand.java     /creativeguard
+    │   ├── command/CreativeAdminCommand.java     /creativeadmin
     │   ├── network/
     │   │   ├── TabPolicyPayload.java             Advisory server -> client payload
     │   │   └── PolicyNetwork.java                Optional channel registration and sending
@@ -85,8 +85,8 @@ Arcadia-Creative-Guard/
     │       └── client/CreativeModeInventoryScreenMixin.java  Display filter, priority 1300
     └── resources/
         ├── META-INF/neoforge.mods.toml
-        ├── arcadia-creative-guard.mixins.json
-        └── assets/arcadiacreativeguard/lang/{en_us,fr_fr}.json
+        ├── arcadia-creative-admin.mixins.json
+        └── assets/arcadiacreativeadmin/lang/{en_us,fr_fr}.json
 ```
 
 ## 5. Adding a New Rule Shape (Step by Step)
@@ -122,7 +122,7 @@ Arcadia-Creative-Guard/
 - [ ] On an integrated server (singleplayer), the player's own creative screen is unchanged when the
       policy is off — no forced tab rebuild.
 - [ ] A player above `bypass_op_level` is unrestricted.
-- [ ] `/creativeguard reload` applies a changed profile without a restart, and connected clients get
+- [ ] `/creativeadmin reload` applies a changed profile without a restart, and connected clients get
       the new tab advice.
 - [ ] A **vanilla client** can still connect (the channel is registered optional).
 - [ ] With both this mod and Arcadia Better Creative installed, the tab bar is both filtered and

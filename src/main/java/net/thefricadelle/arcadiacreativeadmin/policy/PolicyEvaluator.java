@@ -1,13 +1,13 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.policy;
+package net.thefricadelle.arcadiacreativeadmin.policy;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,7 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.item.component.ItemContainerContents;
-import net.thefricadelle.arcadiacreativeguard.core.TabItemIndex;
+import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
 
 /**
  * Decides whether a stack may be taken under a profile. Pure function of (profile, stack), so it can
@@ -56,15 +56,15 @@ public final class PolicyEvaluator {
         ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
         if (id == null) {
             // An unregistered item cannot be named by any rule, so no whitelist can ever allow it.
-            return Decision.deny("arcadiacreativeguard.deny.unregistered");
+            return Decision.deny("arcadiacreativeadmin.deny.unregistered");
         }
 
         if (profile.deniedItems().contains(id) || profile.deniedNamespaces().contains(id.getNamespace())) {
-            return Decision.deny("arcadiacreativeguard.deny.explicit", id.toString());
+            return Decision.deny("arcadiacreativeadmin.deny.explicit", id.toString());
         }
 
         if (!isAllowed(profile, stack, item, id)) {
-            return Decision.deny("arcadiacreativeguard.deny.not_whitelisted", id.toString(), profile.name());
+            return Decision.deny("arcadiacreativeadmin.deny.not_whitelisted", id.toString(), profile.name());
         }
 
         return evaluateComponents(profile, stack, id, depth);
@@ -96,7 +96,7 @@ public final class PolicyEvaluator {
     private static Decision evaluateComponents(CreativeProfile profile, ItemStack stack,
                                                ResourceLocation id, int depth) {
         if (!profile.allowBlockEntityData() && stack.has(DataComponents.BLOCK_ENTITY_DATA)) {
-            return Decision.deny("arcadiacreativeguard.deny.block_entity_data", id.toString());
+            return Decision.deny("arcadiacreativeadmin.deny.block_entity_data", id.toString());
         }
 
         ItemContainerContents container = stack.get(DataComponents.CONTAINER);
@@ -108,10 +108,10 @@ public final class PolicyEvaluator {
             return Decision.allow();
         }
         if (!profile.allowContainerContents()) {
-            return Decision.deny("arcadiacreativeguard.deny.container_contents", id.toString());
+            return Decision.deny("arcadiacreativeadmin.deny.container_contents", id.toString());
         }
         if (depth >= MAX_CONTAINER_DEPTH) {
-            return Decision.deny("arcadiacreativeguard.deny.container_depth", id.toString());
+            return Decision.deny("arcadiacreativeadmin.deny.container_depth", id.toString());
         }
 
         // Contents are held to the same profile: a whitelist that stops at the outer stack is one

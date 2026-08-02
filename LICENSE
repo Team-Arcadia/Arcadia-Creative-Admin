@@ -1,10 +1,10 @@
-Arcadia Creative Guard — Proprietary License (All Rights Reserved)
-SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+Arcadia Creative Admin — Proprietary License (All Rights Reserved)
+SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
 License version: 1.0 — 2026-07-28
 
 Copyright (C) 2026 THEFricadelle. All rights reserved.
 
-This software ("Arcadia Creative Guard", the "Mod") and its source code are
+This software ("Arcadia Creative Admin", the "Mod") and its source code are
 made publicly viewable for transparency, interoperability, and community
 contribution purposes only. Public visibility of the source does NOT make it
 open-source and does NOT grant any of the rights below unless explicitly stated.
@@ -25,7 +25,7 @@ version does not apply to a later release.
 1. DEFINITIONS
 ====================================================================
 
-"Mod" means the Arcadia Creative Guard software in any form, including its
+"Mod" means the Arcadia Creative Admin software in any form, including its
 compiled or packaged artifacts (.jar), source code, configuration templates,
 assets, and documentation.
 
@@ -178,7 +178,7 @@ Except with the Author's prior written permission, You may NOT:
       work, or reuse its source code — in whole or in part, verbatim or
       substantially adapted — inside any other project, product, or service;
 
-  (g) use the name "Arcadia Creative Guard", the Mod's mod id, logo, visual
+  (g) use the name "Arcadia Creative Admin", the Mod's mod id, logo, visual
       identity, or any confusingly similar designation (i) to identify or
       promote any other project, product, or service, (ii) in a way that
       suggests affiliation with, sponsorship by, or endorsement from the Author
@@ -419,7 +419,7 @@ For redistribution, modpack inclusion beyond Section 3(b), commercial
 distribution, or any other permission not granted above, contact the Author by
 opening an issue on the official repository:
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Guard/issues
+  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
 
 Written permission is required and may be granted at the Author's sole
 discretion. Silence is not consent: absence of a reply, or the Author's failure
@@ -434,6 +434,6 @@ Author: THEFricadelle
 
 --------------------------------------------------------------------
 
-Minecraft is a trademark of Mojang Synergies AB. Arcadia Creative Guard is an
+Minecraft is a trademark of Mojang Synergies AB. Arcadia Creative Admin is an
 unofficial mod, not affiliated with or endorsed by Mojang Synergies AB or
 Microsoft.

@@ -1,13 +1,13 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.command;
+package net.thefricadelle.arcadiacreativeadmin.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -24,13 +24,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.thefricadelle.arcadiacreativeguard.core.TabItemIndex;
-import net.thefricadelle.arcadiacreativeguard.core.VisibleTabResolver;
-import net.thefricadelle.arcadiacreativeguard.network.PolicyNetwork;
-import net.thefricadelle.arcadiacreativeguard.policy.CreativeProfile;
-import net.thefricadelle.arcadiacreativeguard.policy.Decision;
-import net.thefricadelle.arcadiacreativeguard.policy.PolicyEvaluator;
-import net.thefricadelle.arcadiacreativeguard.policy.PolicyManager;
+import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
+import net.thefricadelle.arcadiacreativeadmin.core.VisibleTabResolver;
+import net.thefricadelle.arcadiacreativeadmin.network.PolicyNetwork;
+import net.thefricadelle.arcadiacreativeadmin.policy.CreativeProfile;
+import net.thefricadelle.arcadiacreativeadmin.policy.Decision;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyEvaluator;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyManager;
 
 import javax.annotation.Nullable;
 import java.util.stream.Collectors;
@@ -44,22 +44,22 @@ import java.util.stream.Collectors;
  *
  * @author THEFricadelle
  */
-public final class CreativeGuardCommand {
+public final class CreativeAdminCommand {
 
     private static final int PERMISSION_LEVEL = 3;
 
     private static final SuggestionProvider<CommandSourceStack> PROFILES =
             (context, builder) -> SharedSuggestionProvider.suggest(PolicyManager.profileNames(), builder);
 
-    private CreativeGuardCommand() {}
+    private CreativeAdminCommand() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("creativeguard")
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("creativeadmin")
                 .requires(source -> source.hasPermission(PERMISSION_LEVEL));
 
-        root.then(Commands.literal("reload").executes(CreativeGuardCommand::reload));
-        root.then(Commands.literal("status").executes(CreativeGuardCommand::status));
-        root.then(Commands.literal("tabs").executes(CreativeGuardCommand::tabs));
+        root.then(Commands.literal("reload").executes(CreativeAdminCommand::reload));
+        root.then(Commands.literal("status").executes(CreativeAdminCommand::status));
+        root.then(Commands.literal("tabs").executes(CreativeAdminCommand::tabs));
         root.then(Commands.literal("check")
                 .executes(context -> check(context, null))
                 .then(Commands.argument("profile", StringArgumentType.word())
@@ -68,10 +68,10 @@ public final class CreativeGuardCommand {
 
         root.then(Commands.literal("profile")
                 .then(Commands.argument("targets", EntityArgument.players())
-                        .then(Commands.literal("clear").executes(CreativeGuardCommand::clearProfile))
+                        .then(Commands.literal("clear").executes(CreativeAdminCommand::clearProfile))
                         .then(Commands.argument("profile", StringArgumentType.word())
                                 .suggests(PROFILES)
-                                .executes(CreativeGuardCommand::setProfile))));
+                                .executes(CreativeAdminCommand::setProfile))));
 
         dispatcher.register(root);
     }
@@ -83,7 +83,7 @@ public final class CreativeGuardCommand {
         // Every connected client is holding advice derived from the policy that just changed.
         PolicyNetwork.sendToAll(context.getSource().getServer().getPlayerList().getPlayers());
         context.getSource().sendSuccess(() -> Component.translatable(
-                "arcadiacreativeguard.command.reloaded",
+                "arcadiacreativeadmin.command.reloaded",
                 PolicyManager.profileNames().size(),
                 String.valueOf(PolicyManager.enforced())), true);
         return 1;
@@ -91,7 +91,7 @@ public final class CreativeGuardCommand {
 
     private static int status(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        source.sendSuccess(() -> Component.translatable("arcadiacreativeguard.command.status",
+        source.sendSuccess(() -> Component.translatable("arcadiacreativeadmin.command.status",
                 String.valueOf(PolicyManager.enforced()),
                 PolicyManager.profileNames().isEmpty()
                         ? "-"
@@ -107,7 +107,7 @@ public final class CreativeGuardCommand {
                 .sorted()
                 .collect(Collectors.joining(", "));
         context.getSource().sendSuccess(() -> Component.translatable(
-                "arcadiacreativeguard.command.tabs",
+                "arcadiacreativeadmin.command.tabs",
                 TabItemIndex.indexedTabs().size(),
                 listed.isEmpty() ? "-" : listed), false);
         return 1;
@@ -131,15 +131,15 @@ public final class CreativeGuardCommand {
         CreativeProfile profile = name.isEmpty() ? null : PolicyManager.profile(name);
         if (profile == null) {
             source.sendFailure(Component.translatable(
-                    "arcadiacreativeguard.command.unknown_profile", name.isEmpty() ? "-" : name));
+                    "arcadiacreativeadmin.command.unknown_profile", name.isEmpty() ? "-" : name));
             return 0;
         }
 
         Decision decision = PolicyEvaluator.evaluate(profile, held);
         Component verdict = decision.allowed()
-                ? Component.translatable("arcadiacreativeguard.command.check_allowed",
+                ? Component.translatable("arcadiacreativeadmin.command.check_allowed",
                         held.getHoverName(), profile.name()).withStyle(ChatFormatting.GREEN)
-                : Component.translatable("arcadiacreativeguard.command.check_denied",
+                : Component.translatable("arcadiacreativeadmin.command.check_denied",
                         held.getHoverName(), profile.name(), decision.reason())
                         .withStyle(ChatFormatting.RED);
         source.sendSuccess(() -> verdict, false);
@@ -151,7 +151,7 @@ public final class CreativeGuardCommand {
         String profile = StringArgumentType.getString(context, "profile");
         if (!PolicyManager.hasProfile(profile)) {
             context.getSource().sendFailure(Component.translatable(
-                    "arcadiacreativeguard.command.unknown_profile", profile));
+                    "arcadiacreativeadmin.command.unknown_profile", profile));
             return 0;
         }
         int count = 0;
@@ -162,7 +162,7 @@ public final class CreativeGuardCommand {
         }
         final int assigned = count;
         context.getSource().sendSuccess(() -> Component.translatable(
-                "arcadiacreativeguard.command.assigned", assigned, profile), true);
+                "arcadiacreativeadmin.command.assigned", assigned, profile), true);
         return count;
     }
 
@@ -177,7 +177,7 @@ public final class CreativeGuardCommand {
         }
         final int cleared = count;
         context.getSource().sendSuccess(() -> Component.translatable(
-                "arcadiacreativeguard.command.cleared", cleared), true);
+                "arcadiacreativeadmin.command.cleared", cleared), true);
         return count;
     }
 }

@@ -1,20 +1,20 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.network;
+package net.thefricadelle.arcadiacreativeadmin.network;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.thefricadelle.arcadiacreativeguard.ArcadiaCreativeGuard;
+import net.thefricadelle.arcadiacreativeadmin.ArcadiaCreativeAdmin;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public record TabPolicyPayload(boolean enforced, String profile, List<ResourceLo
 
     public static final CustomPacketPayload.Type<TabPolicyPayload> TYPE =
             new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(
-                    ArcadiaCreativeGuard.MOD_ID, "tab_policy"));
+                    ArcadiaCreativeAdmin.MOD_ID, "tab_policy"));
 
     /** Bounded so a malformed or hostile payload cannot make a client allocate without limit. */
     private static final int MAX_TABS = 4096;

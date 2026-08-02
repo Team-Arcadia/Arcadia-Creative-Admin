@@ -1,6 +1,6 @@
-# Contributing to Arcadia Creative Guard
+# Contributing to Arcadia Creative Admin
 
-Thanks for wanting to help. Arcadia Creative Guard is **source-available
+Thanks for wanting to help. Arcadia Creative Admin is **source-available
 proprietary software** — the code is public so you can read it, audit it, and
 help fix it, but it is **not** open-source. This document explains exactly what
 you may and may not do.
@@ -24,7 +24,7 @@ guide, not a substitute for it.
   name, mod id, or branding.
 - **Reuse the source code** — in whole or in part, verbatim or adapted — inside
   another project or product.
-- **Claim authorship** of Arcadia Creative Guard or any part of it.
+- **Claim authorship** of Arcadia Creative Admin or any part of it.
 - **Remove or alter** copyright, authorship, or license notices, including the
   SPDX headers at the top of source files.
 
@@ -44,13 +44,13 @@ By submitting a pull request, patch, or code suggestion, you agree that:
 
 1. You grant THEFricadelle a perpetual, worldwide, irrevocable, royalty-free,
    sublicensable and transferable license to use, modify, relicense, and
-   distribute your contribution as part of Arcadia Creative Guard, under this or
+   distribute your contribution as part of Arcadia Creative Admin, under this or
    any other license.
 2. You are the author of the contribution and have the right to submit it.
 3. Your contribution contains no third-party code you are not entitled to
    submit.
 4. You keep the copyright on your own contribution, but submitting it gives you
-   **no ownership, co-authorship, or any other right over Arcadia Creative Guard
+   **no ownership, co-authorship, or any other right over Arcadia Creative Admin
    itself**.
 5. Where the law allows it, you waive your moral rights in the contribution as
    against the author; where it does not, you agree not to assert them in a way
@@ -58,7 +58,7 @@ By submitting a pull request, patch, or code suggestion, you agree that:
    be misattributed to someone else.
 6. These terms apply identically whether or not you are a member of the team or
    organization hosting the repository. Membership, maintainer status, and write
-   access to the repository grant no right over Arcadia Creative Guard and no
+   access to the repository grant no right over Arcadia Creative Admin and no
    authority to permit anything the LICENSE reserves to THEFricadelle (§1).
 
 ## What you get in return
@@ -69,7 +69,7 @@ Section 5.3 of the LICENSE gives every contributor two things:
   for any reason. Ask via the issue tracker if you want a different name or
   handle, no contact address, or no listing at all.
 - **The modpack permission**, confirmed explicitly: once your PR has concluded,
-  you may ship Arcadia Creative Guard in a modpack you publish — referencing an
+  you may ship Arcadia Creative Admin in a modpack you publish — referencing an
   Official Channel, unmodified official file, notices preserved. Having forked
   the repo never costs you this.
 
@@ -129,7 +129,7 @@ regardless of how clean it otherwise is. When in doubt, deny.
 - **Language**: all code, identifiers, comments, and log messages in **English**.
 - **Naming**: `PascalCase` types, `camelCase` members and methods,
   `UPPER_SNAKE_CASE` constants, and mixin injector methods prefixed
-  `arcadiacreativeguard$`.
+  `arcadiacreativeadmin$`.
 - **Comments**: minimal and in English — explain *why*, not *what*.
 - **SPDX headers**: keep the existing header on every source file. New files
   must carry the same header.
@@ -151,11 +151,11 @@ Include, at minimum:
   or client display only.
 - The relevant part of `latest.log` or the crash report, as text rather than a
   screenshot.
-- The profile in `arcadia-creative-guard-policy.json` that was in effect, with
+- The profile in `arcadia-creative-admin-policy.json` that was in effect, with
   any private detail removed.
 - What you did, what you expected, and what happened instead — including whether
   the item was refused, allowed, or reappeared after a reconnect.
-- The output of `/creativeguard check` on the item concerned, when the report is
+- The output of `/creativeadmin check` on the item concerned, when the report is
   about a rule matching or not matching.
 
 ## Contact
@@ -164,15 +164,15 @@ For redistribution requests, modpack inclusion beyond Section 3(b), commercial
 hosting offers, or anything else not covered here, open an issue on the official
 repository:
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Guard/issues
+  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
 
 **Author: THEFricadelle**
 
 ---
 
-# Contribuer à Arcadia Creative Guard (Version Française)
+# Contribuer à Arcadia Creative Admin (Version Française)
 
-Merci de vouloir aider. Arcadia Creative Guard est un **logiciel propriétaire à
+Merci de vouloir aider. Arcadia Creative Admin est un **logiciel propriétaire à
 source visible** — le code est public pour que vous puissiez le lire, l'auditer
 et aider à le corriger, mais il n'est **pas** open-source. Ce document explique
 précisément ce que vous pouvez et ne pouvez pas faire.
@@ -197,7 +197,7 @@ guide en langage clair, pas un substitut.
   nom du mod, son mod id ou son identité visuelle.
 - **Réutiliser le code source** — en tout ou partie, tel quel ou adapté — dans
   un autre projet ou produit.
-- **Revendiquer la paternité** d'Arcadia Creative Guard ou d'une quelconque de
+- **Revendiquer la paternité** d'Arcadia Creative Admin ou d'une quelconque de
   ses parties.
 - **Supprimer ou altérer** les mentions de copyright, de paternité ou de
   licence, y compris les en-têtes SPDX en haut des fichiers source.
@@ -221,13 +221,13 @@ acceptez que :
 1. Vous accordez à THEFricadelle une licence perpétuelle, mondiale, irrévocable,
    gratuite, sous-licenciable et transférable pour utiliser, modifier,
    relicencier et distribuer votre contribution au sein d'Arcadia Creative
-   Guard, sous cette licence ou toute autre.
+   Admin, sous cette licence ou toute autre.
 2. Vous êtes l'auteur de la contribution et avez le droit de la soumettre.
 3. Votre contribution ne contient aucun code tiers que vous n'auriez pas le
    droit de soumettre.
 4. Vous conservez le copyright sur votre propre contribution, mais la soumettre
    ne vous donne **aucun droit de propriété, de co-paternité ou autre sur
-   Arcadia Creative Guard lui-même**.
+   Arcadia Creative Admin lui-même**.
 5. Dans la limite permise par la loi, vous renoncez à vos droits moraux sur la
    contribution à l'égard de l'auteur ; à défaut, vous vous engagez à ne pas les
    invoquer d'une manière qui ferait obstacle à la licence ci-dessus. En
@@ -235,7 +235,7 @@ acceptez que :
 6. Ces conditions s'appliquent à l'identique, que vous soyez ou non membre de
    l'équipe ou de l'organisation qui héberge le dépôt. L'appartenance, le statut
    de mainteneur et l'accès en écriture au dépôt ne donnent aucun droit sur
-   Arcadia Creative Guard ni le pouvoir d'autoriser ce que la LICENSE réserve à
+   Arcadia Creative Admin ni le pouvoir d'autoriser ce que la LICENSE réserve à
    THEFricadelle (§1).
 
 ## Ce que vous obtenez en retour
@@ -247,7 +247,7 @@ La Section 5.3 de la LICENSE accorde deux choses à tout contributeur :
   souhaitez un autre nom ou pseudonyme, aucune adresse de contact, ou aucune
   mention du tout.
 - **La permission modpack**, confirmée explicitement : une fois votre PR
-  terminée, vous pouvez diffuser Arcadia Creative Guard dans un modpack que vous
+  terminée, vous pouvez diffuser Arcadia Creative Admin dans un modpack que vous
   publiez — en référençant un canal officiel, fichier officiel non modifié,
   mentions préservées. Avoir forké le dépôt ne vous en prive jamais.
 
@@ -310,7 +310,7 @@ refusez.
   de log en **anglais**.
 - **Nommage** : types en `PascalCase`, membres et méthodes en `camelCase`,
   constantes en `UPPER_SNAKE_CASE`, et méthodes d'injection de mixin préfixées
-  `arcadiacreativeguard$`.
+  `arcadiacreativeadmin$`.
 - **Commentaires** : minimalistes et en anglais — expliquez le *pourquoi*, pas
   le *quoi*.
 - **En-têtes SPDX** : conservez l'en-tête existant sur chaque fichier source.
@@ -333,12 +333,12 @@ Incluez au minimum :
   uniquement.
 - La partie pertinente de `latest.log` ou du rapport de crash, en texte plutôt
   qu'en capture d'écran.
-- Le profil de `arcadia-creative-guard-policy.json` en vigueur, expurgé de tout
+- Le profil de `arcadia-creative-admin-policy.json` en vigueur, expurgé de tout
   élément privé.
 - Ce que vous avez fait, ce que vous attendiez, et ce qui s'est produit — en
   précisant si l'objet a été refusé, autorisé, ou est réapparu après une
   reconnexion.
-- La sortie de `/creativeguard check` sur l'objet concerné, lorsque le rapport
+- La sortie de `/creativeadmin check` sur l'objet concerné, lorsque le rapport
   porte sur une règle qui correspond ou ne correspond pas.
 
 ## Contact
@@ -347,6 +347,6 @@ Pour toute demande de redistribution, d'autorisation modpack au-delà de ce que
 la LICENSE permet déjà, d'offre d'hébergement commercial, ou tout autre point non
 couvert ici, ouvrez une issue sur le dépôt officiel :
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Guard/issues
+  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
 
 **Author: THEFricadelle**

@@ -1,4 +1,4 @@
-# Arcadia Creative Guard
+# Arcadia Creative Admin
 
 [![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-blue.svg)](LICENSE)
 
@@ -52,9 +52,9 @@ Two component guards apply to items that are otherwise allowed, both off by defa
 
 Two files under `config/arcadia/`:
 
-- `arcadia-creative-guard-policy.json` — profiles and settings. Written by hand, **never rewritten
+- `arcadia-creative-admin-policy.json` — profiles and settings. Written by hand, **never rewritten
   by the mod**, so comments and formatting survive. A disabled sample is generated on first start.
-- `arcadia-creative-guard-assignments.json` — which player is on which profile. Written by the
+- `arcadia-creative-admin-assignments.json` — which player is on which profile. Written by the
   commands; not meant to be edited by hand.
 
 ```json
@@ -86,12 +86,12 @@ All gated at op level 3.
 
 | Command | Effect |
 | --- | --- |
-| `/creativeguard status` | Whether enforcement is on, which profiles exist, the bypass level |
-| `/creativeguard reload` | Re-read both files and re-index tab contents, without a restart |
-| `/creativeguard tabs` | List the creative tab ids a `tabs` rule can name |
-| `/creativeguard check [profile]` | Evaluate the held item, and print the rule that refused it |
-| `/creativeguard profile <players> <profile>` | Assign |
-| `/creativeguard profile <players> clear` | Back to the default profile |
+| `/creativeadmin status` | Whether enforcement is on, which profiles exist, the bypass level |
+| `/creativeadmin reload` | Re-read both files and re-index tab contents, without a restart |
+| `/creativeadmin tabs` | List the creative tab ids a `tabs` rule can name |
+| `/creativeadmin check [profile]` | Evaluate the held item, and print the rule that refused it |
+| `/creativeadmin profile <players> <profile>` | Assign |
+| `/creativeadmin profile <players> clear` | Back to the default profile |
 
 `check` and `tabs` exist because a whitelist is only as good as the operator's ability to predict it.
 Probe a rule before an event rather than discovering during it that a tab matched more than intended.
@@ -121,7 +121,7 @@ ordered.
 
 ---
 
-# Arcadia Creative Guard (français)
+# Arcadia Creative Admin (français)
 
 Restrictions créatives appliquées côté serveur. Définissez des profils nommés listant exactement ce
 que les joueurs peuvent prendre en créatif, pour organiser des events de construction sans distribuer
@@ -177,10 +177,10 @@ défaut :
 
 Deux fichiers dans `config/arcadia/` :
 
-- `arcadia-creative-guard-policy.json` — profils et réglages. Écrit à la main, **jamais réécrit par
+- `arcadia-creative-admin-policy.json` — profils et réglages. Écrit à la main, **jamais réécrit par
   le mod**, pour que commentaires et mise en forme survivent. Un exemple désactivé est généré au
   premier démarrage.
-- `arcadia-creative-guard-assignments.json` — quel joueur sur quel profil. Écrit par les commandes,
+- `arcadia-creative-admin-assignments.json` — quel joueur sur quel profil. Écrit par les commandes,
   pas destiné à l'édition manuelle.
 
 Les joueurs au-dessus de `bypass_op_level` ne sont pas restreints. Ceux sans affectation retombent
@@ -192,12 +192,12 @@ Toutes réservées au niveau d'op 3.
 
 | Commande | Effet |
 | --- | --- |
-| `/creativeguard status` | Application activée ou non, profils existants, niveau de contournement |
-| `/creativeguard reload` | Relit les deux fichiers et réindexe les onglets, sans redémarrage |
-| `/creativeguard tabs` | Liste les identifiants d'onglets qu'une règle `tabs` peut nommer |
-| `/creativeguard check [profil]` | Évalue l'objet en main et affiche la règle qui l'a refusé |
-| `/creativeguard profile <joueurs> <profil>` | Affecte |
-| `/creativeguard profile <joueurs> clear` | Retour au profil par défaut |
+| `/creativeadmin status` | Application activée ou non, profils existants, niveau de contournement |
+| `/creativeadmin reload` | Relit les deux fichiers et réindexe les onglets, sans redémarrage |
+| `/creativeadmin tabs` | Liste les identifiants d'onglets qu'une règle `tabs` peut nommer |
+| `/creativeadmin check [profil]` | Évalue l'objet en main et affiche la règle qui l'a refusé |
+| `/creativeadmin profile <joueurs> <profil>` | Affecte |
+| `/creativeadmin profile <joueurs> clear` | Retour au profil par défaut |
 
 ## Ce que ce mod ne couvre pas
 

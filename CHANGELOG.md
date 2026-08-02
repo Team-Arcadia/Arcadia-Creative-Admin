@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Arcadia Creative Guard are documented here.
+All notable changes to Arcadia Creative Admin are documented here.
 
 ---
 

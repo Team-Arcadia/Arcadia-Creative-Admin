@@ -1,0 +1,20 @@
+{
+  "arcadiacreativeadmin.prefix": "[Creative Admin] ",
+
+  "arcadiacreativeadmin.deny.not_whitelisted": "%s is not allowed by the profile \"%s\".",
+  "arcadiacreativeadmin.deny.explicit": "%s is explicitly blocked on this server.",
+  "arcadiacreativeadmin.deny.unregistered": "That item is not registered and cannot be taken.",
+  "arcadiacreativeadmin.deny.block_entity_data": "%s carries block entity data, which is not allowed here.",
+  "arcadiacreativeadmin.deny.container_contents": "%s is not empty, and taking filled containers is not allowed here.",
+  "arcadiacreativeadmin.deny.container_depth": "%s nests containers too deeply to be checked.",
+  "arcadiacreativeadmin.deny.internal_error": "The creative policy could not be evaluated; the action was refused.",
+
+  "arcadiacreativeadmin.command.reloaded": "Policy reloaded: %s profile(s), enforced=%s.",
+  "arcadiacreativeadmin.command.status": "Enforced: %s | Profiles: %s | Bypass at op level %s.",
+  "arcadiacreativeadmin.command.tabs": "%s creative tabs indexed: %s",
+  "arcadiacreativeadmin.command.unknown_profile": "No profile named \"%s\".",
+  "arcadiacreativeadmin.command.assigned": "Assigned %s player(s) to profile \"%s\".",
+  "arcadiacreativeadmin.command.cleared": "Cleared the profile of %s player(s).",
+  "arcadiacreativeadmin.command.check_allowed": "%s is allowed under \"%s\".",
+  "arcadiacreativeadmin.command.check_denied": "%s is refused under \"%s\": %s"
+}

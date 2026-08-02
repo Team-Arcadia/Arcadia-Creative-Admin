@@ -1,19 +1,19 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.mixin.client;
+package net.thefricadelle.arcadiacreativeadmin.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.neoforge.common.CreativeModeTabRegistry;
-import net.thefricadelle.arcadiacreativeguard.core.ReceivedTabPolicy;
+import net.thefricadelle.arcadiacreativeadmin.core.ReceivedTabPolicy;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -44,7 +44,7 @@ public abstract class CreativeModeInventoryScreenMixin {
                             + "getSortedCreativeModeTabs()Ljava/util/List;"
             )
     )
-    private List<CreativeModeTab> arcadiacreativeguard$hideForbiddenTabs(List<CreativeModeTab> original) {
+    private List<CreativeModeTab> arcadiacreativeadmin$hideForbiddenTabs(List<CreativeModeTab> original) {
         try {
             if (!ReceivedTabPolicy.enforced()) {
                 return original;

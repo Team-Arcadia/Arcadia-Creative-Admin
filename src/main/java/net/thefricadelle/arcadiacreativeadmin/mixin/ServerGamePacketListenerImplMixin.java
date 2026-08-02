@@ -1,20 +1,20 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.mixin;
+package net.thefricadelle.arcadiacreativeadmin.mixin;
 
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.thefricadelle.arcadiacreativeguard.policy.CreativeProfile;
-import net.thefricadelle.arcadiacreativeguard.policy.Decision;
-import net.thefricadelle.arcadiacreativeguard.policy.PolicyEnforcer;
+import net.thefricadelle.arcadiacreativeadmin.policy.CreativeProfile;
+import net.thefricadelle.arcadiacreativeadmin.policy.Decision;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyEnforcer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -55,7 +55,7 @@ public abstract class ServerGamePacketListenerImplMixin {
             ),
             cancellable = true
     )
-    private void arcadiacreativeguard$enforcePolicy(ServerboundSetCreativeModeSlotPacket packet, CallbackInfo ci) {
+    private void arcadiacreativeadmin$enforcePolicy(ServerboundSetCreativeModeSlotPacket packet, CallbackInfo ci) {
         try {
             CreativeProfile profile = PolicyEnforcer.profileFor(this.player);
             if (profile == null) {

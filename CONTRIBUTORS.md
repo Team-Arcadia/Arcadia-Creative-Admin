@@ -1,6 +1,6 @@
 # Contributors
 
-Arcadia Creative Guard is authored and maintained by **THEFricadelle**, who
+Arcadia Creative Admin is authored and maintained by **THEFricadelle**, who
 holds the copyright in the Mod as a whole and is its sole maintainer.
 
 The people below have contributed code, fixes, or documentation to the project.
@@ -22,7 +22,7 @@ Under Section 5.3 of the [LICENSE](LICENSE):
   contribution will ever be misattributed to someone else. This credit is not
   withdrawn if the license is later terminated for any reason.
 - **Modpack permission.** Once your pull request has concluded, you may include
-  Arcadia Creative Guard in a modpack you publish, on the same terms as everyone
+  Arcadia Creative Admin in a modpack you publish, on the same terms as everyone
   else (§3(b)): the pack must reference an Official Channel so the file is
   fetched from that channel at install time, the unmodified Official Build must
   be used, and the notices must be preserved. **Having forked the repository
@@ -58,13 +58,13 @@ Contributions merged into the official repository are added here at the
 maintainer's discretion. If you contributed and are missing from this list, or
 you would prefer a different name, handle, or no contact address, open an issue:
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Guard/issues
+  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
 
 ---
 
 # Contributeurs (Version Française)
 
-Arcadia Creative Guard est écrit et maintenu par **THEFricadelle**, qui détient
+Arcadia Creative Admin est écrit et maintenu par **THEFricadelle**, qui détient
 le copyright sur le mod dans son ensemble et en est le seul mainteneur.
 
 Les personnes ci-dessous ont contribué du code, des correctifs ou de la
@@ -87,7 +87,7 @@ Au titre de la Section 5.3 de la [LICENSE](LICENSE) :
   retiré si la licence est ultérieurement résiliée, pour quelque motif que ce
   soit.
 - **La permission modpack.** Une fois votre pull request terminée, vous pouvez
-  inclure Arcadia Creative Guard dans un modpack que vous publiez, aux mêmes
+  inclure Arcadia Creative Admin dans un modpack que vous publiez, aux mêmes
   conditions que tout le monde (§3(b)) : le pack doit référencer un canal
   officiel pour que le fichier soit récupéré depuis ce canal à l'installation,
   le build officiel non modifié doit être utilisé, et les mentions doivent être
@@ -124,4 +124,4 @@ discrétion du mainteneur. Si vous avez contribué et n'apparaissez pas dans cet
 liste, ou si vous préférez un autre nom, pseudonyme ou aucune adresse de
 contact, ouvrez une issue :
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Guard/issues
+  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues

@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8.5",
-  "package": "net.thefricadelle.arcadiacreativeguard.mixin",
+  "package": "net.thefricadelle.arcadiacreativeadmin.mixin",
   "compatibilityLevel": "JAVA_21",
-  "refmap": "arcadia-creative-guard.refmap.json",
+  "refmap": "arcadia-creative-admin.refmap.json",
   "mixins": [
     "ServerGamePacketListenerImplMixin"
   ],

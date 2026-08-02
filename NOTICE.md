@@ -1,9 +1,9 @@
-# NOTICE — Arcadia Creative Guard
+# NOTICE — Arcadia Creative Admin
 
 **Copyright (C) 2026 THEFricadelle. All rights reserved.**
-SPDX-License-Identifier: `LicenseRef-Arcadia-Creative-Guard-ARR`
+SPDX-License-Identifier: `LicenseRef-Arcadia-Creative-Admin-ARR`
 
-Arcadia Creative Guard is **source-available proprietary software**. The source
+Arcadia Creative Admin is **source-available proprietary software**. The source
 code is public, but the project is **not open-source**. Reading the code grants
 you no right to reuse it.
 
@@ -23,7 +23,7 @@ This file is a plain-language summary for convenience. The binding terms are in
 | Be credited for a merged contribution | ✅ Yes — [CONTRIBUTORS.md](CONTRIBUTORS.md), §5.3(a) |
 | Include it in a CurseForge / Modrinth modpack that **references** the official unmodified file | ✅ Yes, no need to ask |
 | Send the official file to players joining **your own** server (launcher / host auto-sync) | ✅ Yes — see §2.2 |
-| Mention it factually: "my pack includes Arcadia Creative Guard", tutorials, reviews | ✅ Yes |
+| Mention it factually: "my pack includes Arcadia Creative Admin", tutorials, reviews | ✅ Yes |
 | Bundle the .jar in an exported / offline modpack | ❌ Written permission required |
 | Offer it as a "one-click install" product in a hosting panel catalogue | ❌ Written permission required |
 | Re-upload or mirror it anywhere (mod-hosting sites, modpack platforms, forums, Discord, file lockers) | ❌ No |
@@ -47,7 +47,7 @@ a kill switch over the ecosystem. See §2.3 of the LICENSE.
 
 ## Why source-available and not open-source
 
-Arcadia Creative Guard is an enforcement component: it decides what a player in
+Arcadia Creative Admin is an enforcement component: it decides what a player in
 creative mode is allowed to make appear on a server. An operator who installs it
 is trusting it with a security boundary, and that trust should be verifiable
 rather than assumed. The source is public so that server owners can audit what
@@ -61,7 +61,7 @@ distribution and derivative works. Visibility is not a license.
 
 ## Ownership and maintenance
 
-Arcadia Creative Guard is maintained by Team-Arcadia. Copyright in the mod is
+Arcadia Creative Admin is maintained by Team-Arcadia. Copyright in the mod is
 held by **THEFricadelle** alone, who is the only party able to grant, withhold,
 or withdraw any permission under the LICENSE.
 
@@ -74,7 +74,7 @@ contributors, on the same terms as anyone else (§5.2). See §1 of the
 
 ## Third-party components
 
-Arcadia Creative Guard builds against, but does not include or redistribute, the
+Arcadia Creative Admin builds against, but does not include or redistribute, the
 following:
 
 | Component | Role | Licensing |
@@ -83,7 +83,7 @@ following:
 | NeoForge (21.1.0 or newer) | Mod loader, event bus, network channel registration | LGPL-2.1, installed separately by the user |
 | SpongePowered Mixin and MixinExtras | Bytecode injection used by the two mixins | Supplied by NeoForge at runtime, not shipped here |
 
-No third-party code is bundled into the Arcadia Creative Guard jar. Every
+No third-party code is bundled into the Arcadia Creative Admin jar. Every
 component above is a compile-time or runtime dependency resolved on the user's
 side: the jar contains only this project's own classes, resources, and the
 LICENSE.
@@ -93,7 +93,7 @@ LICENSE.
 Anything marked ❌ above can still be granted case by case. Ask — the answer is
 often yes for reasonable requests. Open an issue on the official repository:
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Guard/issues
+  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
 
 Permission must be **written** to be valid. Silence is not consent: no reply, or
 no objection to a use, never counts as permission. A permission granted in one
@@ -103,12 +103,12 @@ case applies to that case only.
 
 ---
 
-# NOTICE — Arcadia Creative Guard (Version Française)
+# NOTICE — Arcadia Creative Admin (Version Française)
 
 **Copyright (C) 2026 THEFricadelle. Tous droits réservés.**
-SPDX-License-Identifier: `LicenseRef-Arcadia-Creative-Guard-ARR`
+SPDX-License-Identifier: `LicenseRef-Arcadia-Creative-Admin-ARR`
 
-Arcadia Creative Guard est un **logiciel propriétaire à source visible**. Le code
+Arcadia Creative Admin est un **logiciel propriétaire à source visible**. Le code
 source est public, mais le projet n'est **pas open-source**. Lire le code ne vous
 donne aucun droit de le réutiliser.
 
@@ -129,7 +129,7 @@ LICENSE prévaut.
 | Être crédité pour une contribution fusionnée | ✅ Oui — [CONTRIBUTORS.md](CONTRIBUTORS.md), §5.3(a) |
 | L'inclure dans un modpack CurseForge / Modrinth qui **référence** le fichier officiel non modifié | ✅ Oui, sans demander |
 | Transmettre le fichier officiel aux joueurs rejoignant **votre propre** serveur (auto-sync launcher / hébergeur) | ✅ Oui — voir §2.2 |
-| Le mentionner factuellement : « mon pack inclut Arcadia Creative Guard », tutoriels, tests | ✅ Oui |
+| Le mentionner factuellement : « mon pack inclut Arcadia Creative Admin », tutoriels, tests | ✅ Oui |
 | Empaqueter le .jar dans un modpack exporté / hors-ligne | ❌ Autorisation écrite requise |
 | Le proposer en « installation en un clic » dans le catalogue d'un hébergeur | ❌ Autorisation écrite requise |
 | Le ré-uploader ou le mirrorer ailleurs (sites d'hébergement de mods, plateformes de modpacks, forums, Discord, hébergeurs de fichiers) | ❌ Non |
@@ -154,7 +154,7 @@ contre l'abus, pas un interrupteur sur l'écosystème. Voir §2.3 de la LICENSE.
 
 ## Pourquoi source visible et pas open-source
 
-Arcadia Creative Guard est un composant d'application de règles : il décide ce
+Arcadia Creative Admin est un composant d'application de règles : il décide ce
 qu'un joueur en créatif a le droit de faire apparaître sur un serveur. Un
 opérateur qui l'installe lui confie une frontière de sécurité, et cette confiance
 devrait pouvoir se vérifier plutôt que se supposer. Le code est public pour que
@@ -169,7 +169,7 @@ distribution et des œuvres dérivées. La visibilité n'est pas une licence.
 
 ## Propriété et maintenance
 
-Arcadia Creative Guard est maintenu par Team-Arcadia. Les droits d'auteur sur le
+Arcadia Creative Admin est maintenu par Team-Arcadia. Les droits d'auteur sur le
 mod sont détenus par **THEFricadelle** seul, unique partie en mesure d'accorder,
 de refuser ou de retirer une autorisation au titre de la LICENSE.
 
@@ -182,7 +182,7 @@ qui d'autre (§5.2). Voir §1 de la [LICENSE](LICENSE).
 
 ## Composants tiers
 
-Arcadia Creative Guard compile contre les composants suivants, sans les inclure
+Arcadia Creative Admin compile contre les composants suivants, sans les inclure
 ni les redistribuer :
 
 | Composant | Rôle | Licence |
@@ -191,7 +191,7 @@ ni les redistribuer :
 | NeoForge (21.1.0 ou plus récent) | Chargeur de mods, bus d'événements, enregistrement du canal réseau | LGPL-2.1, installé séparément par l'utilisateur |
 | SpongePowered Mixin et MixinExtras | Injection bytecode utilisée par les deux mixins | Fournis par NeoForge à l'exécution, non embarqués ici |
 
-Aucun code tiers n'est embarqué dans le jar d'Arcadia Creative Guard. Chaque
+Aucun code tiers n'est embarqué dans le jar d'Arcadia Creative Admin. Chaque
 composant ci-dessus est une dépendance de compilation ou d'exécution résolue du
 côté de l'utilisateur : le jar ne contient que les classes et ressources propres
 au projet, ainsi que la LICENSE.
@@ -202,7 +202,7 @@ Tout ce qui est marqué ❌ ci-dessus peut malgré tout être accordé au cas pa
 Demandez — la réponse est souvent oui pour les demandes raisonnables. Ouvrez une
 issue sur le dépôt officiel :
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Guard/issues
+  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
 
 L'autorisation doit être **écrite** pour être valable. Le silence ne vaut pas
 accord : l'absence de réponse, ou l'absence d'objection à un usage, ne constitue

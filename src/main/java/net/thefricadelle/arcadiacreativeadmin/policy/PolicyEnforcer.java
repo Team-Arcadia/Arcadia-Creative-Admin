@@ -1,13 +1,13 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.policy;
+package net.thefricadelle.arcadiacreativeadmin.policy;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
@@ -64,7 +64,7 @@ public final class PolicyEnforcer {
         if (decision.reason() != null && shouldSpeak(player)) {
             player.displayClientMessage(
                     Component.empty()
-                            .append(Component.translatable("arcadiacreativeguard.prefix")
+                            .append(Component.translatable("arcadiacreativeadmin.prefix")
                                     .withStyle(ChatFormatting.GOLD))
                             .append(decision.reason().copy().withStyle(ChatFormatting.GRAY)),
                     true);
@@ -78,7 +78,7 @@ public final class PolicyEnforcer {
             player.inventoryMenu.sendAllDataToRemote();
             if (shouldSpeak(player)) {
                 player.displayClientMessage(
-                        Component.translatable("arcadiacreativeguard.deny.internal_error")
+                        Component.translatable("arcadiacreativeadmin.deny.internal_error")
                                 .withStyle(ChatFormatting.RED),
                         true);
             }

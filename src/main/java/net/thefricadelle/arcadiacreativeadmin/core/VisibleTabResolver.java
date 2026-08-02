@@ -1,19 +1,19 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.core;
+package net.thefricadelle.arcadiacreativeadmin.core;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.thefricadelle.arcadiacreativeguard.policy.CreativeProfile;
-import net.thefricadelle.arcadiacreativeguard.policy.PolicyEvaluator;
+import net.thefricadelle.arcadiacreativeadmin.policy.CreativeProfile;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyEvaluator;
 
 import java.util.LinkedHashSet;
 import java.util.Map;

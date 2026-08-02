@@ -1,13 +1,13 @@
 /*
- * Arcadia Creative Guard - Copyright (C) 2026 THEFricadelle. All rights reserved.
- * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Guard-ARR
+ * Arcadia Creative Admin - Copyright (C) 2026 THEFricadelle. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
  *
  * Proprietary, source-available software. Public visibility of this source
  * grants no right to copy, reuse, redistribute, or create derivative works.
  * See LICENSE and CONTRIBUTING.md at the repository root.
  */
 
-package net.thefricadelle.arcadiacreativeguard.policy;
+package net.thefricadelle.arcadiacreativeadmin.policy;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -57,8 +57,8 @@ public final class PolicyManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final Path DIR = FMLPaths.CONFIGDIR.get().resolve("arcadia");
-    private static final Path POLICY_FILE = DIR.resolve("arcadia-creative-guard-policy.json");
-    private static final Path ASSIGNMENTS_FILE = DIR.resolve("arcadia-creative-guard-assignments.json");
+    private static final Path POLICY_FILE = DIR.resolve("arcadia-creative-admin-policy.json");
+    private static final Path ASSIGNMENTS_FILE = DIR.resolve("arcadia-creative-admin-assignments.json");
 
     /** Level 4 is the console owner; the default leaves full creative to server owners only. */
     private static final int DEFAULT_BYPASS_OP_LEVEL = 4;
