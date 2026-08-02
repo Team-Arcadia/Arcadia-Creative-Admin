@@ -73,6 +73,10 @@ tasks.withType(JavaCompile).configureEach {
 // Ship the licensing terms inside the jar. The license states that each release
 // is governed by the version distributed with it, so it has to actually be in
 // the file — a downloaded jar must be able to state its own terms offline.
+// CONTRIBUTORS.md ships too: §5.3(a) promises credit in the file "distributed
+// with it", which only holds if the file is actually there.
 tasks.named('jar', Jar).configure {
     from(file('LICENSE')) { into 'META-INF' }
+    from(file('NOTICE.md')) { into 'META-INF' }
+    from(file('CONTRIBUTORS.md')) { into 'META-INF' }
 }
