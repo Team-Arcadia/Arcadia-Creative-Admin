@@ -105,6 +105,14 @@ Probe a rule before an event rather than discovering during it that a tab matche
 - **Lag built from allowed blocks.** A whitelist of harmless items still allows a redstone clock.
 - **`/give`.** Vanilla gates it at op level 2; this mod does not touch it.
 
+## Companion mod
+
+**Arcadia Better Creative** sorts, pins and hides creative tabs, client-side. The two are separate
+jars with no dependency between them, in either direction, and neither needs the other to work. They
+are built to run together: this mod decides which tabs are worth showing for a given profile, Better
+Creative arranges what is left. Installed side by side, the tab bar ends up both filtered and
+ordered.
+
 ## Requirements
 
 - Minecraft 1.21.1
@@ -200,6 +208,14 @@ Toutes réservées au niveau d'op 3.
 - **Le lag construit avec des blocs autorisés.** Une liste blanche d'objets inoffensifs autorise
   quand même une horloge redstone.
 - **`/give`.** Le vanilla le filtre au niveau d'op 2 ; ce mod n'y touche pas.
+
+## Mod compagnon
+
+**Arcadia Better Creative** trie, épingle et masque les onglets créatifs, côté client. Les deux sont
+des jars distincts, sans dépendance de l'un vers l'autre ni dans l'autre sens, et aucun n'a besoin de
+l'autre pour fonctionner. Ils sont conçus pour tourner ensemble : ce mod décide quels onglets valent
+la peine d'être affichés pour un profil donné, Better Creative organise ce qu'il reste. Installés
+côte à côte, la barre d'onglets se retrouve à la fois filtrée et ordonnée.
 
 ## Prérequis
 
