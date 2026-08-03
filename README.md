@@ -119,6 +119,15 @@ ordered.
 - [NeoForge](https://neoforged.net/) 21.1.241 or newer
 - Installed on the **server**. Installing it on clients too is optional and only improves display.
 
+## Credits
+
+Authored and maintained by **THEFricadelle**. Contributions are credited in
+[CONTRIBUTORS.md](CONTRIBUTORS.md); see [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull
+request.
+
+Released under [All Rights Reserved](LICENSE). Third-party notices are listed in
+[NOTICE.md](NOTICE.md).
+
 ---
 
 # Arcadia Creative Admin (français)
@@ -223,3 +232,12 @@ côte à côte, la barre d'onglets se retrouve à la fois filtrée et ordonnée.
 - [NeoForge](https://neoforged.net/) 21.1.241 ou plus récent
 - Installé sur le **serveur**. L'installer aussi sur les clients est facultatif et n'améliore que
   l'affichage.
+
+## Crédits
+
+Écrit et maintenu par **THEFricadelle**. Les contributions sont créditées dans
+[CONTRIBUTORS.md](CONTRIBUTORS.md) ; voir [CONTRIBUTING.md](CONTRIBUTING.md) avant d'ouvrir une pull
+request.
+
+Publié sous [All Rights Reserved](LICENSE). Les mentions tierces sont listées dans
+[NOTICE.md](NOTICE.md).
