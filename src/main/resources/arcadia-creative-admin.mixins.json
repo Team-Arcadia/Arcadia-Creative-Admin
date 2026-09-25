@@ -3,7 +3,6 @@
   "minVersion": "0.8.5",
   "package": "net.thefricadelle.arcadiacreativeadmin.mixin",
   "compatibilityLevel": "JAVA_21",
-  "refmap": "arcadia-creative-admin.refmap.json",
   "mixins": [
     "ServerGamePacketListenerImplMixin"
   ],

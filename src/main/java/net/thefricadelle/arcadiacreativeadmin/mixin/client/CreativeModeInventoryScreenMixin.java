@@ -42,7 +42,11 @@ public abstract class CreativeModeInventoryScreenMixin {
                     value = "INVOKE",
                     target = "Lnet/neoforged/neoforge/common/CreativeModeTabRegistry;"
                             + "getSortedCreativeModeTabs()Ljava/util/List;"
-            )
+            ),
+            // The global defaultRequire is right for the enforcement hooks and wrong here: if a
+            // NeoForge update moves this call, losing the filter is the acceptable outcome, a
+            // client that crashes when opening its inventory is not.
+            require = 0
     )
     private List<CreativeModeTab> arcadiacreativeadmin$hideForbiddenTabs(List<CreativeModeTab> original) {
         try {
@@ -58,7 +62,8 @@ public abstract class CreativeModeInventoryScreenMixin {
                     kept.add(tab);
                 }
             }
-            // CreativeModeInventoryScreen.init() dereferences element 0 without checking.
+            // A filter that leaves nothing would present an empty tab bar; showing everything is
+            // the lesser evil, since the server refuses what is not allowed anyway.
             return kept.isEmpty() ? original : kept;
         } catch (Exception e) {
             // Display filtering is never worth breaking the inventory over.
