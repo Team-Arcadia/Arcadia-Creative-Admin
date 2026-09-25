@@ -51,6 +51,12 @@ public final class PolicyNetwork {
      * something that changes the answer happens: a reload, or an assignment.
      */
     public static void sendTo(ServerPlayer player) {
+        // Registering the channel as optional only lets such a client join. Sending on a channel
+        // the client never negotiated still throws, and from the login event that would take the
+        // connection down with it.
+        if (player.connection == null || !player.connection.hasChannel(TabPolicyPayload.TYPE)) {
+            return;
+        }
         CreativeProfile profile = PolicyManager.profileFor(player);
         if (profile == null) {
             PacketDistributor.sendToPlayer(player, TabPolicyPayload.none());
