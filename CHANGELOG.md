@@ -18,10 +18,20 @@ All notable changes to Arcadia Creative Admin are documented here.
   by creative tab, in any combination, and closes back down with `denied_items` and
   `denied_namespaces` that always win. Allowing the redstone tab and then denying the command block
   is the intended shape; expanding a tab into hundreds of ids is not.
-- **Component guards** — `allow_block_entity_data` and `allow_container_contents`, both off by
-  default. An allowed item id can otherwise carry a command block through `block_entity_data`, or
-  wrap a stack of forbidden items in a shulker box. Container contents are evaluated recursively
-  against the same profile, with a nesting limit.
+- **Component guards** — Data components are checked on an allowlist. A stack passes when it is
+  exactly one the creative menu offers, or when every component it carries is one ordinary play
+  produces (name, lore, damage, dye, map data, banner patterns, fireworks, a plain signed book).
+  Anything else, such as `entity_data` on a spawn egg or an item frame, `container_loot` on a chest
+  or `attribute_modifiers`, is refused unless listed in the new `allowed_components` field.
+  `allow_block_entity_data` and `allow_container_contents` stay off by default; container contents
+  are evaluated recursively against the same profile, with a nesting limit.
+- **Checks on the final stack** — Creative slot writes and drops are judged after vanilla has
+  rewritten the stack, so block entity data pointing at a chest in the world cannot bring that
+  chest's contents along. Middle-click cloning in open containers is checked too.
+- **Fail-closed loading** — An unreadable policy or assignment file, an out-of-range
+  `bypass_op_level`, a non-boolean flag, a rule written as a string, or a policy file removed before
+  a reload all deny creative items to restricted players. Assignments are written atomically, and
+  `/creativeadmin reload` reports rule entries that match nothing.
 - **Per-player assignment with op bypass** — Profiles are assigned by command and stored by player
   id; unassigned players fall back to `default_profile`, and players at or above `bypass_op_level`
   are unrestricted.
@@ -29,8 +39,9 @@ All notable changes to Arcadia Creative Admin are documented here.
   `tabs` exist so a broad rule can be probed before an event rather than during it.
 - **Advisory tab filtering on the client** — When the client also has the mod, the server sends the
   list of tabs worth displaying, so players browse a clean inventory instead of one where most clicks
-  are rejected. The channel is registered as optional, so a vanilla client can still connect, and the
-  server-side refusal holds regardless of what the client does with the advice.
+  are rejected. The advice is only sent to clients that negotiated its channel, so a vanilla client
+  connects normally, and the server-side refusal holds regardless of what the client does with it.
+  The advice follows reloads, datapack reloads and op level changes.
 
 ### Ajouts (French mirror)
 
@@ -45,10 +56,23 @@ All notable changes to Arcadia Creative Admin are documented here.
   avec `denied_items` et `denied_namespaces` qui l'emportent toujours. Autoriser l'onglet redstone
   puis refuser le bloc de commande est la forme prévue ; développer un onglet en des centaines
   d'identifiants ne l'est pas.
-- **Gardes sur les composants** — `allow_block_entity_data` et `allow_container_contents`, toutes
-  deux désactivées par défaut. Un identifiant autorisé peut sinon transporter un bloc de commande via
-  `block_entity_data`, ou envelopper une pile d'objets interdits dans une shulker. Le contenu des
-  conteneurs est évalué récursivement contre le même profil, avec une limite d'imbrication.
+- **Gardes sur les composants** — Les composants de données sont contrôlés par liste blanche. Une
+  pile passe si elle est exactement une de celles que propose le menu créatif, ou si chaque composant
+  qu'elle porte est de ceux que produit le jeu normal (nom, description, usure, teinture, données de
+  carte, motifs de bannière, feux d'artifice, livre signé en texte simple). Tout le reste, comme
+  `entity_data` sur un œuf d'apparition ou un cadre, `container_loot` sur un coffre ou
+  `attribute_modifiers`, est refusé sauf s'il figure dans le nouveau champ `allowed_components`.
+  `allow_block_entity_data` et `allow_container_contents` restent désactivés par défaut ; le contenu
+  des conteneurs est évalué récursivement contre le même profil, avec une limite d'imbrication.
+- **Contrôle de la pile finale** — Les écritures de slot et les lâchers en créatif sont jugés après
+  que le vanilla a réécrit la pile, si bien que des données de bloc pointant vers un coffre du monde
+  ne peuvent plus en ramener le contenu. Le clonage au clic-molette dans un conteneur ouvert est
+  aussi contrôlé.
+- **Chargement fermé par défaut** — Un fichier de politique ou d'affectations illisible, un
+  `bypass_op_level` hors limites, un drapeau non booléen, une règle écrite comme une chaîne ou un
+  fichier de politique supprimé avant un rechargement refusent tous les objets créatifs aux joueurs
+  restreints. Les affectations sont écrites de façon atomique, et `/creativeadmin reload` signale les
+  entrées de règle qui ne correspondent à rien.
 - **Affectation par joueur et contournement op** — Les profils sont affectés par commande et stockés
   par identifiant de joueur ; les joueurs non affectés retombent sur `default_profile`, et ceux au
   niveau `bypass_op_level` ou au-dessus ne sont pas restreints.
@@ -56,6 +80,7 @@ All notable changes to Arcadia Creative Admin are documented here.
   `tabs` existent pour qu'une règle large puisse être vérifiée avant un event plutôt que pendant.
 - **Filtrage indicatif des onglets côté client** — Quand le client a lui aussi le mod, le serveur
   envoie la liste des onglets qui valent la peine d'être affichés, pour que les joueurs parcourent un
-  inventaire propre plutôt qu'un inventaire où la plupart des clics sont rejetés. Le canal est
-  enregistré comme optionnel, donc un client vanilla peut se connecter, et le refus côté serveur tient
-  quoi que le client fasse de cette indication.
+  inventaire propre plutôt qu'un inventaire où la plupart des clics sont rejetés. L'indication n'est
+  envoyée qu'aux clients qui ont négocié son canal, donc un client vanilla se connecte normalement,
+  et le refus côté serveur tient quoi que le client en fasse. Elle suit les rechargements, les
+  rechargements de datapacks et les changements de niveau d'op.

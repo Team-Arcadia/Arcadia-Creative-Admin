@@ -47,6 +47,14 @@ jars with no build or runtime dependency between them. They coexist by chaining 
   what the player's own creative screen displays. Guard it with `server.isDedicatedServer()`.
 - **Never evaluate only the outer stack.** A whitelist that stops before container components is one
   shulker box away from being no whitelist at all.
+- **Never judge components with a denylist.** `ComponentRules` lists what is harmless; everything
+  else needs a creative menu variant or `allowed_components`. A denylist is one modded component
+  away from being open again.
+- **Never check a creative stack before vanilla is done with it.** `handleSetCreativeModeSlot`
+  rewrites `block_entity_data` carrying `x/y/z` into the world's block entity, contents included.
+  The hooks wrap `setByPlayer` and `drop`, not the handler entry.
+- **Never send a payload without `connection.hasChannel`.** An optional registration lets a vanilla
+  client join; sending it an unnegotiated payload still throws.
 - **Never let the policy file be rewritten by the mod.** It is hand-authored. Assignments go in the
   separate file.
 - **Never reference a client-only class from code loaded on a dedicated server** — in particular from
@@ -65,9 +73,11 @@ Arcadia-Creative-Admin/
 └── src/main/
     ├── java/net/thefricadelle/arcadiacreativeadmin/
     │   ├── ArcadiaCreativeAdmin.java             Entry point, server + command + login events
+    │   ├── PolicyLifecycle.java                  Reload order: policy, tab index, client advice
     │   ├── policy/
     │   │   ├── CreativeProfile.java              One named strict whitelist
-    │   │   ├── PolicyEvaluator.java              Pure function: (profile, stack) -> Decision
+    │   │   ├── PolicyEvaluator.java              (profile, stack) -> Decision, no other state
+    │   │   ├── ComponentRules.java               Components every profile accepts
     │   │   ├── Decision.java                     Verdict plus the reason shown to the player
     │   │   ├── PolicyManager.java                Files, profiles, assignments, op bypass
     │   │   └── PolicyEnforcer.java               Refusal side effects: resync, feedback, throttle
@@ -81,12 +91,13 @@ Arcadia-Creative-Admin/
     │   │   └── PolicyNetwork.java                Optional channel registration and sending
     │   ├── client/ClientEvents.java              Drops received advice on disconnect
     │   └── mixin/
-    │       ├── ServerGamePacketListenerImplMixin.java   The enforcement hook
+    │       ├── ServerGamePacketListenerImplMixin.java   The enforcement hooks
     │       └── client/CreativeModeInventoryScreenMixin.java  Display filter, priority 1300
     └── resources/
         ├── META-INF/neoforge.mods.toml
         ├── arcadia-creative-admin.mixins.json
         └── assets/arcadiacreativeadmin/lang/{en_us,fr_fr}.json
+src/gametest/                     GameTests, never shipped in the jar
 ```
 
 ## 5. Adding a New Rule Shape (Step by Step)
@@ -104,9 +115,12 @@ Arcadia-Creative-Admin/
 ## 6. Testing Checklist
 
 - [ ] `./gradlew build` succeeds.
+- [ ] `./gradlew runGameTestServer` reports every required test passed.
 - [ ] Bytecode target check: `javap -c` on the compiled `ServerGamePacketListenerImpl` still shows
-      `PacketUtils.ensureRunningOnSameThread` exactly once inside `handleSetCreativeModeSlot`, with
-      the `(Packet, PacketListener, ServerLevel)` descriptor. Compilation does **not** validate this.
+      `Slot.setByPlayer(ItemStack)` and `ServerPlayer.drop(ItemStack, boolean)` exactly once inside
+      `handleSetCreativeModeSlot`, after `BlockEntity.saveToItem`, and
+      `AbstractContainerMenu.clicked(int, int, ClickType, Player)` exactly once inside
+      `handleContainerClick`. Compilation does **not** validate this.
 - [ ] Same check for `CreativeModeTabRegistry.getSortedCreativeModeTabs` inside
       `CreativeModeInventoryScreen.init`.
 - [ ] `./gradlew runServer` reaches "Done" with no `InvalidInjectionException` in the log.
@@ -118,6 +132,9 @@ Arcadia-Creative-Admin/
 - [ ] A filled shulker box is refused with `allow_container_contents: false`, and its **contents**
       are what gets refused when the flag is on and they are not whitelisted.
 - [ ] An item carrying `block_entity_data` is refused while the same item without it is allowed.
+- [ ] A spawn egg or item frame carrying `entity_data` is refused; a renamed allowed item is not.
+- [ ] Middle-click in an open chest does not clone a forbidden stack for a restricted player.
+- [ ] Deleting the policy file then running `/creativeadmin reload` denies everything.
 - [ ] A `tabs` rule matches on a **dedicated** server, where tab contents are not built by default.
 - [ ] On an integrated server (singleplayer), the player's own creative screen is unchanged when the
       policy is off — no forced tab rebuild.
