@@ -39,6 +39,9 @@ import java.util.Set;
  *                              this is off by default even for allowed items
  * @param allowContainerContents whether a stack may carry a non-empty container or bundle; when on,
  *                              the contents are themselves evaluated against this profile
+ * @param allowedComponents     data component ids a stack may carry on top of the harmless set
+ *                              every profile accepts; everything else is refused unless the stack
+ *                              is exactly one the creative menu offers
  *
  * @author THEFricadelle
  */
@@ -51,7 +54,8 @@ public record CreativeProfile(
         Set<ResourceLocation> deniedItems,
         Set<String> deniedNamespaces,
         boolean allowBlockEntityData,
-        boolean allowContainerContents) {
+        boolean allowContainerContents,
+        Set<ResourceLocation> allowedComponents) {
 
     public CreativeProfile {
         items = Set.copyOf(items);
@@ -60,6 +64,7 @@ public record CreativeProfile(
         tabs = Set.copyOf(tabs);
         deniedItems = Set.copyOf(deniedItems);
         deniedNamespaces = Set.copyOf(deniedNamespaces);
+        allowedComponents = Set.copyOf(allowedComponents);
     }
 
     /**
@@ -69,11 +74,6 @@ public record CreativeProfile(
      */
     public static CreativeProfile denyAll(String name) {
         return new CreativeProfile(name, Set.of(), Set.of(), Set.of(), Set.of(), Set.of(), Set.of(),
-                false, false);
-    }
-
-    /** True when no rule opens anything, meaning the profile can only ever refuse. */
-    public boolean allowsNothing() {
-        return items.isEmpty() && namespaces.isEmpty() && tags.isEmpty() && tabs.isEmpty();
+                false, false, Set.of());
     }
 }

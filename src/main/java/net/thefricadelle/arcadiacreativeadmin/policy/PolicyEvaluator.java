@@ -9,6 +9,8 @@
 
 package net.thefricadelle.arcadiacreativeadmin.policy;
 
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -18,11 +20,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
 
+import java.util.Map;
+import java.util.Optional;
+
 /**
- * Decides whether a stack may be taken under a profile. Pure function of (profile, stack), so it can
- * be reasoned about and unit-tested without a running server.
+ * Decides whether a stack may be taken under a profile. A function of (profile, stack) and of the
+ * server's registries and tab index, with no other state, so it can be exercised by GameTests.
  * <p>
  * Evaluation order is deliberate: denials are checked before allowances, because a broad allowance
  * exists precisely so it can be trimmed, and a rule that could be overridden by a wider one would
@@ -90,13 +96,46 @@ public final class PolicyEvaluator {
 
     /**
      * Guards the payload an allowed item can carry. A chest is a normal building block; a chest
-     * holding a stack of bedrock, or a sign carrying block entity data, is the same item id with a
-     * completely different effect on a server.
+     * holding a stack of bedrock, a spawn egg carrying another entity or a sword carrying attribute
+     * modifiers is the same item id with a completely different effect on a server.
+     * <p>
+     * Every component the stack carries beyond its item's defaults has to be accounted for. A stack
+     * that is exactly one the creative menu offers (a potion, a painting variant, an enchanted
+     * book) passes as a whole; otherwise each component must be harmless or named by the profile.
+     * Block entity data and contents keep their own dedicated flags whatever else applies.
      */
     private static Decision evaluateComponents(CreativeProfile profile, ItemStack stack,
                                                ResourceLocation id, int depth) {
-        if (!profile.allowBlockEntityData() && stack.has(DataComponents.BLOCK_ENTITY_DATA)) {
-            return Decision.deny("arcadiacreativeadmin.deny.block_entity_data", id.toString());
+        DataComponentPatch patch = stack.getComponentsPatch();
+        if (patch.isEmpty()) {
+            return Decision.allow();
+        }
+        boolean creativeVariant = TabItemIndex.isCreativeVariant(stack);
+
+        for (Map.Entry<DataComponentType<?>, Optional<?>> entry : patch.entrySet()) {
+            DataComponentType<?> type = entry.getKey();
+            if (type == DataComponents.BLOCK_ENTITY_DATA) {
+                if (!profile.allowBlockEntityData()) {
+                    return Decision.deny("arcadiacreativeadmin.deny.block_entity_data", id.toString());
+                }
+                continue;
+            }
+            if (type == DataComponents.CONTAINER || type == DataComponents.BUNDLE_CONTENTS) {
+                // Judged below on what they hold; an empty container is an ordinary block.
+                continue;
+            }
+            if (creativeVariant) {
+                continue;
+            }
+            ResourceLocation componentId = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(type);
+            if (componentId != null && profile.allowedComponents().contains(componentId)) {
+                continue;
+            }
+            if (entry.getValue().isPresent() && isHarmless(type, entry.getValue().get())) {
+                continue;
+            }
+            return Decision.deny("arcadiacreativeadmin.deny.component", id.toString(),
+                    componentId == null ? "?" : componentId.toString());
         }
 
         ItemContainerContents container = stack.get(DataComponents.CONTAINER);
@@ -133,5 +172,13 @@ public final class PolicyEvaluator {
             }
         }
         return Decision.allow();
+    }
+
+    /** A removed default component is never harmless: nothing in ordinary play strips one. */
+    private static boolean isHarmless(DataComponentType<?> type, Object value) {
+        if (type == DataComponents.WRITTEN_BOOK_CONTENT) {
+            return ComponentRules.isHarmlessBook((WrittenBookContent) value);
+        }
+        return ComponentRules.isHarmless(type);
     }
 }

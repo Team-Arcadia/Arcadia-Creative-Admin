@@ -13,10 +13,11 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.thefricadelle.arcadiacreativeadmin.PolicyLifecycle;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,7 +28,7 @@ import java.util.UUID;
  * <p>
  * Kept out of the mixin on purpose. Mixin classes are transformed into someone else's class and are
  * awkward to change without re-verifying the injection, so they should hold the hook and nothing
- * else.
+ * else. Every entry point here fails closed: an exception refuses the action.
  *
  * @author THEFricadelle
  */
@@ -45,22 +46,69 @@ public final class PolicyEnforcer {
 
     private PolicyEnforcer() {}
 
-    @Nullable
-    public static CreativeProfile profileFor(ServerPlayer player) {
-        return PolicyManager.profileFor(player);
+    /**
+     * Whether a creative slot write or drop may go through. Called with the stack as it is about to
+     * land, after vanilla has finished rewriting it.
+     */
+    public static boolean permitCreative(ServerPlayer player, ItemStack stack) {
+        try {
+            Decision decision = decide(player, stack);
+            if (decision.allowed()) {
+                return true;
+            }
+            refuse(player, player.inventoryMenu, decision);
+            return false;
+        } catch (Exception e) {
+            // An enforcement component must not be disabled by its own bug. Refuse and log: a
+            // creative action lost to a defect is recoverable, a silently open whitelist is not.
+            reportFailure(player, player.inventoryMenu, e);
+            return false;
+        }
     }
 
-    public static Decision evaluate(CreativeProfile profile, ItemStack stack) {
+    /**
+     * Whether a middle-click clone in an open container may go through. In creative this copies a
+     * full stack of whatever the slot holds, components included, without ever sending a creative
+     * slot packet, so an item placed in the world before an event could otherwise be multiplied at
+     * will.
+     */
+    public static boolean permitClone(ServerPlayer player, AbstractContainerMenu menu, int slotId) {
+        try {
+            if (!player.hasInfiniteMaterials() || slotId < 0 || !menu.isValidSlotIndex(slotId)) {
+                return true;
+            }
+            ItemStack source = menu.getSlot(slotId).getItem();
+            if (source.isEmpty()) {
+                return true;
+            }
+            Decision decision = decide(player, source);
+            if (decision.allowed()) {
+                return true;
+            }
+            refuse(player, menu, decision);
+            return false;
+        } catch (Exception e) {
+            reportFailure(player, menu, e);
+            return false;
+        }
+    }
+
+    private static Decision decide(ServerPlayer player, ItemStack stack) {
+        CreativeProfile profile = PolicyManager.profileFor(player);
+        if (profile == null) {
+            return Decision.allow();
+        }
+        PolicyLifecycle.refreshTabIndexIfStale(player.server);
         return PolicyEvaluator.evaluate(profile, stack);
     }
 
     /**
-     * Cancelling the packet leaves the client believing it holds the item, because it applied the
-     * change locally before sending. Re-sending the real inventory is what makes the refusal visible
+     * Refusing leaves the client believing the action happened, because it applied the change
+     * locally before sending. Re-sending the real menu state is what makes the refusal visible
      * instead of producing a ghost item that vanishes on the next reload.
      */
-    public static void refuse(ServerPlayer player, ItemStack refused, Decision decision) {
-        player.inventoryMenu.sendAllDataToRemote();
+    private static void refuse(ServerPlayer player, AbstractContainerMenu menu, Decision decision) {
+        menu.sendAllDataToRemote();
         if (decision.reason() != null && shouldSpeak(player)) {
             player.displayClientMessage(
                     Component.empty()
@@ -72,10 +120,10 @@ public final class PolicyEnforcer {
     }
 
     /** Refusal caused by a defect rather than by a rule; the player still needs their client fixed. */
-    public static void reportFailure(ServerPlayer player, Exception cause) {
+    private static void reportFailure(ServerPlayer player, AbstractContainerMenu menu, Exception cause) {
         LOGGER.error("Creative policy evaluation failed; the action was refused", cause);
         try {
-            player.inventoryMenu.sendAllDataToRemote();
+            menu.sendAllDataToRemote();
             if (shouldSpeak(player)) {
                 player.displayClientMessage(
                         Component.translatable("arcadiacreativeadmin.deny.internal_error")
@@ -83,7 +131,7 @@ public final class PolicyEnforcer {
                         true);
             }
         } catch (Exception ignored) {
-            // Nothing useful is left to do; the packet is already cancelled, which is what matters.
+            // Nothing useful is left to do; the action is already refused, which is what matters.
         }
     }
 

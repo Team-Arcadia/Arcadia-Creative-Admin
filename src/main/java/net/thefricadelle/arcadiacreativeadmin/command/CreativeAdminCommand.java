@@ -24,8 +24,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.thefricadelle.arcadiacreativeadmin.PolicyLifecycle;
 import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
-import net.thefricadelle.arcadiacreativeadmin.core.VisibleTabResolver;
 import net.thefricadelle.arcadiacreativeadmin.network.PolicyNetwork;
 import net.thefricadelle.arcadiacreativeadmin.policy.CreativeProfile;
 import net.thefricadelle.arcadiacreativeadmin.policy.Decision;
@@ -77,15 +77,18 @@ public final class CreativeAdminCommand {
     }
 
     private static int reload(CommandContext<CommandSourceStack> context) {
-        PolicyManager.load();
-        TabItemIndex.build(context.getSource().getServer());
-        VisibleTabResolver.invalidate();
-        // Every connected client is holding advice derived from the policy that just changed.
-        PolicyNetwork.sendToAll(context.getSource().getServer().getPlayerList().getPlayers());
-        context.getSource().sendSuccess(() -> Component.translatable(
+        CommandSourceStack source = context.getSource();
+        int unmatched = PolicyLifecycle.reload(source.getServer(), false);
+        source.sendSuccess(() -> Component.translatable(
                 "arcadiacreativeadmin.command.reloaded",
                 PolicyManager.profileNames().size(),
                 String.valueOf(PolicyManager.enforced())), true);
+        if (unmatched > 0) {
+            source.sendFailure(Component.translatable("arcadiacreativeadmin.command.rules_unmatched", unmatched));
+        }
+        if (!PolicyManager.assignmentsWritable()) {
+            source.sendFailure(Component.translatable("arcadiacreativeadmin.command.assignments_broken"));
+        }
         return 1;
     }
 
@@ -96,12 +99,17 @@ public final class CreativeAdminCommand {
                 PolicyManager.profileNames().isEmpty()
                         ? "-"
                         : String.join(", ", PolicyManager.profileNames()),
+                PolicyManager.defaultProfile().isEmpty() ? "-" : PolicyManager.defaultProfile(),
                 PolicyManager.bypassOpLevel()), false);
+        if (!PolicyManager.assignmentsWritable()) {
+            source.sendFailure(Component.translatable("arcadiacreativeadmin.command.assignments_broken"));
+        }
         return 1;
     }
 
     /** Lists what a {@code tabs} rule can name, since the ids are not discoverable in game. */
     private static int tabs(CommandContext<CommandSourceStack> context) {
+        PolicyLifecycle.refreshTabIndexIfStale(context.getSource().getServer());
         String listed = TabItemIndex.indexedTabs().stream()
                 .map(ResourceLocation::toString)
                 .sorted()
@@ -126,6 +134,7 @@ public final class CreativeAdminCommand {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
         ItemStack held = player.getMainHandItem();
+        PolicyLifecycle.refreshTabIndexIfStale(source.getServer());
 
         String name = profileName != null ? profileName : PolicyManager.assignedProfile(player.getUUID());
         CreativeProfile profile = name.isEmpty() ? null : PolicyManager.profile(name);
@@ -148,36 +157,55 @@ public final class CreativeAdminCommand {
 
     private static int setProfile(CommandContext<CommandSourceStack> context)
             throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
         String profile = StringArgumentType.getString(context, "profile");
         if (!PolicyManager.hasProfile(profile)) {
-            context.getSource().sendFailure(Component.translatable(
+            source.sendFailure(Component.translatable(
                     "arcadiacreativeadmin.command.unknown_profile", profile));
             return 0;
         }
+        if (!PolicyManager.assignmentsWritable()) {
+            source.sendFailure(Component.translatable("arcadiacreativeadmin.command.assignments_broken"));
+            return 0;
+        }
         int count = 0;
+        boolean saved = true;
         for (ServerPlayer target : EntityArgument.getPlayers(context, "targets")) {
-            PolicyManager.assign(target.getUUID(), profile);
+            saved &= PolicyManager.assign(target.getUUID(), profile);
             PolicyNetwork.sendTo(target);
             count++;
         }
         final int assigned = count;
-        context.getSource().sendSuccess(() -> Component.translatable(
+        source.sendSuccess(() -> Component.translatable(
                 "arcadiacreativeadmin.command.assigned", assigned, profile), true);
+        if (!saved) {
+            source.sendFailure(Component.translatable("arcadiacreativeadmin.command.save_failed"));
+        }
         return count;
     }
 
     private static int clearProfile(CommandContext<CommandSourceStack> context)
             throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        if (!PolicyManager.assignmentsWritable()) {
+            source.sendFailure(Component.translatable("arcadiacreativeadmin.command.assignments_broken"));
+            return 0;
+        }
         int count = 0;
+        boolean saved = true;
         for (ServerPlayer target : EntityArgument.getPlayers(context, "targets")) {
-            if (PolicyManager.clearAssignment(target.getUUID())) {
+            if (PolicyManager.isAssigned(target.getUUID())) {
+                saved &= PolicyManager.clearAssignment(target.getUUID());
                 PolicyNetwork.sendTo(target);
                 count++;
             }
         }
         final int cleared = count;
-        context.getSource().sendSuccess(() -> Component.translatable(
+        source.sendSuccess(() -> Component.translatable(
                 "arcadiacreativeadmin.command.cleared", cleared), true);
+        if (!saved) {
+            source.sendFailure(Component.translatable("arcadiacreativeadmin.command.save_failed"));
+        }
         return count;
     }
 }

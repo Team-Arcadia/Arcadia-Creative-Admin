@@ -9,19 +9,20 @@
 
 package net.thefricadelle.arcadiacreativeadmin;
 
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PermissionsChangedEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.thefricadelle.arcadiacreativeadmin.command.CreativeAdminCommand;
-import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
-import net.thefricadelle.arcadiacreativeadmin.core.VisibleTabResolver;
 import net.thefricadelle.arcadiacreativeadmin.network.PolicyNetwork;
 import net.thefricadelle.arcadiacreativeadmin.policy.PolicyEnforcer;
-import net.thefricadelle.arcadiacreativeadmin.policy.PolicyManager;
 
 /**
  * Entry point.
@@ -53,9 +54,15 @@ public final class ArcadiaCreativeAdmin {
          */
         @SubscribeEvent
         public static void onServerStarted(ServerStartedEvent event) {
-            PolicyManager.load();
-            TabItemIndex.build(event.getServer());
-            VisibleTabResolver.invalidate();
+            PolicyLifecycle.reload(event.getServer(), true);
+        }
+
+        /** Fired for {@code /reload} with no player, and per player on login, which is covered below. */
+        @SubscribeEvent
+        public static void onDatapackSync(OnDatapackSyncEvent event) {
+            if (event.getPlayer() == null) {
+                PolicyLifecycle.onDataReloaded(event.getPlayerList().getServer());
+            }
         }
 
         @SubscribeEvent
@@ -67,6 +74,23 @@ public final class ArcadiaCreativeAdmin {
         public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
             if (event.getEntity() instanceof ServerPlayer player) {
                 PolicyNetwork.sendTo(player);
+            }
+        }
+
+        /**
+         * An op or deop can move a player across the bypass level. The event fires before the new
+         * level is stored, so the advice is sent on the next tick, once it is; {@code execute}
+         * would run it immediately when already on the server thread.
+         */
+        @SubscribeEvent
+        public static void onPermissionsChanged(PermissionsChangedEvent event) {
+            if (event.getEntity() instanceof ServerPlayer player) {
+                MinecraftServer server = player.server;
+                server.tell(new TickTask(server.getTickCount(), () -> {
+                    if (!player.hasDisconnected()) {
+                        PolicyNetwork.sendTo(player);
+                    }
+                }));
             }
         }
 
