@@ -15,8 +15,18 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
+// GameTests live in their own source set so they never ship in the release jar.
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
 neoForge {
     version = project.neo_version
+
+    addModdingDependenciesTo sourceSets.gametest
 
     runs {
         client {
@@ -30,11 +40,20 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
+        // Runs every GameTest of the mod headless and exits non-zero on a failure.
+        gameTestServer {
+            type = 'gameTestServer'
+            sourceSet = sourceSets.gametest
+            // The tests rewrite the policy file; keep them away from the config the dev runs use.
+            gameDirectory = project.file('run/gametest')
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
     }
 
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
+            sourceSet sourceSets.gametest
         }
     }
 }
