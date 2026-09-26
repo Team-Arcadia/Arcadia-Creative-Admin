@@ -25,8 +25,11 @@ visually aligned; a change to one is a change to propose for the other.
 
 ## 2. Git Workflow
 
-- `main` — released, working state only.
-- `feat/<name>` — new features. `fix/<name>` — bug fixes.
+- `dev` — where all work lands, features and fixes alike. No feature or fix branches.
+- `main` — released, working state only. Reached by merging `dev` at release time.
+- Pushes are grouped: commit each change as usual, push `dev` once enough commits have accumulated
+  (10 small ones, or 5 substantial ones), when a remote-dependent step needs it, or at the end of a
+  session. Never push after every commit.
 - Commit convention: `type: short imperative message` (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`).
 - **Never** add co-author trailers or any AI/tool attribution to a commit.
 - Version bumps happen **only** on explicit request.
@@ -128,7 +131,7 @@ Arcadia-Creative-Admin/
 
 ## 5. Adding a New Rule Shape (Step by Step)
 
-1. `git checkout -b feat/<name>`.
+1. Work on `dev`.
 2. Add the field to `CreativeProfile`: the record is the contract.
 3. Read and write it in `PolicyCodec` (and add the key to `PROFILE_KEYS`), then in `NetCodecs`.
    Malformed entries are dropped and logged; a malformed structure refuses the file.
