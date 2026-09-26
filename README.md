@@ -2,72 +2,75 @@
 
 [![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-blue.svg)](LICENSE)
 
-Server-enforced creative restrictions. Define named profiles listing exactly what players may take in
-creative mode, and let staff run building events without handing out the items that break a server.
+Lock creative tabs and items, per group of players, from an in-game admin screen. Staff run building
+events without handing out the items that break a server, and players browse a creative inventory
+where locked pages and items are simply not there.
 
 Enforcement is server-side and does not depend on the client. A player who removes their mods, edits
 their config, or joins with a vanilla client is subject to the same rules.
 
-## How it works
+## The admin screen
 
-Every item a player in creative mode makes appear travels through one packet,
-`ServerboundSetCreativeModeSlotPacket`. The mod validates that packet against the player's profile
-and refuses what no rule allows. The creative inventory, middle-click pick-block and any client-side
-item browser all end up on that path. The check runs on the stack as it is about to land, after
-vanilla has finished rewriting it. Middle-click cloning inside an open container, the other way
-creative mode copies items, is checked the same way.
+Open it with `/creativeadmin`, or with the flag button above the creative inventory, shown to admins
+only. The screen needs this mod on the admin's client; players do not need it.
 
-When the client also has the mod installed, the server additionally tells it which creative tabs are
-worth displaying, so players browse a clean inventory instead of one where most clicks are rejected.
-That part is advisory: the client may ignore it, and the refusal still holds.
+- **Profiles.** Create, duplicate and delete them. Each has a **mode**:
+  - **Whitelist**: everything is locked except what you open.
+  - **Blacklist**: everything is open except what you lock.
+- **Tabs and items.** Pick a tab, then lock or open the whole page, or click single items in the
+  grid. A search box looks through every item. The grid shows the final result of every rule of the
+  profile, so what it shows locked is what players find locked.
+- **Mods, tags, components.** Optional, for broader rules: whole mods, item tags, and which data
+  components an item may carry.
+- **Server settings.** Restrictions on or off, the default profile, and the op level from which
+  players are never restricted.
+- **Players.** Assign a profile to a player, or leave them to their group or the default.
 
-## Profiles
+Changes are kept locally until you press **Save**. If another admin saved in the meantime, your save
+is refused rather than overwriting theirs.
 
-A profile is a **strict whitelist** — anything no rule allows is refused. Four rule shapes open it
-up, and they combine:
+## Who is restricted
 
-| Field | Opens | Example |
-| --- | --- | --- |
-| `items` | single items | `"minecraft:torch"` |
-| `namespaces` | every item of a mod | `"create"` |
-| `tags` | every member of an item tag | `"#minecraft:beds"` |
-| `tabs` | every item of a creative tab | `"minecraft:building_blocks"` |
+For each player, first match wins:
 
-Two fields close it back down, and always win over the four above:
+1. The **bypass**: permission `arcadiacreativeadmin.bypass`, or op level at or above the configured
+   level when no permission mod is installed. Never restricted.
+2. A profile **assigned** to that player in the admin screen or with `/creativeadmin profile`.
+3. A profile given by the player's **group**, through the permission `arcadiacreativeadmin.profile`
+   set as meta. Works with LuckPerms and CustomPerm, or any mod implementing NeoForge's permission
+   API:
+   ```
+   /lp group builders meta set arcadiacreativeadmin.profile event
+   ```
+4. The **default profile**. If there is none, the player is not restricted.
 
-| Field | Refuses |
-| --- | --- |
-| `denied_items` | single items |
-| `denied_namespaces` | every item of a mod |
+The admin screen and the commands require `arcadiacreativeadmin.admin`, or op level 3 without a
+permission mod.
 
-This is what makes a broad rule usable: allow the redstone tab, then deny the command block, rather
-than expanding a tab into hundreds of item ids.
+## What is and is not restricted
 
-An allowed item id can still carry a payload in its data components: a spawn egg or an item frame
-holding another item, a chest with a loot table, a stick with attribute modifiers. Components are
-therefore checked on an allowlist. A stack passes when it is exactly one the creative menu offers
-(a potion, a painting variant, an enchanted book), or when every component it carries beyond its
-defaults is one ordinary play produces: a custom name, lore, damage, dye, map data, banner patterns,
-fireworks, a player head, armor trims, and a signed book in plain text. Anything else is refused
-unless the profile opens it:
+The mod locks what **creative mode hands out**. It never touches what players already own: an item a
+player carries can be moved, split and dropped in the creative inventory even if their profile locks
+it. Only a creation is checked, and a stack cannot be duplicated by moving it.
 
-| Field | Opens | Default |
-| --- | --- | --- |
-| `allowed_components` | the listed component ids, for example `"minecraft:enchantments"` | `[]` |
-| `allow_block_entity_data` | `minecraft:block_entity_data`, which can hold a command block, a spawner or a sign payload | `false` |
-| `allow_container_contents` | filled containers and bundles; the contents are evaluated against the same profile, recursively | `false` |
+Checked:
+- every item taken from the creative menu, from search, from saved hotbars, by middle-click
+  pick-block, or from any client-side item browser;
+- middle-click cloning inside an open container, since it copies a stack.
 
-Modded items that pick up components of their own during play (a filled backpack, a configured
-tool) are refused until their component ids are listed in `allowed_components`.
+An open item id can still carry a payload in its data components: a spawn egg or an item frame
+holding another item, a chest with a loot table, a stick with attribute modifiers. A stack passes
+when it is exactly one the creative menu offers (a potion, a painting variant, an enchanted book), or
+when every component it carries is one ordinary play produces: a name, lore, damage, dye, map data,
+banner patterns, fireworks, a player head, armor trims, a signed book in plain text. Anything else
+needs the component to be listed in the profile. Two dedicated switches, both off by default, allow
+block entity data and filled containers; container contents follow the same profile.
 
-## Configuration
+## Configuration file
 
-Two files under `config/arcadia/`:
-
-- `arcadia-creative-admin-policy.json` — profiles and settings. Written by hand, **never rewritten
-  by the mod**, so comments and formatting survive. A disabled sample is generated on first start.
-- `arcadia-creative-admin-assignments.json` — which player is on which profile. Written by the
-  commands; not meant to be edited by hand.
+`config/arcadia/arcadia-creative-admin-policy.json` is managed by the admin screen. It can still be
+edited by hand and applied with `/creativeadmin reload`, but formatting is rewritten on the next save
+from the screen.
 
 ```json
 {
@@ -76,12 +79,12 @@ Two files under `config/arcadia/`:
   "bypass_op_level": 4,
   "profiles": {
     "event": {
+      "mode": "whitelist",
       "tabs": ["minecraft:building_blocks", "minecraft:colored_blocks"],
       "namespaces": [],
       "tags": ["#minecraft:beds"],
       "items": ["minecraft:torch"],
-      "denied_items": ["minecraft:command_block"],
-      "denied_namespaces": [],
+      "exceptions": ["minecraft:tnt"],
       "allow_block_entity_data": false,
       "allow_container_contents": false,
       "allowed_components": []
@@ -90,59 +93,57 @@ Two files under `config/arcadia/`:
 }
 ```
 
-Players at or above `bypass_op_level` (1 to 4) are not restricted at all. Players with no assignment
-fall back to `default_profile`. A profile cannot be named `clear`, which the `profile` command
-reserves.
+`tabs`, `namespaces`, `tags` and `items` form the selection, whose meaning depends on `mode`.
+`exceptions` take single items out of what the tabs, mods and tags select. An item listed in `items`
+is selected whatever else says. Every field except `mode` is optional.
 
-The mod fails closed. A policy file that cannot be parsed, an out-of-range `bypass_op_level`, a flag
-that is not `true` or `false`, a rule written as a string instead of a list, a policy file removed
-before a reload, or an assignment file that cannot be read: each of these refuses creative items to
-every restricted player until it is fixed and reloaded, and the log says why. Only a policy file
-that does not exist when the server starts is treated as a fresh install: a disabled sample is
-written and nothing is enforced. `/creativeadmin reload` also reports rule entries that match
-nothing on the server, since a mistyped `denied_items` entry closes nothing.
+Player assignments live in `arcadia-creative-admin-assignments.json`, written by the screen and the
+commands.
+
+The mod fails closed. An unreadable or malformed file, an unknown key, a flag that is not `true` or
+`false`, a rule written as a string instead of a list, or a policy file removed before a reload: each
+refuses creative items to every restricted player until it is fixed and reloaded, and the log says
+why. The admin screen is read-only meanwhile, so it cannot overwrite the file you need to repair.
+Only a policy file that does not exist when the server starts is a fresh install: a disabled sample
+is written and nothing is enforced.
 
 ## Commands
 
-All gated at op level 3.
+All require `arcadiacreativeadmin.admin`. Every subcommand works from the console and from a vanilla
+client.
 
 | Command | Effect |
 | --- | --- |
-| `/creativeadmin status` | Whether enforcement is on, which profiles exist, the bypass level |
-| `/creativeadmin reload` | Re-read both files and re-index tab contents, without a restart |
-| `/creativeadmin tabs` | List the creative tab ids a `tabs` rule can name |
+| `/creativeadmin` | Open the admin screen |
+| `/creativeadmin status` | Whether enforcement is on, profiles, default profile, bypass level |
+| `/creativeadmin reload` | Re-read both files and re-index tab contents; reports rule entries that match nothing |
+| `/creativeadmin tabs` | List the creative tab ids a rule can name |
 | `/creativeadmin check [profile]` | Evaluate the held item, and print the rule that refused it |
 | `/creativeadmin profile <players> <profile>` | Assign |
-| `/creativeadmin profile <players> clear` | Back to the default profile |
+| `/creativeadmin profile <players> clear` | Remove the assignment |
 
-`check` and `tabs` exist because a whitelist is only as good as the operator's ability to predict it.
-Probe a rule before an event rather than discovering during it that a tab matched more than intended.
+## Not covered
 
-## What this does not cover
-
-- **Items already in the world.** The policy governs what creative mode creates, not what a player
-  picks up from a chest placed before the event.
-- **Operator blocks.** Command, structure and jigsaw blocks are gated by vanilla at op level 2 and
-  by `allowCommands`. Check those separately.
-- **Lag built from allowed blocks.** A whitelist of harmless items still allows a redstone clock.
+- **Items already in the world** or already owned. See above: that is deliberate.
+- **Operator blocks.** Command, structure and jigsaw blocks are gated by vanilla at op level 2 and by
+  `allowCommands`. Check those separately.
+- **Lag built from open blocks.** A profile of harmless items still allows a redstone clock.
 - **`/give`.** Vanilla gates it at op level 2; this mod does not touch it.
-- **Refused stacks moved inside the creative inventory.** The creative protocol sends a move as a
-  removal followed by a creation. When the profile refuses the stack, the creation is refused and
-  the stack is lost. This only affects items the profile would not hand out in the first place.
 
 ## Companion mod
 
 **Arcadia Better Creative** sorts, pins and hides creative tabs, client-side. The two are separate
-jars with no dependency between them, in either direction, and neither needs the other to work. They
-are built to run together: this mod decides which tabs are worth showing for a given profile, Better
-Creative arranges what is left. Installed side by side, the tab bar ends up both filtered and
-ordered.
+jars with no dependency between them, in either direction, and neither needs the other to work.
+Installed together, the tab bar is both filtered and ordered, and a tab the server locks is also left
+out of Better Creative's settings screen, so a player cannot switch it back on. This needs a Better
+Creative version with the server tab policy API; older versions still get the tab bar filtered.
 
 ## Requirements
 
 - Minecraft 1.21.1
 - [NeoForge](https://neoforged.net/) 21.1.241 or newer
-- Installed on the **server**. Installing it on clients too is optional and only improves display.
+- On the **server**. On clients it is optional for players, and required for admins who use the
+  screen.
 - Singleplayer and LAN work, but tab rules only match once the host has opened the creative
   inventory, since that is when the game builds tab contents on an integrated server. Until then
   they match nothing, which refuses rather than allows.
@@ -160,133 +161,137 @@ Released under [All Rights Reserved](LICENSE). Third-party notices are listed in
 
 # Arcadia Creative Admin (français)
 
-Restrictions créatives appliquées côté serveur. Définissez des profils nommés listant exactement ce
-que les joueurs peuvent prendre en créatif, pour organiser des events de construction sans distribuer
-les objets qui cassent un serveur.
+Verrouillez des onglets et des objets créatifs, par groupe de joueurs, depuis une interface
+d'administration en jeu. L'équipe organise des events de construction sans distribuer les objets qui
+cassent un serveur, et les joueurs parcourent un inventaire créatif où les pages et objets verrouillés
+ne sont tout simplement pas là.
 
 L'application est côté serveur et ne dépend pas du client. Un joueur qui retire ses mods, modifie sa
 configuration ou se connecte avec un client vanilla est soumis aux mêmes règles.
 
-## Fonctionnement
+## L'interface d'administration
 
-Tout objet qu'un joueur en créatif fait apparaître passe par un seul paquet,
-`ServerboundSetCreativeModeSlotPacket`. Le mod valide ce paquet contre le profil du joueur et refuse
-ce qu'aucune règle n'autorise. L'inventaire créatif, le clic-molette et n'importe quel navigateur
-d'objets côté client aboutissent sur ce chemin. Le contrôle porte sur la pile telle qu'elle va être
-posée, après que le vanilla a fini de la réécrire. Le clonage au clic-molette dans un conteneur
-ouvert, l'autre façon dont le créatif copie des objets, est contrôlé de la même manière.
+Elle s'ouvre avec `/creativeadmin`, ou avec le bouton drapeau au-dessus de l'inventaire créatif,
+visible des seuls admins. L'interface nécessite ce mod sur le client de l'admin ; les joueurs n'en ont
+pas besoin.
 
-Quand le client a lui aussi le mod, le serveur lui indique en plus quels onglets créatifs valent la
-peine d'être affichés, pour que les joueurs parcourent un inventaire propre plutôt qu'un inventaire
-où la plupart des clics sont rejetés. Cette partie est indicative : le client peut l'ignorer, le
-refus tient quand même.
+- **Profils.** Création, duplication, suppression. Chacun a un **mode** :
+  - **Liste blanche** : tout est verrouillé sauf ce que vous ouvrez.
+  - **Liste noire** : tout est ouvert sauf ce que vous verrouillez.
+- **Onglets et objets.** Choisissez un onglet, puis verrouillez ou ouvrez la page entière, ou cliquez
+  sur des objets de la grille. Une recherche parcourt tous les objets. La grille montre le résultat
+  final de toutes les règles du profil : ce qu'elle montre verrouillé, les joueurs le trouvent
+  verrouillé.
+- **Mods, tags, composants.** Facultatif, pour des règles plus larges : mods entiers, tags d'objets,
+  et composants de données qu'un objet peut porter.
+- **Réglages du serveur.** Restrictions actives ou non, profil par défaut, et niveau d'op à partir
+  duquel un joueur n'est jamais restreint.
+- **Joueurs.** Affectez un profil à un joueur, ou laissez son grade ou le profil par défaut décider.
 
-## Profils
+Les modifications restent locales jusqu'à **Enregistrer**. Si un autre admin a enregistré entre-temps,
+votre enregistrement est refusé au lieu d'écraser le sien.
 
-Un profil est une **liste blanche stricte** : tout ce qu'aucune règle n'autorise est refusé. Quatre
-formes de règle l'ouvrent, et elles se combinent :
+## Qui est restreint
 
-| Champ | Ouvre | Exemple |
-| --- | --- | --- |
-| `items` | des objets précis | `"minecraft:torch"` |
-| `namespaces` | tous les objets d'un mod | `"create"` |
-| `tags` | tous les membres d'un tag d'objet | `"#minecraft:beds"` |
-| `tabs` | tous les objets d'un onglet créatif | `"minecraft:building_blocks"` |
+Pour chaque joueur, la première règle qui s'applique l'emporte :
 
-Deux champs la referment, et l'emportent toujours sur les quatre précédents :
+1. Le **contournement** : permission `arcadiacreativeadmin.bypass`, ou niveau d'op supérieur ou égal
+   au niveau réglé sans mod de permissions. Jamais restreint.
+2. Un profil **affecté** à ce joueur dans l'interface ou avec `/creativeadmin profile`.
+3. Un profil donné par le **grade** du joueur, via la permission `arcadiacreativeadmin.profile`
+   définie en meta. Fonctionne avec LuckPerms et CustomPerm, ou tout mod qui implémente l'API de
+   permissions de NeoForge :
+   ```
+   /lp group builders meta set arcadiacreativeadmin.profile event
+   ```
+4. Le **profil par défaut**. S'il n'y en a pas, le joueur n'est pas restreint.
 
-| Champ | Refuse |
-| --- | --- |
-| `denied_items` | des objets précis |
-| `denied_namespaces` | tous les objets d'un mod |
+L'interface et les commandes demandent `arcadiacreativeadmin.admin`, ou le niveau d'op 3 sans mod de
+permissions.
 
-C'est ce qui rend une règle large utilisable : autoriser l'onglet redstone, puis refuser le bloc de
-commande, au lieu de développer un onglet en des centaines d'identifiants.
+## Ce qui est restreint, et ce qui ne l'est pas
 
-Un identifiant autorisé peut encore transporter une charge utile dans ses composants de données : un
-œuf d'apparition ou un cadre contenant un autre objet, un coffre avec une table de butin, un bâton
-avec des modificateurs d'attributs. Les composants sont donc contrôlés par liste blanche. Une pile
-passe si elle est exactement une de celles que propose le menu créatif (une potion, une variante de
-tableau, un livre enchanté), ou si chaque composant qu'elle porte en plus de ses valeurs par défaut
-est de ceux que produit le jeu normal : un nom, une description, de l'usure, une teinture, des
+Le mod verrouille ce que **le mode créatif distribue**. Il ne touche jamais à ce que les joueurs
+possèdent déjà : un objet qu'un joueur porte peut être déplacé, divisé et jeté dans l'inventaire
+créatif même si son profil le verrouille. Seule une création est contrôlée, et déplacer une pile ne
+permet pas de la dupliquer.
+
+Contrôlé :
+- tout objet pris dans le menu créatif, dans la recherche, dans les barres sauvegardées, au
+  clic-molette sur un bloc, ou depuis un navigateur d'objets côté client ;
+- le clonage au clic-molette dans un conteneur ouvert, puisqu'il copie une pile.
+
+Un objet ouvert peut encore transporter une charge utile dans ses composants de données : un œuf
+d'apparition ou un cadre contenant un autre objet, un coffre avec une table de butin, un bâton avec
+des modificateurs d'attributs. Une pile passe si elle est exactement une de celles que propose le
+menu créatif (une potion, une variante de tableau, un livre enchanté), ou si chaque composant qu'elle
+porte est de ceux que produit le jeu normal : un nom, une description, de l'usure, une teinture, des
 données de carte, des motifs de bannière, des feux d'artifice, une tête de joueur, des garnitures
-d'armure, et un livre signé en texte simple. Tout le reste est refusé, sauf si le profil l'ouvre :
+d'armure, un livre signé en texte simple. Tout le reste exige que le composant figure dans le profil.
+Deux interrupteurs dédiés, désactivés par défaut, autorisent les données de bloc et les conteneurs
+remplis ; le contenu des conteneurs suit le même profil.
 
-| Champ | Ouvre | Défaut |
-| --- | --- | --- |
-| `allowed_components` | les identifiants de composants listés, par exemple `"minecraft:enchantments"` | `[]` |
-| `allow_block_entity_data` | `minecraft:block_entity_data`, qui peut contenir un bloc de commande, un générateur de monstres ou une charge utile de panneau | `false` |
-| `allow_container_contents` | les conteneurs et sacs remplis ; le contenu est évalué contre le même profil, de manière récursive | `false` |
+## Fichier de configuration
 
-Les objets moddés qui acquièrent leurs propres composants en jeu (un sac à dos rempli, un outil
-configuré) sont refusés tant que leurs identifiants de composants ne figurent pas dans
-`allowed_components`.
+`config/arcadia/arcadia-creative-admin-policy.json` est géré par l'interface. Il peut toujours être
+modifié à la main puis appliqué avec `/creativeadmin reload`, mais sa mise en forme est réécrite au
+prochain enregistrement depuis l'interface. Le format est celui de l'exemple de la section anglaise.
 
-## Configuration
+`tabs`, `namespaces`, `tags` et `items` forment la sélection, dont le sens dépend de `mode`.
+`exceptions` retire des objets précis de ce que sélectionnent les onglets, mods et tags. Un objet listé
+dans `items` est sélectionné quoi qu'en disent les autres règles. Tous les champs sauf `mode` sont
+facultatifs.
 
-Deux fichiers dans `config/arcadia/` :
+Les affectations des joueurs sont dans `arcadia-creative-admin-assignments.json`, écrit par
+l'interface et les commandes.
 
-- `arcadia-creative-admin-policy.json` — profils et réglages. Écrit à la main, **jamais réécrit par
-  le mod**, pour que commentaires et mise en forme survivent. Un exemple désactivé est généré au
-  premier démarrage.
-- `arcadia-creative-admin-assignments.json` — quel joueur sur quel profil. Écrit par les commandes,
-  pas destiné à l'édition manuelle.
-
-Les joueurs au niveau `bypass_op_level` (1 à 4) ou au-dessus ne sont pas restreints. Ceux sans
-affectation retombent sur `default_profile`. Un profil ne peut pas s'appeler `clear`, nom réservé par
-la commande `profile`.
-
-Le mod échoue du côté fermé. Un fichier de politique illisible, un `bypass_op_level` hors limites,
-un drapeau qui n'est ni `true` ni `false`, une règle écrite comme une chaîne au lieu d'une liste, un
-fichier de politique supprimé avant un rechargement, ou un fichier d'affectations illisible : chacun
-de ces cas refuse les objets créatifs à tous les joueurs restreints jusqu'à correction et
-rechargement, et le log en donne la raison. Seul un fichier de politique absent au démarrage du
-serveur est traité comme une première installation : un exemple désactivé est écrit et rien n'est
-appliqué. `/creativeadmin reload` signale aussi les entrées de règle qui ne correspondent à rien sur
-le serveur, puisqu'une faute de frappe dans `denied_items` ne ferme rien.
+Le mod échoue du côté fermé. Un fichier illisible ou mal formé, une clé inconnue, un drapeau qui n'est
+ni `true` ni `false`, une règle écrite comme une chaîne au lieu d'une liste, ou un fichier de politique
+supprimé avant un rechargement : chacun refuse les objets créatifs à tous les joueurs restreints
+jusqu'à correction et rechargement, et le log en donne la raison. L'interface passe en lecture seule
+d'ici là, pour ne pas écraser le fichier à réparer. Seul un fichier absent au démarrage du serveur est
+une première installation : un exemple désactivé est écrit et rien n'est appliqué.
 
 ## Commandes
 
-Toutes réservées au niveau d'op 3.
+Toutes demandent `arcadiacreativeadmin.admin`. Chaque sous-commande fonctionne depuis la console et
+depuis un client vanilla.
 
 | Commande | Effet |
 | --- | --- |
-| `/creativeadmin status` | Application activée ou non, profils existants, niveau de contournement |
-| `/creativeadmin reload` | Relit les deux fichiers et réindexe les onglets, sans redémarrage |
-| `/creativeadmin tabs` | Liste les identifiants d'onglets qu'une règle `tabs` peut nommer |
+| `/creativeadmin` | Ouvre l'interface d'administration |
+| `/creativeadmin status` | Application activée ou non, profils, profil par défaut, niveau de contournement |
+| `/creativeadmin reload` | Relit les deux fichiers et réindexe les onglets ; signale les entrées qui ne correspondent à rien |
+| `/creativeadmin tabs` | Liste les identifiants d'onglets qu'une règle peut nommer |
 | `/creativeadmin check [profil]` | Évalue l'objet en main et affiche la règle qui l'a refusé |
 | `/creativeadmin profile <joueurs> <profil>` | Affecte |
-| `/creativeadmin profile <joueurs> clear` | Retour au profil par défaut |
+| `/creativeadmin profile <joueurs> clear` | Retire l'affectation |
 
-## Ce que ce mod ne couvre pas
+## Non couvert
 
-- **Les objets déjà dans le monde.** La politique régit ce que le créatif crée, pas ce qu'un joueur
-  récupère dans un coffre posé avant l'event.
+- **Les objets déjà dans le monde** ou déjà possédés. Voir plus haut : c'est voulu.
 - **Les blocs d'opérateur.** Blocs de commande, de structure et jigsaw sont déjà filtrés par le
   vanilla au niveau d'op 2 et par `allowCommands`. À vérifier séparément.
-- **Le lag construit avec des blocs autorisés.** Une liste blanche d'objets inoffensifs autorise
-  quand même une horloge redstone.
+- **Le lag construit avec des blocs ouverts.** Un profil d'objets inoffensifs autorise quand même une
+  horloge redstone.
 - **`/give`.** Le vanilla le filtre au niveau d'op 2 ; ce mod n'y touche pas.
-- **Les piles refusées déplacées dans l'inventaire créatif.** Le protocole créatif envoie un
-  déplacement comme une suppression suivie d'une création. Si le profil refuse la pile, la création
-  est refusée et la pile est perdue. Cela ne touche que des objets que le profil n'aurait de toute
-  façon pas donnés.
 
 ## Mod compagnon
 
-**Arcadia Better Creative** trie, épingle et masque les onglets créatifs, côté client. Les deux sont
-des jars distincts, sans dépendance de l'un vers l'autre ni dans l'autre sens, et aucun n'a besoin de
-l'autre pour fonctionner. Ils sont conçus pour tourner ensemble : ce mod décide quels onglets valent
-la peine d'être affichés pour un profil donné, Better Creative organise ce qu'il reste. Installés
-côte à côte, la barre d'onglets se retrouve à la fois filtrée et ordonnée.
+**Arcadia Better Creative** trie, épingle et masque les onglets créatifs, côté client. Ce sont deux
+jars distincts, sans dépendance de l'un vers l'autre ni dans l'autre sens, et aucun n'a besoin de
+l'autre pour fonctionner. Installés ensemble, la barre d'onglets est à la fois filtrée et ordonnée, et
+un onglet verrouillé par le serveur est aussi absent de l'écran de réglages de Better Creative : un
+joueur ne peut pas le réactiver. Il faut pour cela une version de Better Creative dotée de l'API de
+politique serveur ; les versions plus anciennes ont quand même la barre d'onglets filtrée.
 
 ## Prérequis
 
 - Minecraft 1.21.1
 - [NeoForge](https://neoforged.net/) 21.1.241 ou plus récent
-- Installé sur le **serveur**. L'installer aussi sur les clients est facultatif et n'améliore que
-  l'affichage.
-- Le solo et le LAN fonctionnent, mais les règles `tabs` ne s'appliquent qu'une fois que l'hôte a
+- Sur le **serveur**. Sur les clients, facultatif pour les joueurs et requis pour les admins qui
+  utilisent l'interface.
+- Le solo et le LAN fonctionnent, mais les règles d'onglets ne s'appliquent qu'une fois que l'hôte a
   ouvert l'inventaire créatif, puisque c'est à ce moment que le jeu construit le contenu des onglets
   sur un serveur intégré. D'ici là elles ne correspondent à rien, ce qui refuse au lieu d'autoriser.
 

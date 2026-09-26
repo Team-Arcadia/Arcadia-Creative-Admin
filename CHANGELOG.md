@@ -8,79 +8,77 @@ All notable changes to Arcadia Creative Admin are documented here.
 
 ### Added (English first)
 
-- **Server-side creative enforcement** — Every creative item request is validated against the
-  requesting player's profile in `handleSetCreativeModeSlot`, the single packet through which a
-  player in creative mode makes an item exist. Both branches of the vanilla handler are covered,
-  including the `slotNum < 0` path that drops the stack on the ground, which would otherwise leave
-  the whitelist bypassable by throwing an item instead of holding it. Enforcement does not depend on
-  the client having the mod.
-- **Profiles as strict whitelists** — A profile allows items by id, by mod namespace, by item tag and
-  by creative tab, in any combination, and closes back down with `denied_items` and
-  `denied_namespaces` that always win. Allowing the redstone tab and then denying the command block
-  is the intended shape; expanding a tab into hundreds of ids is not.
-- **Component guards** — Data components are checked on an allowlist. A stack passes when it is
-  exactly one the creative menu offers, or when every component it carries is one ordinary play
-  produces (name, lore, damage, dye, map data, banner patterns, fireworks, a plain signed book).
-  Anything else, such as `entity_data` on a spawn egg or an item frame, `container_loot` on a chest
-  or `attribute_modifiers`, is refused unless listed in the new `allowed_components` field.
-  `allow_block_entity_data` and `allow_container_contents` stay off by default; container contents
-  are evaluated recursively against the same profile, with a nesting limit.
-- **Checks on the final stack** — Creative slot writes and drops are judged after vanilla has
-  rewritten the stack, so block entity data pointing at a chest in the world cannot bring that
-  chest's contents along. Middle-click cloning in open containers is checked too.
-- **Fail-closed loading** — An unreadable policy or assignment file, an out-of-range
-  `bypass_op_level`, a non-boolean flag, a rule written as a string, or a policy file removed before
-  a reload all deny creative items to restricted players. Assignments are written atomically, and
-  `/creativeadmin reload` reports rule entries that match nothing.
-- **Per-player assignment with op bypass** — Profiles are assigned by command and stored by player
-  id; unassigned players fall back to `default_profile`, and players at or above `bypass_op_level`
-  are unrestricted.
-- **Operator commands** — `status`, `reload`, `tabs`, `check [profile]` and `profile`. `check` and
-  `tabs` exist so a broad rule can be probed before an event rather than during it.
-- **Advisory tab filtering on the client** — When the client also has the mod, the server sends the
-  list of tabs worth displaying, so players browse a clean inventory instead of one where most clicks
-  are rejected. The advice is only sent to clients that negotiated its channel, so a vanilla client
-  connects normally, and the server-side refusal holds regardless of what the client does with it.
-  The advice follows reloads, datapack reloads and op level changes.
+- **Admin screen** — `/creativeadmin`, or the flag button above the creative inventory for admins,
+  opens an in-game screen to manage everything: profiles, their mode, the tabs and items they lock,
+  mods, tags and components, server settings, and player assignments. Edits are saved on demand, and
+  a save based on an outdated copy is refused instead of overwriting another admin's work.
+- **Whitelist and blacklist profiles** — Each profile has a mode. A whitelist locks everything except
+  the selection, a blacklist opens everything except the selection. The selection combines whole
+  creative tabs, whole mods, item tags and single items, none of them required; exceptions take
+  single items out of a tab, mod or tag, and a single item always outranks the group rules.
+- **Permission-based targeting** — Who is restricted goes through NeoForge permission nodes, so
+  LuckPerms and CustomPerm work without a dependency: `arcadiacreativeadmin.bypass` is never
+  restricted, `arcadiacreativeadmin.profile` set as group meta picks the profile, and
+  `arcadiacreativeadmin.admin` opens the screen and the commands. An assignment made in game
+  outranks the group, which outranks the default profile.
+- **Server-side creative enforcement** — Every item a creative player takes is checked against their
+  profile in `handleSetCreativeModeSlot`, including the `slotNum < 0` drop path and middle-click
+  cloning in open containers. Enforcement does not depend on the client having the mod.
+- **Owned items are left alone** — The mod locks what creative mode hands out, not what players
+  carry. Moving, splitting or dropping an item the player already owns is never refused, and cannot
+  be used to duplicate it.
+- **Component guards** — Data components are checked on an allowlist, so an open item cannot smuggle
+  a locked one through `entity_data`, `container_loot` or a filled container, or carry forged combat
+  stats. Stacks the creative menu offers and components ordinary play produces pass; anything else
+  needs `allowed_components`. Block entity data and filled containers have their own switches, off
+  by default.
+- **Locked tabs and items hidden on the client** — Players with the mod installed no longer see
+  locked tabs, nor locked items inside open tabs or in search. With Arcadia Better Creative, locked
+  tabs are also left out of its settings screen so they cannot be switched back on.
+- **Fail-closed loading** — An unreadable or malformed policy or assignment file, an unknown key, a
+  non-boolean flag or a removed policy file denies creative items to restricted players until fixed,
+  and makes the admin screen read-only so it cannot overwrite the file to repair. Files are written
+  atomically, and `/creativeadmin reload` reports rule entries that match nothing.
+- **Operator commands** — `status`, `reload`, `tabs`, `check [profile]` and `profile`, usable from
+  the console and from vanilla clients.
 
 ### Ajouts (French mirror)
 
-- **Application des restrictions côté serveur** — Chaque demande d'objet en créatif est validée
-  contre le profil du joueur dans `handleSetCreativeModeSlot`, l'unique paquet par lequel un joueur
-  en créatif fait apparaître un objet. Les deux branches du gestionnaire vanilla sont couvertes, y
-  compris le chemin `slotNum < 0` qui jette la pile au sol, sans quoi la liste blanche resterait
-  contournable en lançant l'objet au lieu de le garder. L'application ne dépend pas de la présence du
-  mod côté client.
-- **Profils en liste blanche stricte** — Un profil autorise des objets par identifiant, par namespace
-  de mod, par tag d'objet et par onglet créatif, dans n'importe quelle combinaison, et se referme
-  avec `denied_items` et `denied_namespaces` qui l'emportent toujours. Autoriser l'onglet redstone
-  puis refuser le bloc de commande est la forme prévue ; développer un onglet en des centaines
-  d'identifiants ne l'est pas.
-- **Gardes sur les composants** — Les composants de données sont contrôlés par liste blanche. Une
-  pile passe si elle est exactement une de celles que propose le menu créatif, ou si chaque composant
-  qu'elle porte est de ceux que produit le jeu normal (nom, description, usure, teinture, données de
-  carte, motifs de bannière, feux d'artifice, livre signé en texte simple). Tout le reste, comme
-  `entity_data` sur un œuf d'apparition ou un cadre, `container_loot` sur un coffre ou
-  `attribute_modifiers`, est refusé sauf s'il figure dans le nouveau champ `allowed_components`.
-  `allow_block_entity_data` et `allow_container_contents` restent désactivés par défaut ; le contenu
-  des conteneurs est évalué récursivement contre le même profil, avec une limite d'imbrication.
-- **Contrôle de la pile finale** — Les écritures de slot et les lâchers en créatif sont jugés après
-  que le vanilla a réécrit la pile, si bien que des données de bloc pointant vers un coffre du monde
-  ne peuvent plus en ramener le contenu. Le clonage au clic-molette dans un conteneur ouvert est
-  aussi contrôlé.
-- **Chargement fermé par défaut** — Un fichier de politique ou d'affectations illisible, un
-  `bypass_op_level` hors limites, un drapeau non booléen, une règle écrite comme une chaîne ou un
-  fichier de politique supprimé avant un rechargement refusent tous les objets créatifs aux joueurs
-  restreints. Les affectations sont écrites de façon atomique, et `/creativeadmin reload` signale les
-  entrées de règle qui ne correspondent à rien.
-- **Affectation par joueur et contournement op** — Les profils sont affectés par commande et stockés
-  par identifiant de joueur ; les joueurs non affectés retombent sur `default_profile`, et ceux au
-  niveau `bypass_op_level` ou au-dessus ne sont pas restreints.
-- **Commandes d'opérateur** — `status`, `reload`, `tabs`, `check [profil]` et `profile`. `check` et
-  `tabs` existent pour qu'une règle large puisse être vérifiée avant un event plutôt que pendant.
-- **Filtrage indicatif des onglets côté client** — Quand le client a lui aussi le mod, le serveur
-  envoie la liste des onglets qui valent la peine d'être affichés, pour que les joueurs parcourent un
-  inventaire propre plutôt qu'un inventaire où la plupart des clics sont rejetés. L'indication n'est
-  envoyée qu'aux clients qui ont négocié son canal, donc un client vanilla se connecte normalement,
-  et le refus côté serveur tient quoi que le client en fasse. Elle suit les rechargements, les
-  rechargements de datapacks et les changements de niveau d'op.
+- **Interface d'administration** — `/creativeadmin`, ou le bouton drapeau au-dessus de l'inventaire
+  créatif pour les admins, ouvre une interface en jeu qui gère tout : profils, leur mode, les onglets
+  et objets qu'ils verrouillent, mods, tags et composants, réglages du serveur et affectation des
+  joueurs. Les modifications sont enregistrées à la demande, et un enregistrement fondé sur une copie
+  périmée est refusé au lieu d'écraser le travail d'un autre admin.
+- **Profils en liste blanche ou liste noire** — Chaque profil a un mode. Une liste blanche verrouille
+  tout sauf la sélection, une liste noire ouvre tout sauf la sélection. La sélection combine des
+  onglets créatifs entiers, des mods entiers, des tags d'objets et des objets seuls, aucun n'étant
+  obligatoire ; les exceptions retirent des objets d'un onglet, d'un mod ou d'un tag, et un objet seul
+  l'emporte toujours sur les règles de groupe.
+- **Ciblage par permissions** — Qui est restreint passe par les nœuds de permission de NeoForge, si
+  bien que LuckPerms et CustomPerm fonctionnent sans dépendance : `arcadiacreativeadmin.bypass` n'est
+  jamais restreint, `arcadiacreativeadmin.profile` défini en meta de grade choisit le profil, et
+  `arcadiacreativeadmin.admin` ouvre l'interface et les commandes. Une affectation faite en jeu
+  l'emporte sur le grade, qui l'emporte sur le profil par défaut.
+- **Application côté serveur** — Chaque objet pris par un joueur en créatif est contrôlé contre son
+  profil dans `handleSetCreativeModeSlot`, y compris le lâcher `slotNum < 0` et le clonage au
+  clic-molette dans un conteneur ouvert. L'application ne dépend pas de la présence du mod côté
+  client.
+- **Les objets possédés ne sont pas touchés** — Le mod verrouille ce que le créatif distribue, pas ce
+  que les joueurs portent. Déplacer, diviser ou jeter un objet déjà possédé n'est jamais refusé, et
+  ne permet pas de le dupliquer.
+- **Gardes sur les composants** — Les composants de données sont contrôlés par liste blanche : un
+  objet ouvert ne peut pas faire passer un objet verrouillé via `entity_data`, `container_loot` ou un
+  conteneur rempli, ni porter des statistiques de combat forgées. Les piles proposées par le menu
+  créatif et les composants du jeu normal passent ; le reste exige `allowed_components`. Données de
+  bloc et conteneurs remplis ont leurs propres interrupteurs, désactivés par défaut.
+- **Onglets et objets verrouillés masqués côté client** — Les joueurs équipés du mod ne voient plus
+  les onglets verrouillés, ni les objets verrouillés dans les onglets ouverts ou la recherche. Avec
+  Arcadia Better Creative, les onglets verrouillés sont aussi absents de son écran de réglages et ne
+  peuvent pas être réactivés.
+- **Chargement fermé par défaut** — Un fichier de politique ou d'affectations illisible ou mal formé,
+  une clé inconnue, un drapeau non booléen ou un fichier de politique supprimé refuse les objets
+  créatifs aux joueurs restreints jusqu'à correction, et met l'interface en lecture seule pour ne pas
+  écraser le fichier à réparer. Les fichiers sont écrits de façon atomique, et
+  `/creativeadmin reload` signale les entrées de règle qui ne correspondent à rien.
+- **Commandes d'opérateur** — `status`, `reload`, `tabs`, `check [profil]` et `profile`, utilisables
+  depuis la console et depuis un client vanilla.

@@ -11,12 +11,17 @@
 | Tech stack | Java 21, Minecraft 1.21.1, NeoForge 21.1.241, ModDevGradle 2.0.142, Gradle 8.12, SpongePowered Mixin + MixinExtras |
 | Author | THEFricadelle |
 | License | All Rights Reserved |
-| Side | **Both** (`side = "BOTH"`), but every enforcement path is server-side |
-| Dependencies | NeoForge `[21.1.0,)`, Minecraft `[1.21.1,1.22)` |
+| Side | **Both** (`side = "BOTH"`): every enforcement path is server-side; the admin screen and the display filter are client-side |
+| Dependencies | NeoForge `[21.1.241,)`, Minecraft `[1.21.1,1.22)` |
 
 Companion project: **Arcadia Better Creative** (client-only tab layout). The two are independent
 jars with no build or runtime dependency between them. They coexist by chaining on the same
-`@ModifyExpressionValue` hook, at different mixin priorities.
+`@ModifyExpressionValue` hook, at different mixin priorities, and `client.BetterCreativeBridge`
+hands locked tabs to Better Creative's `api.ServerTabPolicy`, looked up by name at runtime. That
+class name and its `set(String, Set)` / `clear()` signatures are a contract between the two repos.
+
+The interface kit in `client/gui/kit/` is shared in style with Better Creative. Keep the two copies
+visually aligned; a change to one is a change to propose for the other.
 
 ## 2. Git Workflow
 
@@ -42,7 +47,7 @@ jars with no build or runtime dependency between them. They coexist by chaining 
   stop the inventory from opening — there, the worst case is a cosmetic annoyance.
 - **Never trust the client.** The tab payload is advisory. Nothing may be decided from what a client
   sends or from whether it has the mod at all.
-- **Never call `CreativeModeTabs.tryRebuildTabContents` on an integrated server.** The client shares
+- **Never call `CreativeModeTabs.tryRebuildTabContents` from server code on an integrated server.** The client shares
   the JVM and the same static `CACHED_PARAMETERS`; rebuilding with a forced operator flag changes
   what the player's own creative screen displays. Guard it with `server.isDedicatedServer()`.
 - **Never evaluate only the outer stack.** A whitelist that stops before container components is one
@@ -55,62 +60,84 @@ jars with no build or runtime dependency between them. They coexist by chaining 
   The hooks wrap `setByPlayer` and `drop`, not the handler entry.
 - **Never send a payload without `connection.hasChannel`.** An optional registration lets a vanilla
   client join; sending it an unnegotiated payload still throws.
-- **Never let the policy file be rewritten by the mod.** It is hand-authored. Assignments go in the
-  separate file.
-- **Never reference a client-only class from code loaded on a dedicated server** — in particular from
-  the payload registration. Received client state lives in `core.ReceivedTabPolicy`, which holds no
-  client type on purpose.
+- **Never judge what a player already owns.** The mod locks what creative hands out. A stack that
+  `CreativeLedger` credits (it left a slot through a creative packet) is a move and passes untouched;
+  only the uncovered part of a write is a creation. Never credit anything the server-side inventory
+  did not actually lose, or moves become a duplication path.
+- **Never save from the admin screen without the three server checks:** the `admin` permission on
+  every request, the base revision equal to the current one, and `PolicyManager.validationProblem`.
+  Never save while the policy file is broken: it would overwrite the file the operator must repair.
+- **Never decide who is restricted outside `CreativePermissions`.** Bypass, profile and admin all go
+  through NeoForge permission nodes so any permission mod answers them; op levels are only the
+  defaults of those nodes.
+- **Never accept an unknown key in the policy file.** It is usually a typo of a key that matters, or
+  a field from an old format; read loosely, either can widen a profile.
+- **Never reference a client-only class from code loaded on a dedicated server**, in particular from
+  the payload registration. Client-bound handlers go through `PolicyNetwork.ClientHandler`, installed
+  at client setup; received advice lives in `core.ReceivedAdvice`, which holds no client type.
 
 ## 4. Project Structure
 
 ```
 Arcadia-Creative-Admin/
-├── build.gradle                  ModDevGradle setup, client + dedicated server runs
+├── build.gradle                  ModDevGradle setup: client, server and gameTestServer runs
 ├── gradle.properties             Version and metadata single source of truth
 ├── RULES.md                      This file
 ├── README.md                     Bilingual EN/FR documentation
 ├── CHANGELOG.md                  Bilingual EN/FR changelog
-└── src/main/
-    ├── java/net/thefricadelle/arcadiacreativeadmin/
-    │   ├── ArcadiaCreativeAdmin.java             Entry point, server + command + login events
-    │   ├── PolicyLifecycle.java                  Reload order: policy, tab index, client advice
-    │   ├── policy/
-    │   │   ├── CreativeProfile.java              One named strict whitelist
-    │   │   ├── PolicyEvaluator.java              (profile, stack) -> Decision, no other state
-    │   │   ├── ComponentRules.java               Components every profile accepts
-    │   │   ├── Decision.java                     Verdict plus the reason shown to the player
-    │   │   ├── PolicyManager.java                Files, profiles, assignments, op bypass
-    │   │   └── PolicyEnforcer.java               Refusal side effects: resync, feedback, throttle
-    │   ├── core/
-    │   │   ├── TabItemIndex.java                 Creative tab id -> items, built server-side
-    │   │   ├── VisibleTabResolver.java           Profile -> tabs worth displaying, cached
-    │   │   └── ReceivedTabPolicy.java            Client-held advice; no client-only types
-    │   ├── command/CreativeAdminCommand.java     /creativeadmin
-    │   ├── network/
-    │   │   ├── TabPolicyPayload.java             Advisory server -> client payload
-    │   │   └── PolicyNetwork.java                Optional channel registration and sending
-    │   ├── client/ClientEvents.java              Drops received advice on disconnect
-    │   └── mixin/
-    │       ├── ServerGamePacketListenerImplMixin.java   The enforcement hooks
-    │       └── client/CreativeModeInventoryScreenMixin.java  Display filter, priority 1300
-    └── resources/
-        ├── META-INF/neoforge.mods.toml
-        ├── arcadia-creative-admin.mixins.json
-        └── assets/arcadiacreativeadmin/lang/{en_us,fr_fr}.json
-src/gametest/                     GameTests, never shipped in the jar
+├── src/main/
+│   ├── java/net/thefricadelle/arcadiacreativeadmin/
+│   │   ├── ArcadiaCreativeAdmin.java             Entry point, server, login, permission and reload events
+│   │   ├── PolicyLifecycle.java                  Refresh order: policy, tab index, advice, open screens
+│   │   ├── policy/
+│   │   │   ├── CreativeProfile.java              One profile: mode, selection, exceptions, component rules
+│   │   │   ├── PolicyDocument.java               The whole policy file as one value
+│   │   │   ├── PolicyCodec.java                  File format, both directions, strict on keys
+│   │   │   ├── PolicyEvaluator.java              (profile, stack) -> Decision
+│   │   │   ├── ComponentRules.java               Components every profile accepts
+│   │   │   ├── CreativeLedger.java               What a player moved out of a slot: moves, not creations
+│   │   │   ├── CreativePermissions.java          admin / bypass / profile permission nodes
+│   │   │   ├── Decision.java                     Verdict plus the reason shown to the player
+│   │   │   ├── PolicyManager.java                Files, revisions, assignments, profile resolution
+│   │   │   └── PolicyEnforcer.java               Hook logic: ledger, refusal, resync, feedback
+│   │   ├── core/
+│   │   │   ├── TabItemIndex.java                 Tab id -> items, and creative menu variants
+│   │   │   ├── AdviceResolver.java               Profile -> visible tabs and locked items, cached
+│   │   │   └── ReceivedAdvice.java               Client-held advice; no client-only types
+│   │   ├── command/CreativeAdminCommand.java     /creativeadmin
+│   │   ├── network/
+│   │   │   ├── PolicyNetwork.java                Payload registration, advice sending
+│   │   │   ├── AdvicePayload.java                Server -> client display advice
+│   │   │   ├── AdminPayloads.java                Admin screen messages
+│   │   │   ├── AdminServer.java                  Server side of the admin screen
+│   │   │   └── NetCodecs.java                    Bounded wire format of a policy
+│   │   ├── client/
+│   │   │   ├── ClientEvents.java                 Handler install, cleanup on disconnect
+│   │   │   ├── BetterCreativeBridge.java         Locked tabs to Better Creative, by name
+│   │   │   ├── gui/kit/                          Arcadia interface kit
+│   │   │   └── screen/                           Admin screens and their working copy
+│   │   └── mixin/
+│   │       ├── ServerGamePacketListenerImplMixin.java   The enforcement hooks
+│   │       └── client/CreativeModeInventoryScreenMixin.java  Display filter and admin button, priority 1300
+│   └── resources/
+│       ├── META-INF/neoforge.mods.toml
+│       ├── arcadia-creative-admin.mixins.json
+│       └── assets/arcadiacreativeadmin/lang/{en_us,fr_fr}.json
+└── src/gametest/                 GameTests, never shipped in the jar
 ```
 
 ## 5. Adding a New Rule Shape (Step by Step)
 
-1. `git checkout -b feat/<name>` from `main`.
-2. Add the field to `CreativeProfile` — the record is the contract.
-3. Parse it in `PolicyManager.readProfile`. Malformed entries are dropped and logged: under a
-   whitelist a typo must narrow, never widen.
-4. Match it in `PolicyEvaluator.isAllowed`, cheapest lookup first.
-5. Add every user-facing string to **both** `en_us.json` and `fr_fr.json`.
-6. Document the field in the README table, EN and FR.
-7. Run the testing checklist below.
-8. Update `CHANGELOG.md` (EN + FR). Do **not** bump the version.
+1. `git checkout -b feat/<name>`.
+2. Add the field to `CreativeProfile`: the record is the contract.
+3. Read and write it in `PolicyCodec` (and add the key to `PROFILE_KEYS`), then in `NetCodecs`.
+   Malformed entries are dropped and logged; a malformed structure refuses the file.
+4. Match it in `PolicyEvaluator.isGroupSelected`, cheapest lookup first, and report entries that
+   match nothing in `PolicyManager.validateRules`.
+5. Expose it in the admin screen: `AdminSession.Draft`, then the page that edits it.
+6. Add every user-facing string to **both** `en_us.json` and `fr_fr.json`.
+7. Document the field in the README, EN and FR, and cover it with a GameTest.
+8. Run the testing checklist below, then update `CHANGELOG.md` (EN + FR). Do **not** bump the version.
 
 ## 6. Testing Checklist
 
@@ -145,6 +172,14 @@ src/gametest/                     GameTests, never shipped in the jar
 - [ ] With both this mod and Arcadia Better Creative installed, the tab bar is both filtered and
       ordered, and neither mod throws.
 - [ ] Spamming refused clicks produces at most one message per 1.5 s.
+- [ ] Admin screen: create a profile, switch it to blacklist, lock a tab and one item of another tab,
+      save; a player on that profile no longer sees them, and is refused them if requested anyway.
+- [ ] Two admins editing at once: the second save is refused with the conflict status.
+- [ ] A player keeps, moves and splits a locked item they already own in the creative inventory.
+- [ ] With LuckPerms or CustomPerm: `meta set arcadiacreativeadmin.profile <name>` on a group
+      applies that profile after the player reopens their creative screen.
+- [ ] With Arcadia Better Creative (server tab policy API): a locked tab is absent from its settings
+      screen and its notice names the server.
 
 ## 7. AI Assistant Instructions
 
