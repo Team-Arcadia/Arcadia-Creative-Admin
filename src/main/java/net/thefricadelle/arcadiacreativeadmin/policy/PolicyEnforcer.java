@@ -14,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.thefricadelle.arcadiacreativeadmin.PolicyLifecycle;
 import org.slf4j.Logger;
@@ -47,23 +48,68 @@ public final class PolicyEnforcer {
     private PolicyEnforcer() {}
 
     /**
-     * Whether a creative slot write or drop may go through. Called with the stack as it is about to
-     * land, after vanilla has finished rewriting it.
+     * Whether a creative write into an inventory slot may go through. Called with the stack as it
+     * is about to land, after vanilla has finished rewriting it, while the slot still holds the old
+     * content.
+     * <p>
+     * Only the part that did not come out of the player's own inventory is judged: see
+     * {@link CreativeLedger}. What the slot loses is credited once the write is accepted.
      */
-    public static boolean permitCreative(ServerPlayer player, ItemStack stack) {
+    public static boolean permitSlotWrite(ServerPlayer player, Slot slot, ItemStack incoming) {
         try {
-            Decision decision = decide(player, stack);
-            if (decision.allowed()) {
+            ItemStack current = slot.getItem();
+            UUID id = player.getUUID();
+            if (incoming.isEmpty()) {
+                CreativeLedger.credit(id, current);
                 return true;
             }
-            refuse(player, player.inventoryMenu, decision);
-            return false;
+            if (ItemStack.isSameItemSameComponents(current, incoming)) {
+                int delta = incoming.getCount() - current.getCount();
+                if (delta <= 0) {
+                    CreativeLedger.credit(id, current.copyWithCount(-delta));
+                    return true;
+                }
+                return permitCreation(player, incoming, delta, player.inventoryMenu);
+            }
+            if (!permitCreation(player, incoming, incoming.getCount(), player.inventoryMenu)) {
+                return false;
+            }
+            // The previous content went to the cursor, on the client only.
+            CreativeLedger.credit(id, current);
+            return true;
         } catch (Exception e) {
             // An enforcement component must not be disabled by its own bug. Refuse and log: a
             // creative action lost to a defect is recoverable, a silently open whitelist is not.
             reportFailure(player, player.inventoryMenu, e);
             return false;
         }
+    }
+
+    /** Whether a creative drop ({@code slotNum < 0}) may go through: a thrown stack is judged like a held one. */
+    public static boolean permitDrop(ServerPlayer player, ItemStack stack) {
+        try {
+            return stack.isEmpty() || permitCreation(player, stack, stack.getCount(), player.inventoryMenu);
+        } catch (Exception e) {
+            reportFailure(player, player.inventoryMenu, e);
+            return false;
+        }
+    }
+
+    /**
+     * A stack that credits cover is a move and passes untouched, whatever the profile says: what a
+     * player already carries is not this mod's business. The rest is judged.
+     */
+    private static boolean permitCreation(ServerPlayer player, ItemStack stack, int count,
+                                          AbstractContainerMenu menu) {
+        if (CreativeLedger.consume(player.getUUID(), stack, count)) {
+            return true;
+        }
+        Decision decision = decide(player, stack);
+        if (decision.allowed()) {
+            return true;
+        }
+        refuse(player, menu, decision);
+        return false;
     }
 
     /**
@@ -135,9 +181,10 @@ public final class PolicyEnforcer {
         }
     }
 
-    /** Drops a player's throttle state on disconnect so the map does not grow with the player list. */
+    /** Drops a player's state on disconnect so the maps do not grow with the player list. */
     public static void forget(UUID player) {
         LAST_FEEDBACK.remove(player);
+        CreativeLedger.forget(player);
     }
 
     private static boolean shouldSpeak(ServerPlayer player) {

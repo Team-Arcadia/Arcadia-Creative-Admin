@@ -25,22 +25,24 @@ import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Decides whether a stack may be taken under a profile. A function of (profile, stack) and of the
  * server's registries and tab index, with no other state, so it can be exercised by GameTests.
  * <p>
- * Evaluation order is deliberate: denials are checked before allowances, because a broad allowance
- * exists precisely so it can be trimmed, and a rule that could be overridden by a wider one would
- * be useless. Component checks come last and apply to already-allowed items, since the payload
- * rides on a stack whose item is otherwise perfectly ordinary.
+ * Two questions, in order. Is the item open under the profile ({@link #isOpen}): the mode and the
+ * selection decide, with a single-item entry always outranking a tab, mod or tag. Then, for an open
+ * item, is the payload riding on this particular stack acceptable: components come last because
+ * they turn an ordinary item id into something else.
  *
  * @author THEFricadelle
  */
 public final class PolicyEvaluator {
 
     /**
-     * Containers can nest. The limit is not a performance guard — it stops a hand-crafted stack of
+     * Containers can nest. The limit is not a performance guard: it stops a hand-crafted stack of
      * containers inside containers from turning one packet into unbounded server-side work.
      */
     private static final int MAX_CONTAINER_DEPTH = 4;
@@ -65,29 +67,61 @@ public final class PolicyEvaluator {
             return Decision.deny("arcadiacreativeadmin.deny.unregistered");
         }
 
-        if (profile.deniedItems().contains(id) || profile.deniedNamespaces().contains(id.getNamespace())) {
-            return Decision.deny("arcadiacreativeadmin.deny.explicit", id.toString());
-        }
-
-        if (!isAllowed(profile, stack, item, id)) {
-            return Decision.deny("arcadiacreativeadmin.deny.not_whitelisted", id.toString(), profile.name());
+        if (!isOpen(profile, item, id, TabItemIndex::itemsOf)) {
+            return Decision.deny("arcadiacreativeadmin.deny.locked", id.toString(), profile.name());
         }
 
         return evaluateComponents(profile, stack, id, depth);
     }
 
-    /** The four rule shapes, cheapest first: a set lookup before a tag lookup before a tab lookup. */
-    private static boolean isAllowed(CreativeProfile profile, ItemStack stack, Item item, ResourceLocation id) {
-        if (profile.namespaces().contains(id.getNamespace()) || profile.items().contains(id)) {
+    /** Whether the item itself is open under the profile, whatever a stack of it carries. */
+    public static boolean isOpen(CreativeProfile profile, Item item) {
+        return isOpen(profile, item, TabItemIndex::itemsOf);
+    }
+
+    /**
+     * Same question with the tab contents supplied by the caller: the admin screen previews a
+     * profile on the client, where the server's tab index does not exist.
+     */
+    public static boolean isOpen(CreativeProfile profile, Item item, Function<ResourceLocation, Set<Item>> tabItems) {
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+        return id != null && isOpen(profile, item, id, tabItems);
+    }
+
+    private static boolean isOpen(CreativeProfile profile, Item item, ResourceLocation id,
+                                  Function<ResourceLocation, Set<Item>> tabItems) {
+        boolean selected = isSelected(profile, item, id, tabItems);
+        return profile.mode() == CreativeProfile.Mode.WHITELIST ? selected : !selected;
+    }
+
+    /**
+     * An item listed on its own is selected outright. Otherwise a tab, mod or tag selects it unless
+     * it is an exception.
+     */
+    private static boolean isSelected(CreativeProfile profile, Item item, ResourceLocation id,
+                                      Function<ResourceLocation, Set<Item>> tabItems) {
+        if (profile.items().contains(id)) {
             return true;
         }
-        for (ResourceLocation tag : profile.tags()) {
-            if (stack.is(TagKey.create(Registries.ITEM, tag))) {
-                return true;
+        return !profile.exceptions().contains(id) && isGroupSelected(profile, item, id, tabItems);
+    }
+
+    /** What the tabs, mods and tags alone say, cheapest lookup first; exceptions and items aside. */
+    public static boolean isGroupSelected(CreativeProfile profile, Item item, ResourceLocation id,
+                                          Function<ResourceLocation, Set<Item>> tabItems) {
+        if (profile.namespaces().contains(id.getNamespace())) {
+            return true;
+        }
+        if (!profile.tags().isEmpty()) {
+            var holder = item.builtInRegistryHolder();
+            for (ResourceLocation tag : profile.tags()) {
+                if (holder.is(TagKey.create(Registries.ITEM, tag))) {
+                    return true;
+                }
             }
         }
         for (ResourceLocation tab : profile.tabs()) {
-            if (TabItemIndex.itemsOf(tab).contains(item)) {
+            if (tabItems.apply(tab).contains(item)) {
                 return true;
             }
         }

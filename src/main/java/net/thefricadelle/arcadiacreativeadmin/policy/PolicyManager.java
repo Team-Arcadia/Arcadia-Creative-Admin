@@ -11,11 +11,9 @@ package net.thefricadelle.arcadiacreativeadmin.policy;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -39,9 +37,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -50,19 +45,23 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Server-side state: the profiles that exist, who is assigned to which, and whether enforcement is
- * on at all.
+ * Server-side state: the profiles that exist, who is under which, and whether enforcement is on.
  * <p>
- * The policy and the assignments live in two files on purpose. The policy is written by hand by
- * whoever runs the event and is never rewritten by the mod, so comments, formatting and ordering
- * survive; assignments change through commands and are the only thing the mod writes back.
+ * The policy file is owned by the mod: the admin screen edits it and the mod writes it back. Hand
+ * edits still work and are picked up by {@code /creativeadmin reload}, but formatting is rewritten
+ * on the next save. Assignments live in a second file because they change far more often and a
+ * broken one must not take the profiles down with it.
  * <p>
- * Every failure path denies rather than allows. A missing profile, an unreadable file, a parse
+ * Which profile applies to a player, first match wins: the bypass permission (nothing), an
+ * assignment made from the screen or the command, a profile given by a permission mod through
+ * {@link CreativePermissions#PROFILE}, then the default profile.
+ * <p>
+ * Every failure path denies rather than allows. An unknown profile, an unreadable file, a parse
  * error or an out-of-range setting all resolve to {@link CreativeProfile#denyAll}, because the
- * opposite direction hands a full creative inventory to whoever the broken entry pointed at, which
- * is exactly the outcome this mod exists to prevent. The only case that disables enforcement is a
- * policy file that does not exist at server start: that is a fresh install, and it gets a disabled
- * sample to edit.
+ * opposite direction hands a full creative inventory to whoever the broken entry pointed at. The
+ * only case that disables enforcement is a policy file that does not exist at server start: that is
+ * a fresh install, and it gets a disabled sample. A broken file also blocks saving from the screen,
+ * which would otherwise overwrite the file the operator needs to repair.
  *
  * @author THEFricadelle
  */
@@ -75,36 +74,31 @@ public final class PolicyManager {
     private static final Path POLICY_FILE = DIR.resolve("arcadia-creative-admin-policy.json");
     private static final Path ASSIGNMENTS_FILE = DIR.resolve("arcadia-creative-admin-assignments.json");
 
-    /** Level 4 is the console owner; the default leaves full creative to server owners only. */
-    private static final int DEFAULT_BYPASS_OP_LEVEL = 4;
-    /** Level 0 is every player: accepting it would switch the whole policy off through one digit. */
-    private static final int MIN_BYPASS_OP_LEVEL = 1;
-    private static final int MAX_BYPASS_OP_LEVEL = 4;
-
-    /** Taken by the command syntax: {@code /creativeadmin profile <players> clear} never reaches it. */
-    private static final Set<String> RESERVED_NAMES = Set.of("clear");
-
     private static final String BROKEN_POLICY = "broken-policy";
     private static final String BROKEN_ASSIGNMENTS = "broken-assignments";
 
-    private static volatile Policy policy = Policy.disabled();
+    private static volatile PolicyDocument policy = PolicyDocument.disabled();
+    private static boolean policyBroken;
     private static final Map<UUID, String> ASSIGNMENTS = new LinkedHashMap<>();
     /** Set when the assignment file exists but cannot be read; it must then not be overwritten. */
     private static boolean assignmentsBroken;
+    /** Bumped on every change, so an admin screen editing an older state is told instead of overwriting. */
+    private static int revision;
 
     private PolicyManager() {}
 
-    /** One consistent reading of the policy file, swapped in whole so no half-parsed state is seen. */
-    private record Policy(boolean enforced, String defaultProfile, int bypassOpLevel,
-                          Map<String, CreativeProfile> profiles) {
+    public enum SaveResult { SAVED, CONFLICT, INVALID, BROKEN_FILE, WRITE_FAILED }
 
-        static Policy disabled() {
-            return new Policy(false, "", DEFAULT_BYPASS_OP_LEVEL, Map.of());
-        }
+    public static PolicyDocument document() {
+        return policy;
+    }
 
-        static Policy broken() {
-            return new Policy(true, BROKEN_POLICY, DEFAULT_BYPASS_OP_LEVEL, Map.of());
-        }
+    public static int revision() {
+        return revision;
+    }
+
+    public static boolean policyBroken() {
+        return policyBroken;
     }
 
     public static boolean enforced() {
@@ -128,33 +122,32 @@ public final class PolicyManager {
     }
 
     public static boolean hasProfile(String name) {
-        return policy.profiles().containsKey(key(name));
+        return policy.profiles().containsKey(PolicyCodec.normalizeName(name));
     }
 
     /** Direct lookup, for tooling that evaluates against a named profile rather than a player's. */
     @Nullable
     public static CreativeProfile profile(String name) {
-        return policy.profiles().get(key(name));
+        return policy.profiles().get(PolicyCodec.normalizeName(name));
     }
 
     /**
      * The profile a player is subject to right now. Called for every creative action, so nothing
      * here logs: problems are reported once, when the files are loaded.
      *
-     * @return {@code null} when the player is not restricted at all: enforcement off, or an op at
-     *         or above the bypass level
+     * @return {@code null} when the player is not restricted at all
      */
     @Nullable
     public static CreativeProfile profileFor(ServerPlayer player) {
-        Policy current = policy;
-        if (!current.enforced() || player.hasPermissions(current.bypassOpLevel())) {
+        PolicyDocument current = policy;
+        if (!current.enforced() || CreativePermissions.bypasses(player)) {
             return null;
         }
         if (assignmentsBroken) {
             // Falling back to the default could widen a player the file had narrowed.
             return CreativeProfile.denyAll(BROKEN_ASSIGNMENTS);
         }
-        String name = ASSIGNMENTS.getOrDefault(player.getUUID(), current.defaultProfile());
+        String name = effectiveProfileName(player);
         if (name.isEmpty()) {
             return null;
         }
@@ -162,9 +155,24 @@ public final class PolicyManager {
         return profile != null ? profile : CreativeProfile.denyAll(name);
     }
 
-    /** @return the profile name a player is assigned to, or the default when none is set */
-    public static String assignedProfile(UUID player) {
-        return ASSIGNMENTS.getOrDefault(player, policy.defaultProfile());
+    /** The name {@link #profileFor} resolves to, bypass aside; empty means unrestricted. */
+    public static String effectiveProfileName(ServerPlayer player) {
+        String assigned = ASSIGNMENTS.get(player.getUUID());
+        if (assigned != null) {
+            return assigned;
+        }
+        String granted = CreativePermissions.grantedProfile(player);
+        return granted.isEmpty() ? policy.defaultProfile() : granted;
+    }
+
+    /** @return the explicit assignment of a player, or {@code null} when none is set */
+    @Nullable
+    public static String assignment(UUID player) {
+        return ASSIGNMENTS.get(player);
+    }
+
+    public static Map<UUID, String> assignments() {
+        return Collections.unmodifiableMap(ASSIGNMENTS);
     }
 
     /** False while the assignment file is unreadable: writing it then would erase every entry. */
@@ -175,7 +183,8 @@ public final class PolicyManager {
     /** @return whether the change reached the disk; it applies in memory either way */
     public static boolean assign(UUID player, String profile) {
         requireWritable();
-        ASSIGNMENTS.put(player, key(profile));
+        ASSIGNMENTS.put(player, PolicyCodec.normalizeName(profile));
+        revision++;
         return writeAssignments();
     }
 
@@ -183,6 +192,7 @@ public final class PolicyManager {
     public static boolean clearAssignment(UUID player) {
         requireWritable();
         ASSIGNMENTS.remove(player);
+        revision++;
         return writeAssignments();
     }
 
@@ -194,6 +204,55 @@ public final class PolicyManager {
         if (assignmentsBroken) {
             throw new IllegalStateException("The assignment file is unreadable; refusing to overwrite it");
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Saving from the admin screen
+    // ------------------------------------------------------------------
+
+    /**
+     * Replaces the policy with an edited one.
+     *
+     * @param baseRevision the revision the editor started from; a different current revision means
+     *                     someone else saved in between, and their change must not be silently lost
+     */
+    public static SaveResult save(PolicyDocument edited, int baseRevision) {
+        if (policyBroken) {
+            return SaveResult.BROKEN_FILE;
+        }
+        if (baseRevision != revision) {
+            return SaveResult.CONFLICT;
+        }
+        if (validationProblem(edited) != null) {
+            return SaveResult.INVALID;
+        }
+        if (!writeAtomically(POLICY_FILE, PolicyCodec.write(edited))) {
+            return SaveResult.WRITE_FAILED;
+        }
+        policy = edited;
+        revision++;
+        LOGGER.info("Creative policy saved from the admin screen: enforced={}, {} profile(s)",
+                edited.enforced(), edited.profiles().size());
+        reportUnknownAssignments();
+        return SaveResult.SAVED;
+    }
+
+    /** The checks {@link PolicyCodec#read} applies to a file, applied to a document from the network. */
+    @Nullable
+    public static String validationProblem(PolicyDocument document) {
+        if (document.bypassOpLevel() < PolicyDocument.MIN_BYPASS_OP_LEVEL
+                || document.bypassOpLevel() > PolicyDocument.MAX_BYPASS_OP_LEVEL) {
+            return "bypass_op_level";
+        }
+        for (Map.Entry<String, CreativeProfile> entry : document.profiles().entrySet()) {
+            if (PolicyCodec.nameProblem(entry.getKey()) != null || !entry.getKey().equals(entry.getValue().name())) {
+                return "profile_name";
+            }
+        }
+        if (!document.defaultProfile().isEmpty() && !document.profiles().containsKey(document.defaultProfile())) {
+            return "default_profile";
+        }
+        return null;
     }
 
     // ------------------------------------------------------------------
@@ -210,22 +269,24 @@ public final class PolicyManager {
         readPolicy(startup);
         readAssignments();
         reportUnknownAssignments();
+        revision++;
     }
 
     private static void readPolicy(boolean startup) {
+        policyBroken = false;
         if (Files.notExists(POLICY_FILE)) {
             if (startup) {
                 writeSamplePolicy();
-                policy = Policy.disabled();
+                policy = PolicyDocument.disabled();
                 return;
             }
-            policy = Policy.broken();
-            LOGGER.error("{} is gone; creative mode is denied for everyone below op level {} until it is "
-                    + "restored and reloaded", POLICY_FILE, DEFAULT_BYPASS_OP_LEVEL);
+            markBroken();
+            LOGGER.error("{} is gone; creative mode is denied for every restricted player until it is "
+                    + "restored and reloaded", POLICY_FILE);
             return;
         }
         try (Reader reader = Files.newBufferedReader(POLICY_FILE, StandardCharsets.UTF_8)) {
-            Policy parsed = parse(JsonParser.parseReader(reader).getAsJsonObject());
+            PolicyDocument parsed = PolicyCodec.read(JsonParser.parseReader(reader).getAsJsonObject());
             policy = parsed;
             if (parsed.enforced() && !parsed.defaultProfile().isEmpty()
                     && !parsed.profiles().containsKey(parsed.defaultProfile())) {
@@ -238,52 +299,15 @@ public final class PolicyManager {
             // Refusing to enforce a policy nobody can read would be the wrong direction here, but
             // enforcing an unknown one is impossible. Deny-all is the resolution: the server stays
             // restricted and the log says why.
-            policy = Policy.broken();
-            LOGGER.error("Could not read {}; creative mode is denied for everyone below op level {} "
-                    + "until this file is fixed", POLICY_FILE, DEFAULT_BYPASS_OP_LEVEL, e);
+            markBroken();
+            LOGGER.error("Could not read {}; creative mode is denied for every restricted player until this "
+                    + "file is fixed and reloaded", POLICY_FILE, e);
         }
     }
 
-    private static Policy parse(JsonObject root) {
-        Map<String, CreativeProfile> parsed = new LinkedHashMap<>();
-        if (root.has("profiles")) {
-            for (Map.Entry<String, JsonElement> entry : root.getAsJsonObject("profiles").entrySet()) {
-                String name = key(entry.getKey());
-                if (RESERVED_NAMES.contains(name)) {
-                    LOGGER.error("Ignoring profile '{}': the name is reserved by the profile command", name);
-                    continue;
-                }
-                parsed.put(name, readProfile(name, entry.getValue().getAsJsonObject()));
-            }
-        }
-
-        int bypass = root.has("bypass_op_level")
-                ? root.get("bypass_op_level").getAsInt()
-                : DEFAULT_BYPASS_OP_LEVEL;
-        if (bypass < MIN_BYPASS_OP_LEVEL || bypass > MAX_BYPASS_OP_LEVEL) {
-            throw new IllegalArgumentException("bypass_op_level must be between " + MIN_BYPASS_OP_LEVEL
-                    + " and " + MAX_BYPASS_OP_LEVEL + ", got " + bypass);
-        }
-
-        return new Policy(
-                bool(root, "enforced"),
-                root.has("default_profile") ? key(root.get("default_profile").getAsString()) : "",
-                bypass,
-                Collections.unmodifiableMap(parsed));
-    }
-
-    private static CreativeProfile readProfile(String name, JsonObject json) {
-        return new CreativeProfile(
-                name,
-                locations(json, "items"),
-                strings(json, "namespaces"),
-                tagLocations(json, "tags"),
-                locations(json, "tabs"),
-                locations(json, "denied_items"),
-                strings(json, "denied_namespaces"),
-                bool(json, "allow_block_entity_data"),
-                bool(json, "allow_container_contents"),
-                locations(json, "allowed_components"));
+    private static void markBroken() {
+        policyBroken = true;
+        policy = new PolicyDocument(true, BROKEN_POLICY, PolicyDocument.DEFAULT_BYPASS_OP_LEVEL, Map.of());
     }
 
     private static void readAssignments() {
@@ -296,7 +320,8 @@ public final class PolicyManager {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             for (Map.Entry<String, JsonElement> entry : root.entrySet()) {
                 try {
-                    ASSIGNMENTS.put(UUID.fromString(entry.getKey()), key(entry.getValue().getAsString()));
+                    ASSIGNMENTS.put(UUID.fromString(entry.getKey()),
+                            PolicyCodec.normalizeName(entry.getValue().getAsString()));
                 } catch (RuntimeException e) {
                     LOGGER.warn("Skipping a malformed assignment entry; that player falls back to the default profile");
                 }
@@ -306,14 +331,14 @@ public final class PolicyManager {
             // player is narrowed. Without the file, nobody restricted can be placed safely.
             ASSIGNMENTS.clear();
             assignmentsBroken = true;
-            LOGGER.error("Could not read {}; creative mode is denied for every restricted player and the "
-                    + "profile command is disabled until this file is fixed and reloaded", ASSIGNMENTS_FILE, e);
+            LOGGER.error("Could not read {}; creative mode is denied for every restricted player and "
+                    + "assignments are disabled until this file is fixed and reloaded", ASSIGNMENTS_FILE, e);
         }
     }
 
-    /** Once per load, rather than on every creative click of every affected player. */
+    /** Once per change, rather than on every creative click of every affected player. */
     private static void reportUnknownAssignments() {
-        Policy current = policy;
+        PolicyDocument current = policy;
         if (!current.enforced()) {
             return;
         }
@@ -325,9 +350,9 @@ public final class PolicyManager {
     }
 
     /**
-     * Logs every rule entry that names nothing. An allowance that names nothing only narrows the
-     * profile, but a denial that names nothing leaves open what the operator meant to close, so both
-     * are worth an operator's attention before an event. Needs the tab index and the tags loaded.
+     * Logs every rule entry that names nothing. A mistyped entry does the opposite of what was meant
+     * in one of the two modes, so both directions are worth an operator's attention before an event.
+     * Needs the tab index and the tags loaded.
      *
      * @return how many entries name nothing
      */
@@ -336,24 +361,22 @@ public final class PolicyManager {
         for (ResourceLocation id : BuiltInRegistries.ITEM.keySet()) {
             namespaces.add(id.getNamespace());
         }
+        Predicate<ResourceLocation> itemExists = BuiltInRegistries.ITEM::containsKey;
         int problems = 0;
         for (CreativeProfile profile : policy.profiles().values()) {
-            problems += report(profile, "items", profile.items(), id -> BuiltInRegistries.ITEM.containsKey(id));
-            problems += report(profile, "denied_items", profile.deniedItems(),
-                    id -> BuiltInRegistries.ITEM.containsKey(id));
+            problems += report(profile, "items", profile.items(), itemExists);
+            problems += report(profile, "exceptions", profile.exceptions(), itemExists);
             problems += report(profile, "namespaces", profile.namespaces(), namespaces::contains);
-            problems += report(profile, "denied_namespaces", profile.deniedNamespaces(), namespaces::contains);
             problems += report(profile, "tags", profile.tags(),
                     id -> BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, id)).isPresent());
             problems += report(profile, "tabs", profile.tabs(), TabItemIndex::isIndexed);
             problems += report(profile, "allowed_components", profile.allowedComponents(),
-                    id -> BuiltInRegistries.DATA_COMPONENT_TYPE.containsKey(id));
+                    BuiltInRegistries.DATA_COMPONENT_TYPE::containsKey);
         }
         return problems;
     }
 
-    private static <T> int report(CreativeProfile profile, String field, Set<T> values,
-                                  Predicate<T> exists) {
+    private static <T> int report(CreativeProfile profile, String field, Set<T> values, Predicate<T> exists) {
         int problems = 0;
         for (T value : values) {
             if (!exists.test(value)) {
@@ -374,38 +397,13 @@ public final class PolicyManager {
         return writeAtomically(ASSIGNMENTS_FILE, root);
     }
 
-    /**
-     * Written once, disabled, so a fresh install has something to edit rather than a blank folder
-     * and a wiki page. Opened with {@code CREATE_NEW}, so an existing file is never overwritten.
-     */
+    /** Opened with {@code CREATE_NEW}, so an existing file is never overwritten by the sample. */
     private static void writeSamplePolicy() {
-        JsonObject sample = new JsonObject();
-        sample.addProperty("_comment", "Strict whitelist. Anything no rule allows is refused. "
-                + "Set enforced to true once the profiles below are ready.");
-        sample.addProperty("enforced", false);
-        sample.addProperty("default_profile", "event");
-        sample.addProperty("bypass_op_level", DEFAULT_BYPASS_OP_LEVEL);
-
-        JsonObject event = new JsonObject();
-        event.add("tabs", array(List.of("minecraft:building_blocks", "minecraft:colored_blocks")));
-        event.add("namespaces", new JsonArray());
-        event.add("tags", array(List.of("#minecraft:beds")));
-        event.add("items", array(List.of("minecraft:torch")));
-        event.add("denied_items", array(List.of("minecraft:command_block", "minecraft:structure_block")));
-        event.add("denied_namespaces", new JsonArray());
-        event.addProperty("allow_block_entity_data", false);
-        event.addProperty("allow_container_contents", false);
-        event.add("allowed_components", new JsonArray());
-
-        JsonObject profilesJson = new JsonObject();
-        profilesJson.add("event", event);
-        sample.add("profiles", profilesJson);
-
         try {
             Files.createDirectories(DIR);
             try (Writer writer = Files.newBufferedWriter(POLICY_FILE, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
-                GSON.toJson(sample, writer);
+                GSON.toJson(PolicyCodec.write(PolicyDocument.sample()), writer);
             }
             LOGGER.info("Wrote a disabled sample creative policy to {}", POLICY_FILE);
         } catch (IOException e) {
@@ -439,89 +437,5 @@ public final class PolicyManager {
             }
             return false;
         }
-    }
-
-    // ------------------------------------------------------------------
-    // Parsing helpers
-    // ------------------------------------------------------------------
-
-    private static String key(String raw) {
-        return raw.trim().toLowerCase(Locale.ROOT);
-    }
-
-    /**
-     * Only a real JSON boolean is accepted. Gson would read {@code "yes"} or {@code "on"} as false,
-     * which for {@code enforced} silently switches the policy off.
-     */
-    private static boolean bool(JsonObject json, String field) {
-        if (!json.has(field)) {
-            return false;
-        }
-        JsonElement element = json.get(field);
-        if (!(element instanceof JsonPrimitive primitive) || !primitive.isBoolean()) {
-            throw new IllegalArgumentException("'" + field + "' must be true or false");
-        }
-        return primitive.getAsBoolean();
-    }
-
-    private static Set<String> strings(JsonObject json, String field) {
-        Set<String> out = new LinkedHashSet<>();
-        for (JsonElement element : arrayOf(json, field)) {
-            out.add(key(element.getAsString()));
-        }
-        return out;
-    }
-
-    /** Malformed ids are dropped and logged: under a whitelist a typo narrows, it never widens. */
-    private static Set<ResourceLocation> locations(JsonObject json, String field) {
-        Set<ResourceLocation> out = new LinkedHashSet<>();
-        for (JsonElement element : arrayOf(json, field)) {
-            String raw = key(element.getAsString());
-            ResourceLocation id = ResourceLocation.tryParse(raw);
-            if (id == null) {
-                LOGGER.warn("Ignoring malformed id '{}' in policy field '{}'", raw, field);
-                continue;
-            }
-            out.add(id);
-        }
-        return out;
-    }
-
-    /** Tags are written {@code #ns:path} to match command syntax; the hash is stripped here. */
-    private static Set<ResourceLocation> tagLocations(JsonObject json, String field) {
-        Set<ResourceLocation> out = new LinkedHashSet<>();
-        for (JsonElement element : arrayOf(json, field)) {
-            String raw = key(element.getAsString());
-            if (raw.startsWith("#")) {
-                raw = raw.substring(1);
-            }
-            ResourceLocation id = ResourceLocation.tryParse(raw);
-            if (id == null) {
-                LOGGER.warn("Ignoring malformed tag '{}' in policy field '{}'", raw, field);
-                continue;
-            }
-            out.add(id);
-        }
-        return out;
-    }
-
-    /**
-     * A field written as a single string instead of a list is an error, not an empty list: read
-     * as empty, a {@code denied_items} typo would leave open what it was meant to close.
-     */
-    private static JsonArray arrayOf(JsonObject json, String field) {
-        if (!json.has(field)) {
-            return new JsonArray();
-        }
-        if (!json.get(field).isJsonArray()) {
-            throw new IllegalArgumentException("'" + field + "' must be a list");
-        }
-        return json.getAsJsonArray(field);
-    }
-
-    private static JsonArray array(List<String> values) {
-        JsonArray out = new JsonArray();
-        values.forEach(out::add);
-        return out;
     }
 }

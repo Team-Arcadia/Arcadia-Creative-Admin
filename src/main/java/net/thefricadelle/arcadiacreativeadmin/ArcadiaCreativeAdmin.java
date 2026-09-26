@@ -21,6 +21,7 @@ import net.neoforged.neoforge.event.entity.player.PermissionsChangedEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.thefricadelle.arcadiacreativeadmin.command.CreativeAdminCommand;
+import net.thefricadelle.arcadiacreativeadmin.network.AdminServer;
 import net.thefricadelle.arcadiacreativeadmin.network.PolicyNetwork;
 import net.thefricadelle.arcadiacreativeadmin.policy.PolicyEnforcer;
 
@@ -97,6 +98,8 @@ public final class ArcadiaCreativeAdmin {
         @SubscribeEvent
         public static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
             PolicyEnforcer.forget(event.getEntity().getUUID());
+            AdminServer.forget(event.getEntity().getUUID());
+            PolicyNetwork.forget(event.getEntity().getUUID());
         }
     }
 }

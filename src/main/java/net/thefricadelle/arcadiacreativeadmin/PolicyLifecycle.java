@@ -10,17 +10,19 @@
 package net.thefricadelle.arcadiacreativeadmin;
 
 import net.minecraft.server.MinecraftServer;
+import net.thefricadelle.arcadiacreativeadmin.core.AdviceResolver;
 import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
-import net.thefricadelle.arcadiacreativeadmin.core.VisibleTabResolver;
+import net.thefricadelle.arcadiacreativeadmin.network.AdminServer;
 import net.thefricadelle.arcadiacreativeadmin.network.PolicyNetwork;
 import net.thefricadelle.arcadiacreativeadmin.policy.PolicyManager;
 
 /**
- * The order in which the policy, the tab index and the client advice are refreshed.
+ * The order in which the policy, the tab index, the client advice and the open admin screens are
+ * refreshed.
  * <p>
- * Each of them feeds the next: the visible tab answer depends on the policy and the index, and what
- * clients hold depends on that answer. Keeping the sequence in one place is what stops a reload
- * path from skipping a step and leaving clients with advice derived from the previous policy.
+ * Each of them feeds the next: the advice depends on the policy and the index, and what clients
+ * hold depends on the advice. Keeping the sequence in one place is what stops a change path from
+ * skipping a step and leaving clients with advice derived from the previous policy.
  *
  * @author THEFricadelle
  */
@@ -36,23 +38,31 @@ public final class PolicyLifecycle {
     public static int reload(MinecraftServer server, boolean startup) {
         PolicyManager.load(startup);
         TabItemIndex.build(server);
-        VisibleTabResolver.invalidate();
+        AdviceResolver.invalidate();
         int unmatched = PolicyManager.validateRules();
         PolicyNetwork.sendToAll(server.getPlayerList().getPlayers());
+        AdminServer.broadcast(server);
         return unmatched;
+    }
+
+    /** After the admin screen saved a new policy: the index is unchanged, everything derived is not. */
+    public static void afterEdit(MinecraftServer server) {
+        AdviceResolver.invalidate();
+        PolicyManager.validateRules();
+        PolicyNetwork.sendToAll(server.getPlayerList().getPlayers());
     }
 
     /** Integrated server only: picks up tab contents the client built after the server started. */
     public static void refreshTabIndexIfStale(MinecraftServer server) {
         if (TabItemIndex.refreshIfStale(server)) {
-            VisibleTabResolver.invalidate();
+            AdviceResolver.invalidate();
             PolicyNetwork.sendToAll(server.getPlayerList().getPlayers());
         }
     }
 
-    /** A datapack reload can change what a tag rule matches, and with it which tabs are worth showing. */
+    /** A datapack reload can change what a tag rule matches, and with it what is worth showing. */
     public static void onDataReloaded(MinecraftServer server) {
-        VisibleTabResolver.invalidate();
+        AdviceResolver.invalidate();
         PolicyManager.validateRules();
         PolicyNetwork.sendToAll(server.getPlayerList().getPlayers());
     }

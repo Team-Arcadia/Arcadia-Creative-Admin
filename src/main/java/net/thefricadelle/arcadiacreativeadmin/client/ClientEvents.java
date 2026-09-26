@@ -9,18 +9,21 @@
 
 package net.thefricadelle.arcadiacreativeadmin.client;
 
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.thefricadelle.arcadiacreativeadmin.ArcadiaCreativeAdmin;
-import net.thefricadelle.arcadiacreativeadmin.core.ReceivedTabPolicy;
+import net.thefricadelle.arcadiacreativeadmin.client.screen.AdminScreen;
+import net.thefricadelle.arcadiacreativeadmin.core.ReceivedAdvice;
+import net.thefricadelle.arcadiacreativeadmin.network.AdminPayloads;
+import net.thefricadelle.arcadiacreativeadmin.network.AdvicePayload;
+import net.thefricadelle.arcadiacreativeadmin.network.PolicyNetwork;
 
 /**
- * Drops the received policy when the player leaves a server.
- * <p>
- * Without this, a visit to a restricted server would keep filtering the creative inventory in every
- * singleplayer world afterwards, with nothing on screen explaining why.
+ * Client wiring: what happens to server messages, and cleanup when leaving a server.
  *
  * @author THEFricadelle
  */
@@ -30,7 +33,32 @@ public final class ClientEvents {
     private ClientEvents() {}
 
     @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        PolicyNetwork.setClientHandler(new PolicyNetwork.ClientHandler() {
+            @Override
+            public void onAdvice(AdvicePayload payload) {
+                ReceivedAdvice.accept(payload);
+                if (ReceivedAdvice.enforced()) {
+                    BetterCreativeBridge.push(payload.profile(), ReceivedAdvice.visibleTabs());
+                } else {
+                    BetterCreativeBridge.clear();
+                }
+            }
+
+            @Override
+            public void onAdminState(AdminPayloads.State state) {
+                AdminScreen.onState(Minecraft.getInstance(), state);
+            }
+        });
+    }
+
+    /**
+     * Without this, a visit to a restricted server would keep filtering the creative inventory in
+     * every singleplayer world afterwards, with nothing on screen explaining why.
+     */
+    @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
-        ReceivedTabPolicy.clear();
+        ReceivedAdvice.clear();
+        BetterCreativeBridge.clear();
     }
 }

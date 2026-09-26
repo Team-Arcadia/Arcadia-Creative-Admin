@@ -26,7 +26,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.thefricadelle.arcadiacreativeadmin.PolicyLifecycle;
 import net.thefricadelle.arcadiacreativeadmin.core.TabItemIndex;
+import net.thefricadelle.arcadiacreativeadmin.network.AdminServer;
 import net.thefricadelle.arcadiacreativeadmin.network.PolicyNetwork;
+import net.thefricadelle.arcadiacreativeadmin.policy.CreativePermissions;
 import net.thefricadelle.arcadiacreativeadmin.policy.CreativeProfile;
 import net.thefricadelle.arcadiacreativeadmin.policy.Decision;
 import net.thefricadelle.arcadiacreativeadmin.policy.PolicyEvaluator;
@@ -36,7 +38,9 @@ import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 /**
- * Operator commands. Everything here is staff tooling, gated at op level 3.
+ * Staff commands, gated by {@link CreativePermissions#ADMIN} (op level 3 without a permission mod).
+ * Without arguments the command opens the admin screen, which needs the mod on the client; every
+ * subcommand works from the console and from a vanilla client.
  * <p>
  * {@code check} and {@code tabs} exist because a whitelist is only as good as the operator's
  * ability to predict it. Writing tab and tag rules blind, then discovering during an event that a
@@ -46,8 +50,6 @@ import java.util.stream.Collectors;
  */
 public final class CreativeAdminCommand {
 
-    private static final int PERMISSION_LEVEL = 3;
-
     private static final SuggestionProvider<CommandSourceStack> PROFILES =
             (context, builder) -> SharedSuggestionProvider.suggest(PolicyManager.profileNames(), builder);
 
@@ -55,7 +57,8 @@ public final class CreativeAdminCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("creativeadmin")
-                .requires(source -> source.hasPermission(PERMISSION_LEVEL));
+                .requires(CreativePermissions::isAdmin)
+                .executes(CreativeAdminCommand::openScreen);
 
         root.then(Commands.literal("reload").executes(CreativeAdminCommand::reload));
         root.then(Commands.literal("status").executes(CreativeAdminCommand::status));
@@ -74,6 +77,11 @@ public final class CreativeAdminCommand {
                                 .executes(CreativeAdminCommand::setProfile))));
 
         dispatcher.register(root);
+    }
+
+    private static int openScreen(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        AdminServer.open(context.getSource().getPlayerOrException());
+        return 1;
     }
 
     private static int reload(CommandContext<CommandSourceStack> context) {
@@ -136,7 +144,7 @@ public final class CreativeAdminCommand {
         ItemStack held = player.getMainHandItem();
         PolicyLifecycle.refreshTabIndexIfStale(source.getServer());
 
-        String name = profileName != null ? profileName : PolicyManager.assignedProfile(player.getUUID());
+        String name = profileName != null ? profileName : PolicyManager.effectiveProfileName(player);
         CreativeProfile profile = name.isEmpty() ? null : PolicyManager.profile(name);
         if (profile == null) {
             source.sendFailure(Component.translatable(

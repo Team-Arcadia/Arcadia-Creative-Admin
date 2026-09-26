@@ -59,7 +59,7 @@ public abstract class ServerGamePacketListenerImplMixin {
             )
     )
     private void arcadiacreativeadmin$guardSlotWrite(Slot slot, ItemStack stack, Operation<Void> original) {
-        if (PolicyEnforcer.permitCreative(this.player, stack)) {
+        if (PolicyEnforcer.permitSlotWrite(this.player, slot, stack)) {
             original.call(slot, stack);
         }
     }
@@ -76,7 +76,7 @@ public abstract class ServerGamePacketListenerImplMixin {
     @Nullable
     private ItemEntity arcadiacreativeadmin$guardDrop(ServerPlayer target, ItemStack stack, boolean traceItem,
                                                        Operation<ItemEntity> original) {
-        return PolicyEnforcer.permitCreative(this.player, stack) ? original.call(target, stack, traceItem) : null;
+        return PolicyEnforcer.permitDrop(this.player, stack) ? original.call(target, stack, traceItem) : null;
     }
 
     @WrapOperation(

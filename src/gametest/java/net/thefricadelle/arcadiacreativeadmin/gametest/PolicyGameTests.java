@@ -9,12 +9,14 @@
 
 package net.thefricadelle.arcadiacreativeadmin.gametest;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
@@ -44,28 +46,41 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import net.thefricadelle.arcadiacreativeadmin.ArcadiaCreativeAdmin;
 import net.thefricadelle.arcadiacreativeadmin.PolicyLifecycle;
+import net.thefricadelle.arcadiacreativeadmin.network.NetCodecs;
 import net.thefricadelle.arcadiacreativeadmin.policy.CreativeProfile;
 import net.thefricadelle.arcadiacreativeadmin.policy.Decision;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyCodec;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyDocument;
 import net.thefricadelle.arcadiacreativeadmin.policy.PolicyEvaluator;
+import net.thefricadelle.arcadiacreativeadmin.policy.PolicyManager;
+
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 /**
- * Regression tests for the ways an allowed item id used to smuggle something else through, and for
- * the enforcement hooks themselves.
+ * Regression tests for the evaluation rules, the ways an open item id used to smuggle something
+ * else through, the ledger that keeps owned items untouched, the file and wire formats, and the
+ * enforcement hooks themselves.
  * <p>
  * Run with {@code ./gradlew runGameTestServer}. The GameTest server is not a dedicated server, so
  * like an integrated one it never builds creative tab contents on its own; {@link #tabsBuilt} does
  * it here, which has no client to disturb.
+ * <p>
+ * Tests touching the policy files share global state, so they live in one sequential test.
  *
  * @author THEFricadelle
  */
@@ -78,36 +93,54 @@ public final class PolicyGameTests {
     private PolicyGameTests() {}
 
     // ------------------------------------------------------------------
-    // Evaluator
+    // Modes and selection
     // ------------------------------------------------------------------
 
     @GameTest(template = TEMPLATE)
-    public static void itemRuleAllowsOnlyThatItem(GameTestHelper helper) {
-        CreativeProfile profile = profile(Set.of(id("torch")), Set.of(), Set.of(), false, false, Set.of());
+    public static void whitelistOpensOnlyTheSelection(GameTestHelper helper) {
+        CreativeProfile profile = whitelist().items("torch").build();
         allowed(helper, profile, new ItemStack(Items.TORCH));
         denied(helper, profile, new ItemStack(Items.DIRT));
         helper.succeed();
     }
 
     @GameTest(template = TEMPLATE)
-    public static void denialWinsOverNamespace(GameTestHelper helper) {
-        CreativeProfile profile = new CreativeProfile("test", Set.of(), Set.of("minecraft"), Set.of(), Set.of(),
-                Set.of(id("command_block")), Set.of(), false, false, Set.of());
+    public static void blacklistLocksOnlyTheSelection(GameTestHelper helper) {
+        tabsBuilt(helper);
+        CreativeProfile profile = blacklist().tabs("redstone_blocks").items("tnt").exceptions("lever").build();
         allowed(helper, profile, new ItemStack(Items.STONE));
-        denied(helper, profile, new ItemStack(Items.COMMAND_BLOCK));
+        denied(helper, profile, new ItemStack(Items.TNT));
+        denied(helper, profile, new ItemStack(Items.REPEATER));
+        // An exception carves one item out of a locked page.
+        allowed(helper, profile, new ItemStack(Items.LEVER));
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
+    public static void singleItemOutranksGroups(GameTestHelper helper) {
+        // Whitelist: the mod is open, the exception locks one item of it.
+        CreativeProfile trimmed = whitelist().namespaces("minecraft").exceptions("command_block").build();
+        allowed(helper, trimmed, new ItemStack(Items.STONE));
+        denied(helper, trimmed, new ItemStack(Items.COMMAND_BLOCK));
+        // An item listed on its own wins even over an exception naming it.
+        CreativeProfile both = whitelist().items("torch").exceptions("torch").build();
+        allowed(helper, both, new ItemStack(Items.TORCH));
         helper.succeed();
     }
 
     @GameTest(template = TEMPLATE)
     public static void tagAndTabRulesMatch(GameTestHelper helper) {
         tabsBuilt(helper);
-        CreativeProfile profile = new CreativeProfile("test", Set.of(), Set.of(), Set.of(id("beds")),
-                Set.of(id("building_blocks")), Set.of(), Set.of(), false, false, Set.of());
+        CreativeProfile profile = whitelist().tags("beds").tabs("building_blocks").build();
         allowed(helper, profile, new ItemStack(Items.RED_BED));
         allowed(helper, profile, new ItemStack(Items.STONE_BRICKS));
         denied(helper, profile, new ItemStack(Items.DIAMOND_SWORD));
         helper.succeed();
     }
+
+    // ------------------------------------------------------------------
+    // Components
+    // ------------------------------------------------------------------
 
     @GameTest(template = TEMPLATE)
     public static void entityDataCannotSmuggleItems(GameTestHelper helper) {
@@ -153,10 +186,7 @@ public final class PolicyGameTests {
                         EquipmentSlotGroup.MAINHAND)
                 .build());
         denied(helper, everything(), stick);
-
-        CreativeProfile opened = new CreativeProfile("test", Set.of(), Set.of("minecraft"), Set.of(), Set.of(),
-                Set.of(), Set.of(), false, false, Set.of(id("attribute_modifiers")));
-        allowed(helper, opened, stick);
+        allowed(helper, whitelist().namespaces("minecraft").components("attribute_modifiers").build(), stick);
         helper.succeed();
     }
 
@@ -186,12 +216,9 @@ public final class PolicyGameTests {
 
     @GameTest(template = TEMPLATE)
     public static void signedBooksPassButCommandBooksDoNot(GameTestHelper helper) {
-        ItemStack plain = book(Component.literal("Rules of the event"));
-        allowed(helper, everything(), plain);
-
-        ItemStack trap = book(Component.literal("Click me").withStyle(style ->
-                style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/op someone"))));
-        denied(helper, everything(), trap);
+        allowed(helper, everything(), book(Component.literal("Rules of the event")));
+        denied(helper, everything(), book(Component.literal("Click me").withStyle(style ->
+                style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/op someone")))));
         helper.succeed();
     }
 
@@ -201,8 +228,7 @@ public final class PolicyGameTests {
         box.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(new ItemStack(Items.STONE))));
         denied(helper, everything(), box);
 
-        CreativeProfile contents = profile(Set.of(id("shulker_box"), id("stone")), Set.of(), Set.of(),
-                false, true, Set.of());
+        CreativeProfile contents = whitelist().items("shulker_box", "stone").containerContents().build();
         allowed(helper, contents, box);
 
         ItemStack smuggler = new ItemStack(Items.SHULKER_BOX);
@@ -223,7 +249,40 @@ public final class PolicyGameTests {
     }
 
     // ------------------------------------------------------------------
-    // Hooks
+    // Formats
+    // ------------------------------------------------------------------
+
+    @GameTest(template = TEMPLATE)
+    public static void policyFileAndWireFormatsRoundTrip(GameTestHelper helper) {
+        Map<String, CreativeProfile> profiles = new LinkedHashMap<>();
+        profiles.put("event", blacklist().name("event").tabs("redstone_blocks").namespaces("create")
+                .tags("beds").items("tnt").exceptions("lever").components("enchantments").containerContents().build());
+        profiles.put("builders", whitelist().name("builders").tabs("building_blocks").build());
+        PolicyDocument document = new PolicyDocument(true, "event", 3, profiles);
+
+        PolicyDocument fromFile = PolicyCodec.read(JsonParser.parseString(PolicyCodec.write(document).toString())
+                .getAsJsonObject());
+        helper.assertTrue(document.equals(fromFile), "the policy file does not round-trip: " + fromFile);
+
+        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(),
+                helper.getLevel().getServer().registryAccess(), ConnectionType.NEOFORGE);
+        NetCodecs.DOCUMENT.encode(buf, document);
+        PolicyDocument fromWire = NetCodecs.DOCUMENT.decode(buf);
+        helper.assertTrue(document.equals(fromWire), "the wire format does not round-trip: " + fromWire);
+
+        boolean rejected;
+        try {
+            PolicyCodec.read(JsonParser.parseString("{\"enforced\": true, \"denied_items\": []}").getAsJsonObject());
+            rejected = false;
+        } catch (IllegalArgumentException e) {
+            rejected = true;
+        }
+        helper.assertTrue(rejected, "an unknown key was accepted instead of refusing the file");
+        helper.succeed();
+    }
+
+    // ------------------------------------------------------------------
+    // Hooks and files, sequential because they share global state
     // ------------------------------------------------------------------
 
     /**
@@ -231,7 +290,7 @@ public final class PolicyGameTests {
      * channel, and sending it the advisory payload used to throw from the login event.
      */
     @GameTest(template = TEMPLATE)
-    public static void creativeSlotPacketIsJudgedOnTheFinalStack(GameTestHelper helper) {
+    public static void enforcementHooksAndPolicyFiles(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         writePolicy("""
                 {
@@ -239,6 +298,7 @@ public final class PolicyGameTests {
                   "default_profile": "event",
                   "profiles": {
                     "event": {
+                      "mode": "whitelist",
                       "items": ["minecraft:chest"],
                       "allow_block_entity_data": true,
                       "allow_container_contents": false
@@ -247,43 +307,14 @@ public final class PolicyGameTests {
                 }
                 """);
         PolicyLifecycle.reload(server, false);
+        helper.assertTrue(PolicyManager.enforced() && !PolicyManager.policyBroken(), "the test policy did not load");
 
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         try {
             player.setGameMode(GameType.CREATIVE);
-
-            BlockPos relative = new BlockPos(1, 1, 1);
-            helper.setBlock(relative, Blocks.CHEST);
-            BlockPos absolute = helper.absolutePos(relative);
-            ChestBlockEntity chest = (ChestBlockEntity) helper.getLevel().getBlockEntity(absolute);
-            helper.assertTrue(chest != null, "chest block entity missing");
-            chest.setItem(0, new ItemStack(Items.DIAMOND_BLOCK));
-
-            // Vanilla replaces this data with the chest found at x/y/z, contents included, after
-            // the packet arrives. Judging the stack as sent would let the diamond block through.
-            CompoundTag pointer = new CompoundTag();
-            pointer.putString("id", "minecraft:chest");
-            pointer.putInt("x", absolute.getX());
-            pointer.putInt("y", absolute.getY());
-            pointer.putInt("z", absolute.getZ());
-            ItemStack probe = new ItemStack(Items.CHEST);
-            probe.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(pointer));
-            send(player, 36, probe);
-            helper.assertTrue(player.inventoryMenu.getSlot(36).getItem().isEmpty(),
-                    "a chest copied from the world with its contents was accepted");
-
-            send(player, 36, new ItemStack(Items.CHEST));
-            helper.assertTrue(player.inventoryMenu.getSlot(36).getItem().is(Items.CHEST),
-                    "an allowed plain chest was refused");
-
-            send(player, 37, new ItemStack(Items.DIAMOND_BLOCK));
-            helper.assertTrue(player.inventoryMenu.getSlot(37).getItem().isEmpty(),
-                    "a forbidden item reached an inventory slot");
-
-            send(player, -1, new ItemStack(Items.DIAMOND_BLOCK));
-            boolean dropped = !helper.getLevel().getEntitiesOfClass(ItemEntity.class,
-                    player.getBoundingBox().inflate(4.0), entity -> entity.getItem().is(Items.DIAMOND_BLOCK)).isEmpty();
-            helper.assertTrue(!dropped, "a forbidden item was dropped through the slotNum < 0 path");
+            finalStackIsJudged(helper, player);
+            ownedItemsMoveFreely(helper, player);
+            concurrentSaveIsRefused(helper);
         } finally {
             server.getPlayerList().remove(player);
             writePolicy("{ \"enforced\": false }");
@@ -292,9 +323,79 @@ public final class PolicyGameTests {
         helper.succeed();
     }
 
+    private static void finalStackIsJudged(GameTestHelper helper, ServerPlayer player) {
+        BlockPos relative = new BlockPos(1, 1, 1);
+        helper.setBlock(relative, Blocks.CHEST);
+        BlockPos absolute = helper.absolutePos(relative);
+        ChestBlockEntity chest = (ChestBlockEntity) helper.getLevel().getBlockEntity(absolute);
+        helper.assertTrue(chest != null, "chest block entity missing");
+        chest.setItem(0, new ItemStack(Items.DIAMOND_BLOCK));
+
+        // Vanilla replaces this data with the chest found at x/y/z, contents included, after the
+        // packet arrives. Judging the stack as sent would let the diamond block through.
+        CompoundTag pointer = new CompoundTag();
+        pointer.putString("id", "minecraft:chest");
+        pointer.putInt("x", absolute.getX());
+        pointer.putInt("y", absolute.getY());
+        pointer.putInt("z", absolute.getZ());
+        ItemStack probe = new ItemStack(Items.CHEST);
+        probe.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(pointer));
+        send(player, 36, probe);
+        helper.assertTrue(slot(player, 36).isEmpty(), "a chest copied from the world with its contents was accepted");
+
+        send(player, 36, new ItemStack(Items.CHEST));
+        helper.assertTrue(slot(player, 36).is(Items.CHEST), "an open plain chest was refused");
+
+        send(player, 37, new ItemStack(Items.DIAMOND_BLOCK));
+        helper.assertTrue(slot(player, 37).isEmpty(), "a locked item reached an inventory slot");
+
+        send(player, -1, new ItemStack(Items.DIAMOND_BLOCK));
+        boolean dropped = !helper.getLevel().getEntitiesOfClass(ItemEntity.class,
+                player.getBoundingBox().inflate(4.0), entity -> entity.getItem().is(Items.DIAMOND_BLOCK)).isEmpty();
+        helper.assertTrue(!dropped, "a locked item was dropped through the slotNum < 0 path");
+    }
+
+    /**
+     * A locked item the player already owns can be moved around, but moving it never leaves more
+     * than there was: the creative protocol sends a move as an emptied slot then a filled one.
+     */
+    private static void ownedItemsMoveFreely(GameTestHelper helper, ServerPlayer player) {
+        player.inventoryMenu.getSlot(38).set(new ItemStack(Items.DIAMOND_BLOCK, 5));
+
+        send(player, 38, ItemStack.EMPTY);
+        send(player, 39, new ItemStack(Items.DIAMOND_BLOCK, 5));
+        helper.assertTrue(slot(player, 39).getCount() == 5, "moving an owned locked stack destroyed it");
+
+        send(player, 39, new ItemStack(Items.DIAMOND_BLOCK, 2));
+        send(player, 40, new ItemStack(Items.DIAMOND_BLOCK, 3));
+        helper.assertTrue(slot(player, 40).getCount() == 3, "splitting an owned locked stack was refused");
+
+        send(player, 41, new ItemStack(Items.DIAMOND_BLOCK, 1));
+        helper.assertTrue(slot(player, 41).isEmpty(), "a moved stack could be placed twice");
+
+        send(player, 40, new ItemStack(Items.DIAMOND_BLOCK, 64));
+        helper.assertTrue(slot(player, 40).getCount() == 3, "an owned locked stack could be grown");
+    }
+
+    private static void concurrentSaveIsRefused(GameTestHelper helper) {
+        int revision = PolicyManager.revision();
+        PolicyDocument edited = new PolicyDocument(true, "event", 4, PolicyManager.profiles());
+        helper.assertTrue(PolicyManager.save(edited, revision - 1) == PolicyManager.SaveResult.CONFLICT,
+                "a save based on an older revision was accepted");
+        helper.assertTrue(PolicyManager.save(edited, revision) == PolicyManager.SaveResult.SAVED,
+                "a save based on the current revision was refused");
+        PolicyDocument invalid = new PolicyDocument(true, "missing", 4, PolicyManager.profiles());
+        helper.assertTrue(PolicyManager.save(invalid, PolicyManager.revision()) == PolicyManager.SaveResult.INVALID,
+                "a default profile that does not exist was accepted");
+    }
+
     // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------
+
+    private static ItemStack slot(ServerPlayer player, int index) {
+        return player.inventoryMenu.getSlot(index).getItem();
+    }
 
     private static void send(ServerPlayer player, int slot, ItemStack stack) {
         player.connection.handleSetCreativeModeSlot(new ServerboundSetCreativeModeSlotPacket(slot, stack));
@@ -307,15 +408,77 @@ public final class PolicyGameTests {
     }
 
     private static CreativeProfile everything() {
-        return new CreativeProfile("test", Set.of(), Set.of("minecraft"), Set.of(), Set.of(),
-                Set.of(), Set.of(), false, false, Set.of());
+        return whitelist().namespaces("minecraft").build();
     }
 
-    private static CreativeProfile profile(Set<ResourceLocation> items, Set<String> namespaces,
-                                           Set<ResourceLocation> denied, boolean blockEntityData,
-                                           boolean containerContents, Set<ResourceLocation> components) {
-        return new CreativeProfile("test", items, namespaces, Set.of(), Set.of(), denied, Set.of(),
-                blockEntityData, containerContents, components);
+    private static Builder whitelist() {
+        return new Builder(CreativeProfile.Mode.WHITELIST);
+    }
+
+    private static Builder blacklist() {
+        return new Builder(CreativeProfile.Mode.BLACKLIST);
+    }
+
+    /** Profiles for tests, with vanilla ids written without their namespace. */
+    private static final class Builder {
+        private String name = "test";
+        private final CreativeProfile.Mode mode;
+        private final Set<ResourceLocation> tabs = new HashSet<>();
+        private final Set<String> namespaces = new HashSet<>();
+        private final Set<ResourceLocation> tags = new HashSet<>();
+        private final Set<ResourceLocation> items = new HashSet<>();
+        private final Set<ResourceLocation> exceptions = new HashSet<>();
+        private final Set<ResourceLocation> components = new HashSet<>();
+        private boolean containerContents;
+
+        Builder(CreativeProfile.Mode mode) {
+            this.mode = mode;
+        }
+
+        Builder name(String value) {
+            name = value;
+            return this;
+        }
+
+        Builder tabs(String... values) {
+            for (String value : values) tabs.add(id(value));
+            return this;
+        }
+
+        Builder namespaces(String... values) {
+            namespaces.addAll(List.of(values));
+            return this;
+        }
+
+        Builder tags(String... values) {
+            for (String value : values) tags.add(id(value));
+            return this;
+        }
+
+        Builder items(String... values) {
+            for (String value : values) items.add(id(value));
+            return this;
+        }
+
+        Builder exceptions(String... values) {
+            for (String value : values) exceptions.add(id(value));
+            return this;
+        }
+
+        Builder components(String... values) {
+            for (String value : values) components.add(id(value));
+            return this;
+        }
+
+        Builder containerContents() {
+            containerContents = true;
+            return this;
+        }
+
+        CreativeProfile build() {
+            return new CreativeProfile(name, mode, tabs, namespaces, tags, items, exceptions,
+                    false, containerContents, components);
+        }
     }
 
     private static ItemStack book(Component page) {
