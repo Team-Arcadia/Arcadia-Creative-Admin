@@ -50,6 +50,15 @@ neoForge {
             // Installs the stand-in permission handler of the gametest source set (TestPermissions).
             systemProperty 'arcadiacreativeadmin.testPermissions', 'true'
         }
+        // A real client driven by AdminScreenSmokeTest: a singleplayer world where the host is an
+        // admin, the admin screen used through its buttons, then smoke-report.txt and quit. Needs a
+        // desktop session, it opens a window.
+        adminSmoke {
+            client()
+            sourceSet = sourceSets.gametest
+            gameDirectory = project.file('run/adminsmoke')
+            systemProperty 'arcadiacreativeadmin.adminSmoke', 'true'
+        }
     }
 
     mods {
@@ -127,17 +136,29 @@ tasks.register('verifyJar') {
     group = 'verification'
     description = 'Fails unless the release jar holds every required entry and no test class.'
     def jarFile = tasks.named('jar', Jar).flatMap { it.archiveFile }
+    // Test classes can live in the screens' own package (AdminScreenSmokeTest), so a path filter is
+    // not enough: every class the GameTest source set compiles must be absent from the jar.
+    def testClasses = sourceSets.gametest.output.classesDirs
     inputs.file(jarFile)
+    dependsOn 'gametestClasses'
     doLast {
         Set<String> entries = new java.util.zip.ZipFile(jarFile.get().asFile).withCloseable { zip ->
             zip.entries().collect { it.name } as Set<String>
+        }
+        Set<String> testEntries = [] as Set
+        testClasses.each { dir ->
+            if (dir.isDirectory()) {
+                dir.eachFileRecurse(groovy.io.FileType.FILES) { file ->
+                    testEntries << dir.toPath().relativize(file.toPath()).toString().replace('\\', '/')
+                }
+            }
         }
         List<String> required = ['META-INF/LICENSE', 'META-INF/NOTICE.md', 'META-INF/CONTRIBUTORS.md',
                                  'META-INF/neoforge.mods.toml', "${mod_slug}.mixins.json".toString(),
                                  "assets/${mod_id}/lang/en_us.json".toString(),
                                  "assets/${mod_id}/lang/fr_fr.json".toString()]
         List<String> missing = required.findAll { !entries.contains(it) }
-        List<String> leaked = entries.findAll { it.contains('/gametest/') || it.endsWith('.nbt') }.sort()
+        List<String> leaked = entries.findAll { it.contains('/gametest/') || it.endsWith('.nbt') || testEntries.contains(it) }.sort()
         if (!missing.isEmpty() || !leaked.isEmpty()) {
             throw new GradleException("${jarFile.get().asFile.name}: missing ${missing}, test files shipped ${leaked}")
         }
@@ -145,3 +166,58 @@ tasks.register('verifyJar') {
     }
 }
 tasks.named('check') { dependsOn 'verifyJar' }
+
+// The client run exits 0 even when the game failed to start, so the verdict comes from its report.
+def adminSmokeDir = file('run/adminsmoke')
+
+tasks.register('verifyAdminSmoke') {
+    group = 'verification'
+    description = 'Fails unless the admin screen smoke run reported every check as passed.'
+    doLast {
+        File log = new File(adminSmokeDir, 'logs/latest.log')
+        if (log.isFile()) {
+            List<String> found = ['InvalidInjectionException', 'Mixin apply failed', 'failed to load correctly']
+                    .findAll { log.getText('UTF-8').contains(it) }
+            if (!found.isEmpty()) {
+                throw new GradleException("${log} contains ${found}")
+            }
+        }
+        File report = new File(adminSmokeDir, 'smoke-report.txt')
+        if (!report.isFile()) {
+            throw new GradleException("No ${report}: the client never finished the smoke run")
+        }
+        List<String> lines = report.readLines('UTF-8')
+        lines.each { logger.lifecycle(it) }
+        if (lines.isEmpty() || !lines.last().startsWith('RESULT PASS')) {
+            throw new GradleException("Admin screen smoke run failed, see ${report}")
+        }
+    }
+}
+
+tasks.configureEach { Task task ->
+    if (task.name == 'runAdminSmoke') {
+        task.doFirst {
+            // Fresh world, first-start policy, no report from a previous run.
+            project.delete(new File(adminSmokeDir, 'saves'), new File(adminSmokeDir, 'config/arcadia'),
+                    new File(adminSmokeDir, 'smoke-report.txt'), new File(adminSmokeDir, 'logs/latest.log'),
+                    new File(adminSmokeDir, 'screenshots'))
+            adminSmokeDir.mkdirs()
+            // No accessibility onboarding, no pause on focus loss, no sound.
+            new File(adminSmokeDir, 'options.txt').setText([
+                    'onboardAccessibility:false', 'pauseOnLostFocus:false', 'tutorialStep:none',
+                    'joinedFirstServer:true', 'skipMultiplayerWarning:true', 'soundCategory_master:0.0',
+                    'lang:en_us'].join('\n'), 'UTF-8')
+        }
+        task.finalizedBy 'verifyAdminSmoke'
+        task.mustRunAfter 'runGameTestServer'
+    } else if (task.name == 'runGameTestServer') {
+        task.mustRunAfter 'build'
+    }
+}
+
+// Everything automated, in order: unit tests, GameTests on a server, the admin screen on a client.
+tasks.register('testAll') {
+    group = 'verification'
+    description = 'Unit tests, GameTests and the admin screen smoke run.'
+    dependsOn 'build', 'runGameTestServer', 'runAdminSmoke'
+}

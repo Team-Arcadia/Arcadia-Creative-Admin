@@ -144,45 +144,57 @@ Arcadia-Creative-Admin/
 
 ## 6. Testing Checklist
 
-- [ ] `./gradlew build` succeeds.
-- [ ] `./gradlew runGameTestServer` reports every required test passed.
+Anything that can be automated is automated; what is left manual says why.
+
+### Automated
+
+```bash
+./gradlew testAll              # everything below, in order; fails on any failure
+./gradlew build                # compiles, unit tests, verifyJar
+./gradlew runGameTestServer    # GameTests on a server (18)
+./gradlew runAdminSmoke        # the admin screen on a real client (opens a window)
+```
+
+- **Unit tests** (`src/test`): language files agree key for key and placeholder for placeholder,
+  every key the code asks for exists (computed ones included) and none is unused, the mixin config
+  names real classes and no refmap, and the generated metadata requires the NeoForge version the
+  mod is built against.
+- **`verifyJar`**: the release jar holds the licensing files, both languages and the mixin config,
+  and no class compiled from `src/gametest`, whatever its package.
+- **GameTests** (`src/gametest/.../gametest`): the evaluation rules, every component bypass, the
+  file and wire formats, the packet hooks (slot write, drop, clone), owned items, profile
+  resolution (bypass, assignment, group meta, default), op levels and the admin and bypass nodes
+  through `TestPermissions` (a stand-in handler answering like LuckPerms and CustomPerm), every
+  subcommand from the console and its refusal for players, first start, broken and removed files,
+  persistence, stale and valid saves.
+- **Admin screen smoke run** (`src/gametest/.../client/screen/AdminScreenSmokeTest`): a
+  singleplayer world where the host is an admin; the flag button and `/creativeadmin`, refused
+  profile names, create, duplicate and delete behind its confirmation, a whole page and a single
+  item in the grid, the search, the mode, a mod, a tag, an unknown and a real component, both
+  switches, save (and the file on disk), a refused save that keeps the edits, undo, the discard
+  confirmation, the players page with an edit pending, and the read-only banner of a broken file.
+  Screenshots of each page land in `run/adminsmoke/screenshots` for a person to look at. It lives
+  in the screens' package, in the GameTest source set, to read their session state; `verifyJar`
+  keeps it out of the jar.
+- In the Arcadia Better Creative repository, `runPairSmoke` (both mods on a dedicated server) and
+  `runArcadiaSmoke` (both mods in the Arcadia pack, LuckPerms and spark included) cover this mod
+  next to Better Creative and inside the pack.
+
+### Manual
+
 - [ ] Bytecode target check: `javap -c` on the compiled `ServerGamePacketListenerImpl` still shows
       `Slot.setByPlayer(ItemStack)` and `ServerPlayer.drop(ItemStack, boolean)` exactly once inside
       `handleSetCreativeModeSlot`, after `BlockEntity.saveToItem`, and
       `AbstractContainerMenu.clicked(int, int, ClickType, Player)` exactly once inside
-      `handleContainerClick`. Compilation does **not** validate this.
-- [ ] Same check for `CreativeModeTabRegistry.getSortedCreativeModeTabs` inside
-      `CreativeModeInventoryScreen.init`.
-- [ ] `./gradlew runServer` reaches "Done" with no `InvalidInjectionException` in the log.
-- [ ] First start on a fresh config writes a disabled sample policy.
-- [ ] With `enforced: false`, creative mode behaves exactly like vanilla.
-- [ ] With `enforced: true`, a non-op player is refused an item outside their profile, and the item
-      does not stay in their inventory after a reconnect (client resync works).
-- [ ] Refusal by the `slotNum < 0` drop path: the item does not land on the ground either.
-- [ ] A filled shulker box is refused with `allow_container_contents: false`, and its **contents**
-      are what gets refused when the flag is on and they are not whitelisted.
-- [ ] An item carrying `block_entity_data` is refused while the same item without it is allowed.
-- [ ] A spawn egg or item frame carrying `entity_data` is refused; a renamed allowed item is not.
-- [ ] Middle-click in an open chest does not clone a forbidden stack for a restricted player.
-- [ ] Deleting the policy file then running `/creativeadmin reload` denies everything.
-- [ ] A `tabs` rule matches on a **dedicated** server, where tab contents are not built by default.
-- [ ] On an integrated server (singleplayer), the player's own creative screen is unchanged when the
-      policy is off — no forced tab rebuild.
-- [ ] A player above `bypass_op_level` is unrestricted.
-- [ ] `/creativeadmin reload` applies a changed profile without a restart, and connected clients get
-      the new tab advice.
-- [ ] A **vanilla client** can still connect (the channel is registered optional).
-- [ ] With both this mod and Arcadia Better Creative installed, the tab bar is both filtered and
-      ordered, and neither mod throws.
-- [ ] Spamming refused clicks produces at most one message per 1.5 s.
-- [ ] Admin screen: create a profile, switch it to blacklist, lock a tab and one item of another tab,
-      save; a player on that profile no longer sees them, and is refused them if requested anyway.
-- [ ] Two admins editing at once: the second save is refused with the conflict status.
-- [ ] A player keeps, moves and splits a locked item they already own in the creative inventory.
-- [ ] With LuckPerms or CustomPerm: `meta set arcadiacreativeadmin.profile <name>` on a group
-      applies that profile after the player reopens their creative screen.
-- [ ] With Arcadia Better Creative (server tab policy API): a locked tab is absent from its settings
-      screen and its notice names the server.
+      `handleContainerClick`; same for `CreativeModeTabRegistry.getSortedCreativeModeTabs` inside
+      `CreativeModeInventoryScreen.init`. Only when the Minecraft or NeoForge version changes.
+- [ ] How the admin screens look: the screenshots of the smoke run, at the default window size and
+      at a larger one, in English and in French. Labels must not be cut.
+- [ ] A **vanilla client** can connect and is refused a locked item (the channel is optional).
+- [ ] Singleplayer: the screen opens and nothing is enforced for the host.
+- [ ] A restricted player sees no flag button, and locked items are not drawn inside an open tab.
+- [ ] Two admins at once: the second one sees the stale banner (the refusal itself is a GameTest).
+- [ ] JEI cheat mode is refused a locked item.
 
 ## 7. AI Assistant Instructions
 
