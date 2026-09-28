@@ -9,8 +9,11 @@
 
 package net.thefricadelle.arcadiacreativeadmin.client.gui.kit;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
+import org.joml.Matrix4f;
 
 import java.util.Locale;
 
@@ -175,9 +178,18 @@ public final class Skin {
         g.fill(x, y + 1, x + s, y + s - 1, color);
     }
 
-    /** Paints an icon at its native size, merging each row's lit pixels into horizontal runs. */
+    /**
+     * Paints an icon at its native size, merging each row's lit pixels into horizontal runs.
+     * <p>
+     * The runs go straight into the GUI buffer and are drawn with one flush at the end.
+     * {@link GuiGraphics#fill} flushes after every quad, which made each run its own draw call;
+     * the same kit in Arcadia Better Creative measured a few milliseconds per frame for a list
+     * of rows with icons (spark, Arcadia pack).
+     */
     public static void icon(GuiGraphics g, Icon icon, int x, int y, int color) {
         int size = Atlas.ICON_SIZE;
+        Matrix4f pose = g.pose().last().pose();
+        VertexConsumer buffer = g.bufferSource().getBuffer(RenderType.gui());
         for (int row = 0; row < size; row++) {
             int start = -1;
             for (int col = 0; col <= size; col++) {
@@ -185,11 +197,20 @@ public final class Skin {
                 if (lit && start < 0) {
                     start = col;
                 } else if (!lit && start >= 0) {
-                    g.fill(x + start, y + row, x + col, y + row + 1, color);
+                    float x0 = x + start;
+                    float x1 = x + col;
+                    float y0 = y + row;
+                    float y1 = y + row + 1;
+                    // Same winding and depth as GuiGraphics.fill.
+                    buffer.addVertex(pose, x0, y0, 0).setColor(color);
+                    buffer.addVertex(pose, x0, y1, 0).setColor(color);
+                    buffer.addVertex(pose, x1, y1, 0).setColor(color);
+                    buffer.addVertex(pose, x1, y0, 0).setColor(color);
                     start = -1;
                 }
             }
         }
+        g.flush();
     }
 
     /**
