@@ -62,6 +62,25 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    // Test-only, pinned exactly, the same versions Arcadia Better Creative uses. ModDevGradle puts no
+    // Minecraft on the unit test classpath, so the shipped JSON files need their own parser.
+    testImplementation platform('org.junit:junit-bom:5.11.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'com.google.code.gson:gson:2.11.0'
+}
+
+// Unit tests cover what carries no Minecraft type: the shipped resources and the loader metadata.
+// Anything needing a registry, a player or a server is a GameTest instead.
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+    testLogging {
+        events 'failed'
+        exceptionFormat 'full'
+    }
+}
+
 // Expose gradle.properties values to neoforge.mods.toml
 tasks.named('processResources', ProcessResources).configure {
     def replacements = [
@@ -99,3 +118,28 @@ tasks.named('jar', Jar).configure {
     from(file('NOTICE.md')) { into 'META-INF' }
     from(file('CONTRIBUTORS.md')) { into 'META-INF' }
 }
+
+// What a server owner downloads: the licensing terms, both languages and the mixin config must be
+// inside, and nothing from the GameTest source set.
+tasks.register('verifyJar') {
+    group = 'verification'
+    description = 'Fails unless the release jar holds every required entry and no test class.'
+    def jarFile = tasks.named('jar', Jar).flatMap { it.archiveFile }
+    inputs.file(jarFile)
+    doLast {
+        Set<String> entries = new java.util.zip.ZipFile(jarFile.get().asFile).withCloseable { zip ->
+            zip.entries().collect { it.name } as Set<String>
+        }
+        List<String> required = ['META-INF/LICENSE', 'META-INF/NOTICE.md', 'META-INF/CONTRIBUTORS.md',
+                                 'META-INF/neoforge.mods.toml', "${mod_slug}.mixins.json".toString(),
+                                 "assets/${mod_id}/lang/en_us.json".toString(),
+                                 "assets/${mod_id}/lang/fr_fr.json".toString()]
+        List<String> missing = required.findAll { !entries.contains(it) }
+        List<String> leaked = entries.findAll { it.contains('/gametest/') || it.endsWith('.nbt') }.sort()
+        if (!missing.isEmpty() || !leaked.isEmpty()) {
+            throw new GradleException("${jarFile.get().asFile.name}: missing ${missing}, test files shipped ${leaked}")
+        }
+        logger.lifecycle("Jar content verified: ${entries.size()} entries")
+    }
+}
+tasks.named('check') { dependsOn 'verifyJar' }
