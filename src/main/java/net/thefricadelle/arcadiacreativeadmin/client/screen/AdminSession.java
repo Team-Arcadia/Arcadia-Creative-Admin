@@ -67,8 +67,14 @@ public final class AdminSession {
         }
     }
 
+    /** The status the server answers a successful save with, to this client only. */
+    private static final String SAVED = "arcadiacreativeadmin.admin.status.saved";
+
     private static AdminPayloads.State state;
     private static int baseRevision;
+    /** The document the edits started from: what "someone else changed the policy" is judged against. */
+    @Nullable
+    private static PolicyDocument baseDocument;
     private static boolean enforced;
     private static String defaultProfile = "";
     private static int bypassOpLevel = PolicyDocument.DEFAULT_BYPASS_OP_LEVEL;
@@ -78,15 +84,30 @@ public final class AdminSession {
 
     private AdminSession() {}
 
-    /** @return whether the working copy was replaced by the new state */
+    /**
+     * Takes a state from the server.
+     * <p>
+     * Without edits, or when the state answers this client's own successful save, it replaces the
+     * working copy. Over unsaved edits, the revision alone cannot tell what happened, since an
+     * assignment or a refused save moves it too without touching the policy; the document can. If
+     * the document the edits started from is unchanged, the edits are kept and simply rebased on the
+     * new revision. Only a document someone else changed makes the edits stale.
+     *
+     * @return {@code false} when the edits are now stale, which the page announces
+     */
     static boolean accept(AdminPayloads.State incoming) {
         state = incoming;
-        if (dirty && incoming.revision() != baseRevision) {
-            stale = true;
-            return false;
+        boolean ownSave = incoming.success() && SAVED.equals(incoming.status());
+        if (!dirty || ownSave) {
+            load(incoming);
+            return true;
         }
-        load(incoming);
-        return true;
+        if (incoming.document().equals(baseDocument)) {
+            baseRevision = incoming.revision();
+            return true;
+        }
+        stale = true;
+        return false;
     }
 
     /** Drops the edits and takes the last state the server sent. */
@@ -99,6 +120,7 @@ public final class AdminSession {
     private static void load(AdminPayloads.State incoming) {
         baseRevision = incoming.revision();
         PolicyDocument document = incoming.document();
+        baseDocument = document;
         enforced = document.enforced();
         defaultProfile = document.defaultProfile();
         bypassOpLevel = document.bypassOpLevel();

@@ -20,3 +20,10 @@
 **Root cause:** `readPolicy(true)` wrote `PolicyDocument.sample()` to disk but kept `PolicyDocument.disabled()` in memory, so memory and file disagreed until the next reload.
 **Fix:** Memory takes the sample when the write succeeds, `disabled()` only when it fails. Both are unenforced, so nothing changes for players.
 **Prevention:** What is written to disk and what is held in memory come from the same document; the GameTest asserts the example profile is visible right after first start.
+
+## [2026-09-28 21:40] - A successful save left the admin screen stale and unsaved
+**Context:** First run of the admin screen smoke run (`runAdminSmoke`), which saves from the screen and waits for the answer.
+**Error:** The server logged "Creative policy saved", but the client kept its edits as unsaved; the screen showed "Another admin saved changes" and the next save was refused as a conflict. The run timed out waiting for the session to become clean.
+**Root cause:** `AdminSession.accept` treated any state with a new revision over unsaved edits as someone else's change. A successful save bumps the revision, so the answer to one's own save looked like a conflict. The same rule marked the screen stale after assigning a player with an edit pending (assignments bump the revision too), and a refused save arriving with an unchanged revision went through `load()` and silently discarded the edits.
+**Fix:** The session keeps the document its edits started from. The answer to its own successful save replaces the working copy; a state whose document is unchanged only rebases the revision and keeps the edits; only a document someone else changed makes them stale.
+**Prevention:** Screens that talk to the server are driven by a client smoke run, not only their server logic by GameTests: the GameTests proved the save and the conflict on the server, and the bug lived entirely in the client's reading of the answer. The smoke run now covers a save, a refused save and an assignment with edits pending.
