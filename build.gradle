@@ -33,6 +33,13 @@ neoForge {
             client()
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
+        // A second player for what needs two (two admins editing at once): its own name, so the
+        // server does not drop the first client, and its own folder for options and logs.
+        client2 {
+            client()
+            gameDirectory = project.file('run/client2')
+            programArguments.addAll '--username', 'Dev2'
+        }
         // The enforcement path only exists on a logical server, so a dedicated server run is the
         // only environment that exercises it the way a production install does.
         server {
