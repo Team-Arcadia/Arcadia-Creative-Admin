@@ -276,8 +276,9 @@ public final class PolicyManager {
         policyBroken = false;
         if (Files.notExists(POLICY_FILE)) {
             if (startup) {
-                writeSamplePolicy();
-                policy = PolicyDocument.disabled();
+                // Hold what the file now says, so the screen and status show the example profile
+                // and a first save from the screen keeps it. Disabled either way.
+                policy = writeSamplePolicy() ? PolicyDocument.sample() : PolicyDocument.disabled();
                 return;
             }
             markBroken();
@@ -397,8 +398,12 @@ public final class PolicyManager {
         return writeAtomically(ASSIGNMENTS_FILE, root);
     }
 
-    /** Opened with {@code CREATE_NEW}, so an existing file is never overwritten by the sample. */
-    private static void writeSamplePolicy() {
+    /**
+     * Opened with {@code CREATE_NEW}, so an existing file is never overwritten by the sample.
+     *
+     * @return whether the sample is now on disk
+     */
+    private static boolean writeSamplePolicy() {
         try {
             Files.createDirectories(DIR);
             try (Writer writer = Files.newBufferedWriter(POLICY_FILE, StandardCharsets.UTF_8,
@@ -406,8 +411,10 @@ public final class PolicyManager {
                 GSON.toJson(PolicyCodec.write(PolicyDocument.sample()), writer);
             }
             LOGGER.info("Wrote a disabled sample creative policy to {}", POLICY_FILE);
+            return true;
         } catch (IOException e) {
             LOGGER.error("Could not write the sample policy to {}", POLICY_FILE, e);
+            return false;
         }
     }
 

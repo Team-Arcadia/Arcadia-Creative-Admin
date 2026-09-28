@@ -47,6 +47,8 @@ neoForge {
             // The tests rewrite the policy file; keep them away from the config the dev runs use.
             gameDirectory = project.file('run/gametest')
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+            // Installs the stand-in permission handler of the gametest source set (TestPermissions).
+            systemProperty 'arcadiacreativeadmin.testPermissions', 'true'
         }
     }
 
