@@ -37,7 +37,11 @@ neoForge {
         // only environment that exercises it the way a production install does.
         server {
             server()
-            programArgument '--nogui'
+            // -PserverGui keeps the server window, whose command field is the only console a Gradle
+            // run offers: the task does not forward standard input.
+            if (!project.hasProperty('serverGui')) {
+                programArgument '--nogui'
+            }
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
         // Runs every GameTest of the mod headless and exits non-zero on a failure.
