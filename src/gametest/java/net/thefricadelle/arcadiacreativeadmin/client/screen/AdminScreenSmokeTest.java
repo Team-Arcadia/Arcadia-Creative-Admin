@@ -196,6 +196,15 @@ public final class AdminScreenSmokeTest {
         STEPS.add(new Step("shot.rules", 5, () -> screenshot("rules")));
         STEPS.add(new Step("rules.back", 5, () -> current(AdvancedScreen.class).onClose()));
 
+        // A01: no button label or field hint cut, on every page, at real screen sizes, in both languages.
+        STEPS.add(new Step("layout.en", 5, () -> checkLayout("layout.english")));
+        STEPS.add(new Step("layout.fr.load", 5, () -> switchLanguage("fr_fr")));
+        STEPS.add(new Step("layout.fr", 10, () -> languageReload == null || languageReload.isDone(),
+                () -> checkLayout("layout.french")));
+        STEPS.add(new Step("layout.en.load", 5, () -> switchLanguage("en_us")));
+        STEPS.add(new Step("layout.en.back", 10, () -> languageReload == null || languageReload.isDone(),
+                () -> Minecraft.getInstance().setScreen(new AdminScreen())));
+
         // A05: save, undo, discard.
         STEPS.add(new Step("save", 5, AdminScreenSmokeTest::saveSettings));
         STEPS.add(new Step("save.answer", 0, () -> !AdminSession.dirty(), AdminScreenSmokeTest::checkSaved));
@@ -442,6 +451,99 @@ public final class AdminScreenSmokeTest {
             require(draft().namespaces.contains(String.valueOf(first)), "clicking a mod row did not select " + first);
             return "mod " + first + " selected by a click";
         });
+    }
+
+    // ------------------------------------------------------------------ layout
+
+    /**
+     * Screen sizes in GUI pixels, as the game sees them: the default 854x480 window at GUI scale 2,
+     * then a 1080p screen at scales 4, 3 and 2. The window is capped, so larger screens change
+     * nothing beyond the last one.
+     */
+    private static final int[][] GUI_SIZES = {{427, 240}, {480, 270}, {640, 360}, {960, 540}};
+    /** What a button keeps around its label (AbcButton draws from 3 px in and stops 3 px before the edge). */
+    private static final int BUTTON_INSET = 6;
+    /** A field's text area is its width minus the vanilla border and inner padding. */
+    private static final int FIELD_INSET = 8;
+    private static final int ICON_ROOM = 12;
+
+    private static java.util.concurrent.CompletableFuture<Void> languageReload;
+
+    private static void switchLanguage(String code) {
+        Minecraft mc = Minecraft.getInstance();
+        mc.getLanguageManager().setSelected(code);
+        mc.options.languageCode = code;
+        languageReload = mc.reloadResourcePacks();
+    }
+
+    /** Every page of the admin screen, built at each size, with each label measured against its box. */
+    private static void checkLayout(String name) {
+        check(name, () -> {
+            Minecraft mc = Minecraft.getInstance();
+            AdminScreen main = new AdminScreen();
+            List<Screen> pages = List.of(main, new ProfileScreen(main, PROFILE), new AdvancedScreen(main, PROFILE),
+                    new PlayersScreen(main));
+            List<String> cut = new ArrayList<>();
+            int measured = 0;
+            for (int[] size : GUI_SIZES) {
+                // The notes under the profile buttons, in both modes: the blacklist help is the longer one.
+                for (CreativeProfile.Mode mode : CreativeProfile.Mode.values()) {
+                    CreativeProfile.Mode kept = draft().mode;
+                    draft().mode = mode;
+                    main.init(mc, size[0], size[1]);
+                    draft().mode = kept;
+                    measured += checkNotes(main, size, cut);
+                }
+                for (Screen page : pages) {
+                    page.init(mc, size[0], size[1]);
+                    for (GuiEventListener child : page.children()) {
+                        String problem = null;
+                        if (child instanceof AbcButton button && !button.isIconOnly()) {
+                            String label = button.getMessage().getString();
+                            int need = mc.font.width(label) + (field(button, AbcButton.class, "icon") != null ? ICON_ROOM : 0);
+                            measured++;
+                            if (need > button.getWidth() - BUTTON_INSET) {
+                                problem = "'" + label + "' needs " + need + " of " + (button.getWidth() - BUTTON_INSET);
+                            }
+                        } else if (child instanceof AbcEditBox box) {
+                            String hint = (String) field(box, AbcEditBox.class, "hint");
+                            measured++;
+                            if (mc.font.width(hint) > box.getWidth() - FIELD_INSET) {
+                                problem = "hint '" + hint + "' needs " + mc.font.width(hint) + " of " + (box.getWidth() - FIELD_INSET);
+                            }
+                        }
+                        if (problem != null) {
+                            cut.add(page.getClass().getSimpleName() + "@" + size[0] + "x" + size[1] + ": " + problem);
+                        }
+                    }
+                }
+            }
+            require(cut.isEmpty(), cut.size() + " cut: " + String.join(" | ", new java.util.LinkedHashSet<>(cut)));
+            return measured + " labels and hints fit, 4 pages at " + GUI_SIZES.length + " screen sizes";
+        });
+    }
+
+    /** Each note fits its width, and the notes overlap no widget of the page. */
+    @SuppressWarnings("unchecked")
+    private static int checkNotes(AdminScreen main, int[] size, List<String> cut) {
+        Minecraft mc = Minecraft.getInstance();
+        List<String> notes = (List<String>) field(main, AdminScreen.class, "notes");
+        net.thefricadelle.arcadiacreativeadmin.client.gui.kit.Rect area =
+                (net.thefricadelle.arcadiacreativeadmin.client.gui.kit.Rect) field(main, AdminScreen.class, "notesArea");
+        String where = "AdminScreen@" + size[0] + "x" + size[1] + ": ";
+        for (String note : notes) {
+            if (mc.font.width(note) > area.w()) {
+                cut.add(where + "note '" + note + "' needs " + mc.font.width(note) + " of " + area.w());
+            }
+        }
+        for (GuiEventListener child : main.children()) {
+            if (child instanceof net.minecraft.client.gui.components.AbstractWidget widget
+                    && widget.getY() < area.bottom() && area.y() < widget.getY() + widget.getHeight()
+                    && widget.getX() < area.right() && area.x() < widget.getX() + widget.getWidth()) {
+                cut.add(where + "the notes overlap '" + widget.getMessage().getString() + "'");
+            }
+        }
+        return notes.size();
     }
 
     // ------------------------------------------------------------------ A05
