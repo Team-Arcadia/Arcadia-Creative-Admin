@@ -12,6 +12,10 @@ All notable changes to Arcadia Creative Admin are documented here.
   opens an in-game screen to manage everything: profiles, their mode, the tabs and items they lock,
   mods, tags and components, server settings, and player assignments. Edits are saved on demand, and
   a save based on an outdated copy is refused instead of overwriting another admin's work.
+- **In-game help** — The **?** button in the admin screen's title bar opens a help page in English
+  and French: how restriction works, profiles and modes, each page of the screen, groups and
+  permissions with LuckPerms and CustomPerm examples, saving, the files and their failure mode, the
+  commands, Better Creative, and what the mod does not cover. Pending edits are kept while it is open.
 - **Whitelist and blacklist profiles** — Each profile has a mode. A whitelist locks everything except
   the selection, a blacklist opens everything except the selection. The selection combines whole
   creative tabs, whole mods, item tags and single items, none of them required; exceptions take
@@ -49,6 +53,11 @@ All notable changes to Arcadia Creative Admin are documented here.
   et objets qu'ils verrouillent, mods, tags et composants, réglages du serveur et affectation des
   joueurs. Les modifications sont enregistrées à la demande, et un enregistrement fondé sur une copie
   périmée est refusé au lieu d'écraser le travail d'un autre admin.
+- **Aide en jeu** — Le bouton **?** de la barre de titre de l'interface ouvre une page d'aide en
+  anglais et en français : le principe des restrictions, les profils et modes, chaque page de
+  l'interface, les groupes et permissions avec des exemples LuckPerms et CustomPerm, l'enregistrement,
+  les fichiers et leur comportement en cas d'erreur, les commandes, Better Creative, et ce que le mod
+  ne couvre pas. Les modifications en cours sont conservées pendant qu'elle est ouverte.
 - **Profils en liste blanche ou liste noire** — Chaque profil a un mode. Une liste blanche verrouille
   tout sauf la sélection, une liste noire ouvre tout sauf la sélection. La sélection combine des
   onglets créatifs entiers, des mods entiers, des tags d'objets et des objets seuls, aucun n'étant

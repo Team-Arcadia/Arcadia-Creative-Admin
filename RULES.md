@@ -172,7 +172,12 @@ Anything that can be automated is automated; what is left manual says why.
   profile names, create, duplicate and delete behind its confirmation, a whole page and a single
   item in the grid, the search, the mode, a mod, a tag, an unknown and a real component, both
   switches, save (and the file on disk), a refused save that keeps the edits, undo, the discard
-  confirmation, the players page with an edit pending, and the read-only banner of a broken file.
+  confirmation, the players page with an edit pending, the help page opened from the title bar and
+  closed with the pending edits intact, and the read-only banner of a broken file. In English and
+  French, at GUI sizes 427x240, 480x270, 640x360 and 960x540 and in both modes, every button label,
+  field hint, status help, note, group help line and help topic heading of the five pages is
+  measured against its room; text is ellipsized rather than overflowing, so only this check sees a
+  cut label.
   Screenshots of each page land in `run/adminsmoke/screenshots` for a person to look at. It lives
   in the screens' package, in the GameTest source set, to read their session state; `verifyJar`
   keeps it out of the jar.

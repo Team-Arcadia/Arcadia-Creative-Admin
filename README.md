@@ -29,6 +29,9 @@ only. The screen needs this mod on the admin's client; players do not need it.
 Changes are kept locally until you press **Save**. If another admin saved in the meantime, your save
 is refused rather than overwriting theirs.
 
+The **?** button in the screen's title bar opens an in-game help: how restriction works, each page of
+the screen, groups and permissions, the files, the commands, and what the mod does not cover.
+
 ## Who is restricted
 
 For each player, first match wins:
@@ -190,6 +193,9 @@ pas besoin.
 
 Les modifications restent locales jusqu'à **Enregistrer**. Si un autre admin a enregistré entre-temps,
 votre enregistrement est refusé au lieu d'écraser le sien.
+
+Le bouton **?** de la barre de titre ouvre une aide en jeu : le principe des restrictions, chaque page
+de l'interface, les groupes et permissions, les fichiers, les commandes, et ce que le mod ne couvre pas.
 
 ## Qui est restreint
 

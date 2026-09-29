@@ -70,7 +70,20 @@ class ShippedResourcesTest {
                 ADMIN + "selection.", modes,
                 ADMIN + "profile_help.", modes,
                 ADMIN + "status.", enumIds("policy/PolicyManager.java", "SaveResult"),
-                ADMIN + "name_", returnedLiterals("policy/PolicyCodec.java", "nameProblem"));
+                ADMIN + "name_", returnedLiterals("policy/PolicyCodec.java", "nameProblem"),
+                MOD + "help.", helpKeys());
+    }
+
+    /** The help title and each topic's heading and body, read from HelpScreen's own list. */
+    private static List<String> helpKeys() {
+        List<String> keys = new ArrayList<>(List.of("title"));
+        Matcher topic = Pattern.compile("new Topic\\(\"([a-z_]+)\"").matcher(source("client/screen/HelpScreen.java"));
+        while (topic.find()) {
+            keys.add(topic.group(1) + ".heading");
+            keys.add(topic.group(1) + ".body");
+        }
+        assertFalse(keys.size() == 1, "No help topic found in HelpScreen; the pattern no longer matches");
+        return keys;
     }
 
     // ---------------------------------------------------------------- source parsing

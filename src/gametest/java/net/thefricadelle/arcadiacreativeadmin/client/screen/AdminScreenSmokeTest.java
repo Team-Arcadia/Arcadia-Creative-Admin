@@ -196,6 +196,11 @@ public final class AdminScreenSmokeTest {
         STEPS.add(new Step("shot.rules", 5, () -> screenshot("rules")));
         STEPS.add(new Step("rules.back", 5, () -> current(AdvancedScreen.class).onClose()));
 
+        // The help page opens from the header and gives the edits made above back untouched.
+        STEPS.add(new Step("help.open", 5, AdminScreenSmokeTest::openHelp));
+        STEPS.add(new Step("shot.help", 5, () -> screenshot("help")));
+        STEPS.add(new Step("help.back", 5, AdminScreenSmokeTest::checkHelpReturns));
+
         // A01: no button label or field hint cut, on every page, at real screen sizes, in both languages.
         STEPS.add(new Step("layout.en", 5, () -> checkLayout("layout.english")));
         STEPS.add(new Step("layout.fr.load", 5, () -> switchLanguage("fr_fr")));
@@ -482,7 +487,7 @@ public final class AdminScreenSmokeTest {
             Minecraft mc = Minecraft.getInstance();
             AdminScreen main = new AdminScreen();
             List<Screen> pages = List.of(main, new ProfileScreen(main, PROFILE), new AdvancedScreen(main, PROFILE),
-                    new PlayersScreen(main));
+                    new PlayersScreen(main), new HelpScreen(main));
             List<String> cut = new ArrayList<>();
             int measured = 0;
             for (int[] size : GUI_SIZES) {
@@ -498,6 +503,9 @@ public final class AdminScreenSmokeTest {
                             measured += checkStatusLine(page, size, cut);
                             if (page instanceof PlayersScreen players) {
                                 measured += checkGroupHelp(players, size, cut);
+                            }
+                            if (page instanceof HelpScreen help) {
+                                measured += checkHelpTopics(help, size, cut);
                             }
                             for (GuiEventListener child : page.children()) {
                                 String problem = null;
@@ -526,7 +534,7 @@ public final class AdminScreenSmokeTest {
                 }
             }
             require(cut.isEmpty(), cut.size() + " cut: " + String.join(" | ", new java.util.LinkedHashSet<>(cut)));
-            return measured + " labels, hints and help lines fit, 4 pages in both modes at " + GUI_SIZES.length + " screen sizes";
+            return measured + " labels, hints and help lines fit, 5 pages in both modes at " + GUI_SIZES.length + " screen sizes";
         });
     }
 
@@ -583,6 +591,68 @@ public final class AdminScreenSmokeTest {
             }
         }
         return notes.size();
+    }
+
+    // ------------------------------------------------------------------ help
+
+    private static final String HELP_BUTTON = "arcadiacreativeadmin.help.button";
+    /** Help topic rows: icon at 6 px, text 5 px after it, 4 px free at the right; two lines at most. */
+    private static final int TOPIC_TEXT_INSET = 6 + 8 + 5 + 4;
+    private static final int TOPIC_MAX_LINES = 2;
+
+    private static boolean dirtyBeforeHelp;
+
+    private static void openHelp() {
+        AdminScreen main = current(AdminScreen.class);
+        dirtyBeforeHelp = AdminSession.dirty();
+        for (GuiEventListener child : main.children()) {
+            if (child instanceof AbcButton b && b.getMessage().getContents() instanceof TranslatableContents t
+                    && t.getKey().equals(HELP_BUTTON)) {
+                b.onPress();
+                return;
+            }
+        }
+        fail("help.open", "no help button in the admin screen header");
+    }
+
+    private static void checkHelpReturns() {
+        check("help.opensAndReturns", () -> {
+            HelpScreen help = current(HelpScreen.class);
+            List<?> topics = (List<?>) field(null, HelpScreen.class, "TOPICS");
+            help.onClose();
+            require(Minecraft.getInstance().screen instanceof AdminScreen, "the help did not return to the admin screen");
+            require(AdminSession.dirty() == dirtyBeforeHelp, "opening the help changed the pending edits");
+            return topics.size() + " topics; back on the admin screen with the pending edits kept";
+        });
+    }
+
+    /** Each topic heading in the side list wraps to at most the two lines a row shows. */
+    private static int checkHelpTopics(HelpScreen help, int[] size, List<String> cut) {
+        Minecraft mc = Minecraft.getInstance();
+        AbcList<?> topics = (AbcList<?>) field(help, HelpScreen.class, "topics");
+        int room = topics.getWidth() - net.thefricadelle.arcadiacreativeadmin.client.gui.kit.Atlas.SCROLLBAR_WIDTH
+                - TOPIC_TEXT_INSET;
+        int measured = 0;
+        for (Object topic : (List<?>) field(null, HelpScreen.class, "TOPICS")) {
+            String id = (String) invoke(topic, "id");
+            String heading = Component.translatable("arcadiacreativeadmin.help." + id + ".heading").getString();
+            measured++;
+            int lines = mc.font.split(Component.literal(heading), room).size();
+            if (lines > TOPIC_MAX_LINES) {
+                cut.add("HelpScreen@" + size[0] + "x" + size[1] + ": topic '" + heading + "' takes " + lines + " lines of " + room);
+            }
+        }
+        return measured;
+    }
+
+    private static Object invoke(Object target, String method) {
+        try {
+            java.lang.reflect.Method m = target.getClass().getDeclaredMethod(method);
+            m.setAccessible(true);
+            return m.invoke(target);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(target.getClass().getSimpleName() + "." + method + "() is gone", e);
+        }
     }
 
     // ------------------------------------------------------------------ A05

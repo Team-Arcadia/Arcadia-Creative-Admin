@@ -95,6 +95,12 @@ public final class AdminScreen extends AdminPage {
     protected void build() {
         captions.clear();
         addCloseButton();
+        // Help sits left of the close button; unsaved edits stay in the session while it is open.
+        Rect close = layout.header().right(layout.header().h()).inset(3);
+        addRenderableWidget(AbcButton.ghost(Component.translatable("arcadiacreativeadmin.help.button"),
+                        () -> this.minecraft.setScreen(new HelpScreen(this)))
+                .iconOnly(Icon.HELP)
+                .at(new Rect(close.x() - close.w() - 2, close.y(), close.w(), close.h())));
         boolean readOnly = AdminSession.readOnly();
 
         // Sidebar: profiles, and the controls that add or remove one.
