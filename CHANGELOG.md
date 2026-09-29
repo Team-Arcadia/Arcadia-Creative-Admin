@@ -6,6 +6,14 @@ All notable changes to Arcadia Creative Admin are documented here.
 
 ## [Unreleased]
 
+### Added (English first)
+
+- **Mod icon** — The mod list now shows the Arcadia Creative Admin logo.
+
+### Ajouts (French mirror)
+
+- **Icône du mod** — La liste des mods affiche désormais le logo d'Arcadia Creative Admin.
+
 ---
 
 ## [2.0.0] - 2026-09-29
