@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'net.neoforged.moddev' version '2.0.142'
+    id 'me.modmuss50.mod-publish-plugin' version '2.1.1'
 }
 
 version = mod_version
@@ -231,4 +232,70 @@ tasks.register('testAll') {
     group = 'verification'
     description = 'Unit tests, GameTests and the admin screen smoke run.'
     dependsOn 'build', 'runGameTestServer', 'runAdminSmoke'
+}
+
+/** Everything above the first `---` separator line, which is the newest version's section. */
+static String currentReleaseNotes(String text) {
+    List<String> section = []
+    for (String line : text.readLines()) {
+        if (line.trim() == '---') {
+            break
+        }
+        section.add(line)
+    }
+    String notes = section.join('\n').trim()
+    if (notes.isEmpty()) {
+        throw new GradleException('publishing/release-notes.md has no section before its first --- separator')
+    }
+    return notes
+}
+
+// ---------------------------------------------------------------------------
+// Publishing to CurseForge and Modrinth.
+//
+// Tokens are read from the environment and never stored in the repository.
+// Project ids live in gradle.properties because they are public identifiers.
+//
+//   ./gradlew publishMods -PdryRun          validate everything, upload nothing
+//   ./gradlew publishMods                   real upload, needs both tokens
+// ---------------------------------------------------------------------------
+publishMods {
+    file = tasks.jar.archiveFile
+    displayName = "${mod_name} ${mod_version} for NeoForge ${minecraft_version}"
+    version = mod_version
+    // Only the leading section: an upload carries its own notes, not the whole history.
+    changelog = providers.fileContents(
+            layout.projectDirectory.file('publishing/release-notes.md')).asText
+            .map { text -> currentReleaseNotes(text) }
+    type = STABLE
+    modLoaders.add('neoforge')
+
+    // Nothing is uploaded when -PdryRun is passed; the plugin still validates the payload.
+    dryRun = project.hasProperty('dryRun')
+
+    curseforge {
+        projectId = providers.gradleProperty('curseforge_project_id')
+        accessToken = providers.environmentVariable('CURSEFORGE_TOKEN')
+        minecraftVersions.add(minecraft_version)
+        javaVersions.add(JavaVersion.VERSION_21)
+        // Enforcement runs on the server; the client side is optional (admin screen, hidden tabs).
+        clientRequired = false
+        serverRequired = true
+    }
+
+    modrinth {
+        projectId = providers.gradleProperty('modrinth_project_id')
+        accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+        minecraftVersions.add(minecraft_version)
+    }
+}
+
+// A clear stop instead of a plugin error when the store projects are not linked yet.
+tasks.matching { it.name in ['publishCurseforge', 'publishModrinth'] }.configureEach { task ->
+    task.doFirst {
+        String key = task.name == 'publishCurseforge' ? 'curseforge_project_id' : 'modrinth_project_id'
+        if (!project.hasProperty(key) || project.property(key).toString().isBlank()) {
+            throw new GradleException("${key} is not set in gradle.properties; see publishing/PUBLISHING.md step 2")
+        }
+    }
 }
