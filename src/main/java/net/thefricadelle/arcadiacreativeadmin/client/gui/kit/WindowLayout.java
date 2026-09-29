@@ -40,7 +40,7 @@ public record WindowLayout(Rect window, Rect header, Rect sidebar, Rect content,
     public static final int MARGIN = 6;
     public static final int HEADER_HEIGHT = 22;
     public static final int FOOTER_HEIGHT = 16;
-    public static final int SIDEBAR_WIDTH = 108;
+    public static final int SIDEBAR_WIDTH = 128;
     public static final int CONTENT_PADDING = 6;
 
     /** Below this window width the sidebar is dropped rather than squeezing the content to nothing. */

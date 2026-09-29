@@ -38,7 +38,17 @@ import java.util.List;
  */
 public final class AdminScreen extends AdminPage {
 
+    private static final int FOOTER_BUTTON = 110;
+    /** A label needs 3 px each side, as AbcButton draws it. */
+    private static final int FOOTER_PADDING = 3;
+
+    private static final int NOTE_LINE = 10;
+
     private static String selected = "";
+
+    /** The lines under the profile buttons and where they go, set by build() so a test can measure them. */
+    private List<String> notes = List.of();
+    private Rect notesArea = new Rect(0, 0, 0, 0);
 
     private final AbcList<String> profiles;
     private final AbcEditBox newName;
@@ -89,7 +99,8 @@ public final class AdminScreen extends AdminPage {
 
         // Sidebar: profiles, and the controls that add or remove one.
         Rect side = layout.sidebar().inset(GAP);
-        Rect controls = side.bottom(Atlas.INPUT_HEIGHT + Atlas.BUTTON_HEIGHT + GAP);
+        // Name field, then Duplicate and Delete on rows of their own: side by side, neither label fits.
+        Rect controls = side.bottom(Atlas.INPUT_HEIGHT + 2 * (Atlas.BUTTON_HEIGHT + GAP));
         List<String> names = AdminSession.profileNames();
         if (!names.contains(selected)) {
             selected = names.isEmpty() ? "" : names.get(0);
@@ -102,11 +113,12 @@ public final class AdminScreen extends AdminPage {
         addRenderableWidget(newName.at(nameRow[0]));
         addRenderableWidget(AbcButton.good(text("create"), this::createProfile)
                 .iconOnly(Icon.PLUS).enabled(!readOnly).at(nameRow[1]));
-        Rect[] actions = controls.bottom(Atlas.BUTTON_HEIGHT).split(GAP, (controls.w() - GAP) / 2);
+        Rect delete = controls.bottom(Atlas.BUTTON_HEIGHT);
+        Rect duplicate = controls.aboveBottom(Atlas.BUTTON_HEIGHT + GAP).bottom(Atlas.BUTTON_HEIGHT);
         addRenderableWidget(AbcButton.neutral(text("duplicate"), this::duplicateProfile)
-                .enabled(!readOnly && !selected.isEmpty()).at(actions[0]));
+                .enabled(!readOnly && !selected.isEmpty()).at(duplicate));
         addRenderableWidget(AbcButton.danger(text("delete"), this::deleteProfile)
-                .icon(Icon.TRASH).enabled(!readOnly && !selected.isEmpty()).at(actions[1]));
+                .icon(Icon.TRASH).enabled(!readOnly && !selected.isEmpty()).at(delete));
 
         // Content: server settings, then the selected profile, then save.
         Rect content = layout.content();
@@ -147,18 +159,35 @@ public final class AdminScreen extends AdminPage {
             addRenderableWidget(AbcButton.neutral(text("edit_advanced"),
                             () -> this.minecraft.setScreen(new AdvancedScreen(this, draft.name)))
                     .icon(Icon.PRESETS).at(content.x() + half + GAP, y, content.w() - half - GAP, Atlas.BUTTON_HEIGHT));
+            y += Atlas.BUTTON_HEIGHT + GAP;
+            // Right under the buttons: anchored to the bottom, they slid under them on a small window.
+            notes = List.of(tr("mode_help." + draft.mode.id()),
+                    tr("summary_groups", draft.tabs.size(), draft.namespaces.size(), draft.tags.size()),
+                    tr("summary_items", draft.items.size(), draft.exceptions.size()));
+            notesArea = new Rect(content.x(), y, content.w(), notes.size() * NOTE_LINE);
         } else {
             caption("section.no_profile", content, y);
+            notes = List.of();
+            notesArea = new Rect(content.x(), y, content.w(), 0);
         }
 
-        Rect[] save = footerRow.split(GAP, 110, 110);
-        addRenderableWidget(AbcButton.neutral(text("revert"), () -> {
+        AbcButton revert = AbcButton.neutral(text("revert"), () -> {
             AdminSession.revert();
             rebuildWidgets();
             info(tr("reverted"));
-        }).icon(Icon.REFRESH).enabled(AdminSession.dirty()).at(save[1]));
-        addRenderableWidget(AbcButton.good(text("save"), this::save)
-                .icon(Icon.CHECK).enabled(!readOnly && AdminSession.dirty()).at(save[2]));
+        }).icon(Icon.REFRESH).enabled(AdminSession.dirty());
+        AbcButton save = AbcButton.good(text("save"), this::save)
+                .icon(Icon.CHECK).enabled(!readOnly && AdminSession.dirty());
+        // Right-aligned, each as wide as its label needs and never narrower than the usual 110: the French
+        // "Undo" is twice the English. Rect.split would fall back to equal shares on a narrow window.
+        int saveWidth = Math.max(FOOTER_BUTTON, save.preferredWidth(font, FOOTER_PADDING));
+        int revertWidth = Math.max(FOOTER_BUTTON, revert.preferredWidth(font, FOOTER_PADDING));
+        addRenderableWidget(save.at(footerRow.right(saveWidth)));
+        addRenderableWidget(revert.at(footerRow.beforeRight(saveWidth + GAP).right(revertWidth)));
+        // In the status bar rather than a fourth line of notes, which did not fit a small window.
+        if (AdminSession.dirty()) {
+            warn(tr("unsaved"));
+        }
         showStandingNotice();
     }
 
@@ -172,19 +201,9 @@ public final class AdminScreen extends AdminPage {
         for (Caption caption : captions) {
             Skin.caption(g, font, caption.text(), caption.x(), caption.y(), caption.w());
         }
-        AdminSession.Draft draft = AdminSession.profile(selected);
-        if (draft == null) {
-            return;
-        }
-        Rect content = layout.content();
-        int y = content.bottom() - Atlas.BUTTON_HEIGHT - GAP - 4 * 10;
-        Skin.text(g, font, tr("mode_help." + draft.mode.id()), content.x(), y, content.w(), Palette.TEXT_DIM);
-        Skin.text(g, font, tr("summary_groups", draft.tabs.size(), draft.namespaces.size(), draft.tags.size()),
-                content.x(), y + 10, content.w(), Palette.TEXT_MUTE);
-        Skin.text(g, font, tr("summary_items", draft.items.size(), draft.exceptions.size()),
-                content.x(), y + 20, content.w(), Palette.TEXT_MUTE);
-        if (AdminSession.dirty()) {
-            Skin.text(g, font, tr("unsaved"), content.x(), y + 30, content.w(), Palette.WARN);
+        for (int i = 0; i < notes.size(); i++) {
+            Skin.text(g, font, notes.get(i), notesArea.x(), notesArea.y() + i * NOTE_LINE, notesArea.w(),
+                    i == 0 ? Palette.TEXT_DIM : Palette.TEXT_MUTE);
         }
     }
 
