@@ -6,6 +6,10 @@ All notable changes to Arcadia Creative Admin are documented here.
 
 ## [Unreleased]
 
+---
+
+## [2.0.0] - 2026-09-29
+
 ### Added (English first)
 
 - **Admin screen** — `/creativeadmin`, or the flag button above the creative inventory for admins,
