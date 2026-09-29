@@ -6,9 +6,9 @@ Everything needed to release Arcadia Creative Admin on CurseForge, Modrinth and 
 
 | | |
 | --- | --- |
-| CurseForge project | not created yet |
-| Modrinth project | not created yet |
-| Next upload | `2.0.0`, the first public release |
+| CurseForge project | `1718055` |
+| Modrinth project | `vVZZhJ5F` |
+| Last upload | `2.0.0`, uploaded by hand as the first public release |
 | Git tags | none |
 
 Uploading is irreversible in practice: a published file can be hidden but the version number is
