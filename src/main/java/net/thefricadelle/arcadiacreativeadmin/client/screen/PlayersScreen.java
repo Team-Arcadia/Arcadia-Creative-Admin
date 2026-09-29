@@ -12,6 +12,7 @@ package net.thefricadelle.arcadiacreativeadmin.client.screen;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.thefricadelle.arcadiacreativeadmin.client.gui.kit.AbcList;
 import net.thefricadelle.arcadiacreativeadmin.client.gui.kit.Atlas;
 import net.thefricadelle.arcadiacreativeadmin.client.gui.kit.Icon;
@@ -36,8 +37,13 @@ import java.util.List;
 final class PlayersScreen extends AdminPage {
 
     private static final int ROW = 18;
+    private static final int HELP_LINE = 10;
+    private static final List<String> HELP_EXAMPLES = List.of("groups_help_2", "groups_help_3", "groups_help_4");
 
     private final AbcList<AdminPayloads.PlayerEntry> players;
+    /** The group help under the list, wrapped to the page width; the first {@link #helpIntro} lines are the intro. */
+    private List<FormattedCharSequence> help = List.of();
+    private int helpIntro;
 
     PlayersScreen(AdminScreen parent) {
         super(Component.translatable("arcadiacreativeadmin.admin.players_title"), parent);
@@ -63,7 +69,13 @@ final class PlayersScreen extends AdminPage {
         Rect content = layout.content();
         players.setItems(state == null ? List.of() : state.players());
         players.active = state != null && !state.assignmentsBroken();
-        addRenderableWidget(players.at(content.aboveBottom(3 * 10 + GAP)));
+        List<FormattedCharSequence> lines = new ArrayList<>(font.split(text("groups_help_1"), content.w()));
+        helpIntro = lines.size();
+        for (String key : HELP_EXAMPLES) {
+            lines.addAll(font.split(text(key), content.w()));
+        }
+        help = lines;
+        addRenderableWidget(players.at(content.aboveBottom(help.size() * HELP_LINE + GAP)));
         if (state != null && state.assignmentsBroken()) {
             warn(tr("assignments_broken"));
         } else {
@@ -74,10 +86,10 @@ final class PlayersScreen extends AdminPage {
     @Override
     protected void renderPage(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         Rect content = layout.content();
-        int y = content.bottom() - 3 * 10 + 2;
-        Skin.text(g, font, tr("groups_help_1"), content.x(), y, content.w(), Palette.TEXT_DIM);
-        Skin.text(g, font, tr("groups_help_2"), content.x(), y + 10, content.w(), Palette.TEXT_MUTE);
-        Skin.text(g, font, tr("groups_help_3"), content.x(), y + 20, content.w(), Palette.TEXT_MUTE);
+        int y = content.bottom() - help.size() * HELP_LINE + 2;
+        for (int i = 0; i < help.size(); i++) {
+            g.drawString(font, help.get(i), content.x(), y + i * HELP_LINE, i < helpIntro ? Palette.TEXT_DIM : Palette.TEXT_MUTE, false);
+        }
     }
 
     private void renderRow(GuiGraphics g, Font font, AdminPayloads.PlayerEntry entry, Rect row,

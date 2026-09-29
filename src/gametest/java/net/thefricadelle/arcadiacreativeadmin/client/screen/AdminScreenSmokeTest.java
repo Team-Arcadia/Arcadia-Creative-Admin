@@ -486,41 +486,80 @@ public final class AdminScreenSmokeTest {
             List<String> cut = new ArrayList<>();
             int measured = 0;
             for (int[] size : GUI_SIZES) {
-                // The notes under the profile buttons, in both modes: the blacklist help is the longer one.
+                // Every page in both modes: the notes, the status help and the mode button change with it.
                 for (CreativeProfile.Mode mode : CreativeProfile.Mode.values()) {
                     CreativeProfile.Mode kept = draft().mode;
                     draft().mode = mode;
-                    main.init(mc, size[0], size[1]);
-                    draft().mode = kept;
-                    measured += checkNotes(main, size, cut);
-                }
-                for (Screen page : pages) {
-                    page.init(mc, size[0], size[1]);
-                    for (GuiEventListener child : page.children()) {
-                        String problem = null;
-                        if (child instanceof AbcButton button && !button.isIconOnly()) {
-                            String label = button.getMessage().getString();
-                            int need = mc.font.width(label) + (field(button, AbcButton.class, "icon") != null ? ICON_ROOM : 0);
-                            measured++;
-                            if (need > button.getWidth() - BUTTON_INSET) {
-                                problem = "'" + label + "' needs " + need + " of " + (button.getWidth() - BUTTON_INSET);
+                    try {
+                        main.init(mc, size[0], size[1]);
+                        measured += checkNotes(main, size, cut);
+                        for (Screen page : pages) {
+                            page.init(mc, size[0], size[1]);
+                            measured += checkStatusLine(page, size, cut);
+                            if (page instanceof PlayersScreen players) {
+                                measured += checkGroupHelp(players, size, cut);
                             }
-                        } else if (child instanceof AbcEditBox box) {
-                            String hint = (String) field(box, AbcEditBox.class, "hint");
-                            measured++;
-                            if (mc.font.width(hint) > box.getWidth() - FIELD_INSET) {
-                                problem = "hint '" + hint + "' needs " + mc.font.width(hint) + " of " + (box.getWidth() - FIELD_INSET);
+                            for (GuiEventListener child : page.children()) {
+                                String problem = null;
+                                if (child instanceof AbcButton button && !button.isIconOnly()) {
+                                    String label = button.getMessage().getString();
+                                    int need = mc.font.width(label) + (field(button, AbcButton.class, "icon") != null ? ICON_ROOM : 0);
+                                    measured++;
+                                    if (need > button.getWidth() - BUTTON_INSET) {
+                                        problem = "'" + label + "' needs " + need + " of " + (button.getWidth() - BUTTON_INSET);
+                                    }
+                                } else if (child instanceof AbcEditBox box) {
+                                    String hint = (String) field(box, AbcEditBox.class, "hint");
+                                    measured++;
+                                    if (mc.font.width(hint) > box.getWidth() - FIELD_INSET) {
+                                        problem = "hint '" + hint + "' needs " + mc.font.width(hint) + " of " + (box.getWidth() - FIELD_INSET);
+                                    }
+                                }
+                                if (problem != null) {
+                                    cut.add(page.getClass().getSimpleName() + "@" + size[0] + "x" + size[1] + ": " + problem);
+                                }
                             }
                         }
-                        if (problem != null) {
-                            cut.add(page.getClass().getSimpleName() + "@" + size[0] + "x" + size[1] + ": " + problem);
-                        }
+                    } finally {
+                        draft().mode = kept;
                     }
                 }
             }
             require(cut.isEmpty(), cut.size() + " cut: " + String.join(" | ", new java.util.LinkedHashSet<>(cut)));
-            return measured + " labels and hints fit, 4 pages at " + GUI_SIZES.length + " screen sizes";
+            return measured + " labels, hints and help lines fit, 4 pages in both modes at " + GUI_SIZES.length + " screen sizes";
         });
+    }
+
+    /** The help or notice a page opens with fits the footer, next to its icon when it has one. */
+    private static int checkStatusLine(Screen page, int[] size, List<String> cut) {
+        Minecraft mc = Minecraft.getInstance();
+        String text = (String) field(page, AbcScreen.class, "statusText");
+        if (text.isEmpty()) {
+            return 0;
+        }
+        net.thefricadelle.arcadiacreativeadmin.client.gui.kit.WindowLayout layout =
+                (net.thefricadelle.arcadiacreativeadmin.client.gui.kit.WindowLayout) field(page, AbcScreen.class, "layout");
+        int room = layout.footer().w() - 12
+                - (field(page, AbcScreen.class, "statusIcon") != null ? net.thefricadelle.arcadiacreativeadmin.client.gui.kit.Atlas.ICON_SIZE + 4 : 0);
+        if (mc.font.width(text) > room) {
+            cut.add(page.getClass().getSimpleName() + "@" + size[0] + "x" + size[1] + ": status '" + text
+                    + "' needs " + mc.font.width(text) + " of " + room);
+        }
+        return 1;
+    }
+
+    /** The group help under the player list is wrapped, never cut, and leaves the list at least three rows. */
+    private static int checkGroupHelp(PlayersScreen page, int[] size, List<String> cut) {
+        List<?> help = (List<?>) field(page, PlayersScreen.class, "help");
+        AbcList<?> list = (AbcList<?>) field(page, PlayersScreen.class, "players");
+        String where = "PlayersScreen@" + size[0] + "x" + size[1] + ": ";
+        if (help.size() < 4) {
+            cut.add(where + "only " + help.size() + " group help lines");
+        }
+        if (list.getHeight() < 3 * 18) {
+            cut.add(where + "the group help leaves the player list " + list.getHeight() + " px");
+        }
+        return help.size();
     }
 
     /** Each note fits its width, and the notes overlap no widget of the page. */

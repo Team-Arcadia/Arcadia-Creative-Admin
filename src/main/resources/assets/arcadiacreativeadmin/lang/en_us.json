@@ -110,9 +110,10 @@
   "arcadiacreativeadmin.admin.source.assigned": "assigned here",
   "arcadiacreativeadmin.admin.source.group": "from group",
   "arcadiacreativeadmin.admin.source.default": "default",
-  "arcadiacreativeadmin.admin.groups_help_1": "Groups: give a group the meta arcadiacreativeadmin.profile = <profile> in LuckPerms or CustomPerm.",
-  "arcadiacreativeadmin.admin.groups_help_2": "Example: /lp group builders meta set arcadiacreativeadmin.profile event",
-  "arcadiacreativeadmin.admin.groups_help_3": "Permission arcadiacreativeadmin.bypass: never restricted. arcadiacreativeadmin.admin: this screen.",
+  "arcadiacreativeadmin.admin.groups_help_1": "Groups: a LuckPerms group or a CustomPerm grade with the meta arcadiacreativeadmin.profile = <profile> gives that profile. A player set here keeps their own; the default profile applies to everyone else.",
+  "arcadiacreativeadmin.admin.groups_help_2": "LuckPerms: /lp group builders meta set arcadiacreativeadmin.profile event",
+  "arcadiacreativeadmin.admin.groups_help_3": "CustomPerm: /customperm grade meta builders set arcadiacreativeadmin.profile event",
+  "arcadiacreativeadmin.admin.groups_help_4": "arcadiacreativeadmin.bypass: never restricted. arcadiacreativeadmin.admin: this screen and the commands.",
 
   "arcadiacreativeadmin.admin.status.saved": "Saved. Players have the new rules.",
   "arcadiacreativeadmin.admin.status.conflict": "Refused: another admin saved first. Undo your changes to load theirs.",
