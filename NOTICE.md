@@ -1,9 +1,9 @@
-# NOTICE — Arcadia Creative Admin
+# NOTICE — Creative Admin
 
 **Copyright (C) 2026 THEFricadelle. All rights reserved.**
-SPDX-License-Identifier: `LicenseRef-Arcadia-Creative-Admin-ARR`
+SPDX-License-Identifier: `LicenseRef-Creative-Admin-ARR`
 
-Arcadia Creative Admin is **source-available proprietary software**. The source
+Creative Admin is **source-available proprietary software**. The source
 code is public, but the project is **not open-source**. Reading the code grants
 you no right to reuse it.
 
@@ -20,10 +20,11 @@ This file is a plain-language summary for convenience. The binding terms are in
 | Report bugs, open issues | ✅ Yes |
 | Fork the repo to submit a pull request | ✅ Yes — see [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Ship the mod in your own modpack **after** contributing a PR | ✅ Yes — §5.3, official file only |
-| Be credited for a merged contribution | ✅ Yes — [CONTRIBUTORS.md](CONTRIBUTORS.md), §5.3(a) |
+| Be credited for a merged contribution, by name and by what you contributed | ✅ Yes — [CONTRIBUTORS.md](CONTRIBUTORS.md), §5.3(a) |
+| Redistribute it, relicense it, or publish a fork **because you contributed** | ❌ No — §5.2, a merged PR enlarges nothing |
 | Include it in a CurseForge / Modrinth modpack that **references** the official unmodified file | ✅ Yes, no need to ask |
 | Send the official file to players joining **your own** server (launcher / host auto-sync) | ✅ Yes — see §2.2 |
-| Mention it factually: "my pack includes Arcadia Creative Admin", tutorials, reviews | ✅ Yes |
+| Mention it factually: "my pack includes Creative Admin", tutorials, reviews | ✅ Yes |
 | Bundle the .jar in an exported / offline modpack | ❌ Written permission required |
 | Offer it as a "one-click install" product in a hosting panel catalogue | ❌ Written permission required |
 | Re-upload or mirror it anywhere (mod-hosting sites, modpack platforms, forums, Discord, file lockers) | ❌ No |
@@ -45,9 +46,13 @@ and it does **not** silently kill a compliant modpack, nor other users' ability
 to run an Official Build they lawfully obtained. It is a tool against abuse, not
 a kill switch over the ecosystem. See §2.3 of the LICENSE.
 
+The modpack permission can be withdrawn from one specific pack maintainer, by
+separate written notice to that maintainer. It never applies to pack versions
+already published: players who installed them are not affected.
+
 ## Why source-available and not open-source
 
-Arcadia Creative Admin is an enforcement component: it decides what a player in
+Creative Admin is an enforcement component: it decides what a player in
 creative mode is allowed to make appear on a server. An operator who installs it
 is trusting it with a security boundary, and that trust should be verifiable
 rather than assumed. The source is public so that server owners can audit what
@@ -61,7 +66,7 @@ distribution and derivative works. Visibility is not a license.
 
 ## Ownership and maintenance
 
-Arcadia Creative Admin is maintained by Team-Arcadia. Copyright in the mod is
+Creative Admin is maintained by Team-Arcadia. Copyright in the mod is
 held by **THEFricadelle** alone, who is the only party able to grant, withhold,
 or withdraw any permission under the LICENSE.
 
@@ -74,7 +79,7 @@ contributors, on the same terms as anyone else (§5.2). See §1 of the
 
 ## Third-party components
 
-Arcadia Creative Admin builds against, but does not include or redistribute, the
+Creative Admin builds against, but does not include or redistribute, the
 following:
 
 | Component | Role | Licensing |
@@ -83,17 +88,20 @@ following:
 | NeoForge (21.1.0 or newer) | Mod loader, event bus, network channel registration | LGPL-2.1, installed separately by the user |
 | SpongePowered Mixin and MixinExtras | Bytecode injection used by the two mixins | Supplied by NeoForge at runtime, not shipped here |
 
-No third-party code is bundled into the Arcadia Creative Admin jar. Every
+No third-party code is bundled into the Creative Admin jar. Every
 component above is a compile-time or runtime dependency resolved on the user's
 side: the jar contains only this project's own classes, resources, and the
 LICENSE.
+
+Minecraft is a trademark of Mojang Synergies AB. This mod is unofficial and is
+not affiliated with or endorsed by Mojang Synergies AB or Microsoft.
 
 ## Requesting permission
 
 Anything marked ❌ above can still be granted case by case. Ask — the answer is
 often yes for reasonable requests. Open an issue on the official repository:
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
+  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues
 
 Permission must be **written** to be valid. Silence is not consent: no reply, or
 no objection to a use, never counts as permission. A permission granted in one
@@ -103,12 +111,12 @@ case applies to that case only.
 
 ---
 
-# NOTICE — Arcadia Creative Admin (Version Française)
+# NOTICE — Creative Admin (Version Française)
 
 **Copyright (C) 2026 THEFricadelle. Tous droits réservés.**
-SPDX-License-Identifier: `LicenseRef-Arcadia-Creative-Admin-ARR`
+SPDX-License-Identifier: `LicenseRef-Creative-Admin-ARR`
 
-Arcadia Creative Admin est un **logiciel propriétaire à source visible**. Le code
+Creative Admin est un **logiciel propriétaire à source visible**. Le code
 source est public, mais le projet n'est **pas open-source**. Lire le code ne vous
 donne aucun droit de le réutiliser.
 
@@ -126,10 +134,11 @@ LICENSE prévaut.
 | Signaler des bugs, ouvrir des issues | ✅ Oui |
 | Forker le dépôt pour soumettre une pull request | ✅ Oui — voir [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Diffuser le mod dans votre propre modpack **après** avoir contribué une PR | ✅ Oui — §5.3, fichier officiel uniquement |
-| Être crédité pour une contribution fusionnée | ✅ Oui — [CONTRIBUTORS.md](CONTRIBUTORS.md), §5.3(a) |
+| Être crédité pour une contribution fusionnée, par nom et par ce que vous avez apporté | ✅ Oui — [CONTRIBUTORS.md](CONTRIBUTORS.md), §5.3(a) |
+| Le redistribuer, le relicencier ou publier un fork **au motif que vous avez contribué** | ❌ Non — §5.2, une PR fusionnée n'élargit rien |
 | L'inclure dans un modpack CurseForge / Modrinth qui **référence** le fichier officiel non modifié | ✅ Oui, sans demander |
 | Transmettre le fichier officiel aux joueurs rejoignant **votre propre** serveur (auto-sync launcher / hébergeur) | ✅ Oui — voir §2.2 |
-| Le mentionner factuellement : « mon pack inclut Arcadia Creative Admin », tutoriels, tests | ✅ Oui |
+| Le mentionner factuellement : « mon pack inclut Creative Admin », tutoriels, tests | ✅ Oui |
 | Empaqueter le .jar dans un modpack exporté / hors-ligne | ❌ Autorisation écrite requise |
 | Le proposer en « installation en un clic » dans le catalogue d'un hébergeur | ❌ Autorisation écrite requise |
 | Le ré-uploader ou le mirrorer ailleurs (sites d'hébergement de mods, plateformes de modpacks, forums, Discord, hébergeurs de fichiers) | ❌ Non |
@@ -152,9 +161,14 @@ silencieusement un modpack conforme, ni la possibilité pour les autres
 utilisateurs d'exécuter un build officiel obtenu licitement. C'est un outil
 contre l'abus, pas un interrupteur sur l'écosystème. Voir §2.3 de la LICENSE.
 
+La permission modpack peut être retirée à un mainteneur de pack déterminé, par
+une notification écrite distincte qui lui est adressée. Elle ne s'applique
+jamais aux versions du pack déjà publiées : les joueurs qui les ont installées
+ne sont pas concernés.
+
 ## Pourquoi source visible et pas open-source
 
-Arcadia Creative Admin est un composant d'application de règles : il décide ce
+Creative Admin est un composant d'application de règles : il décide ce
 qu'un joueur en créatif a le droit de faire apparaître sur un serveur. Un
 opérateur qui l'installe lui confie une frontière de sécurité, et cette confiance
 devrait pouvoir se vérifier plutôt que se supposer. Le code est public pour que
@@ -169,7 +183,7 @@ distribution et des œuvres dérivées. La visibilité n'est pas une licence.
 
 ## Propriété et maintenance
 
-Arcadia Creative Admin est maintenu par Team-Arcadia. Les droits d'auteur sur le
+Creative Admin est maintenu par Team-Arcadia. Les droits d'auteur sur le
 mod sont détenus par **THEFricadelle** seul, unique partie en mesure d'accorder,
 de refuser ou de retirer une autorisation au titre de la LICENSE.
 
@@ -182,7 +196,7 @@ qui d'autre (§5.2). Voir §1 de la [LICENSE](LICENSE).
 
 ## Composants tiers
 
-Arcadia Creative Admin compile contre les composants suivants, sans les inclure
+Creative Admin compile contre les composants suivants, sans les inclure
 ni les redistribuer :
 
 | Composant | Rôle | Licence |
@@ -191,10 +205,13 @@ ni les redistribuer :
 | NeoForge (21.1.0 ou plus récent) | Chargeur de mods, bus d'événements, enregistrement du canal réseau | LGPL-2.1, installé séparément par l'utilisateur |
 | SpongePowered Mixin et MixinExtras | Injection bytecode utilisée par les deux mixins | Fournis par NeoForge à l'exécution, non embarqués ici |
 
-Aucun code tiers n'est embarqué dans le jar d'Arcadia Creative Admin. Chaque
+Aucun code tiers n'est embarqué dans le jar de Creative Admin. Chaque
 composant ci-dessus est une dépendance de compilation ou d'exécution résolue du
 côté de l'utilisateur : le jar ne contient que les classes et ressources propres
 au projet, ainsi que la LICENSE.
+
+Minecraft est une marque de Mojang Synergies AB. Ce mod est non officiel et
+n'est ni affilié à Mojang Synergies AB ou Microsoft, ni approuvé par eux.
 
 ## Demander une autorisation
 
@@ -202,7 +219,7 @@ Tout ce qui est marqué ❌ ci-dessus peut malgré tout être accordé au cas pa
 Demandez — la réponse est souvent oui pour les demandes raisonnables. Ouvrez une
 issue sur le dépôt officiel :
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
+  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues
 
 L'autorisation doit être **écrite** pour être valable. Le silence ne vaut pas
 accord : l'absence de réponse, ou l'absence d'objection à un usage, ne constitue

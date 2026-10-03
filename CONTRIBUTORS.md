@@ -1,7 +1,7 @@
 # Contributors
 
-Arcadia Creative Admin is authored and maintained by **THEFricadelle**, who
-holds the copyright in the Mod as a whole and is its sole maintainer.
+Creative Admin is authored and maintained by **THEFricadelle**, who holds the
+copyright in the Mod as a whole and is its sole maintainer.
 
 The people below have contributed code, fixes, or documentation to the project.
 Their work is gratefully acknowledged here.
@@ -12,25 +12,23 @@ Their work is gratefully acknowledged here.
 
 ## Contributors
 
-No external contribution has been merged yet.
+Each entry names the contributor, under the name or handle they chose, and what
+they actually contributed.
+
+No external contribution has been merged yet. This section is where merged
+pull requests get credited — see [CONTRIBUTING.md](CONTRIBUTING.md) if you want
+to be the first.
 
 ## What contributors get
 
-Under Section 5.3 of the [LICENSE](LICENSE):
-
-- **Credit.** Every merged contribution is credited on this page. No
-  contribution will ever be misattributed to someone else. This credit is not
-  withdrawn if the license is later terminated for any reason.
-- **Modpack permission.** Once your pull request has concluded, you may include
-  Arcadia Creative Admin in a modpack you publish, on the same terms as everyone
-  else (§3(b)): the pack must reference an Official Channel so the file is
-  fetched from that channel at install time, the unmodified Official Build must
-  be used, and the notices must be preserved. **Having forked the repository
-  never takes this away from you.**
-
-One limit worth stating plainly: you may never ship a build produced from
-**your own fork** — in a modpack or anywhere else. The permission covers the
-Official Build only.
+Under Section 5.3 of the [LICENSE](LICENSE), every merged contribution is
+credited on this page — the person **and** the work, never misattributed to
+someone else, and never withdrawn if the license is later terminated.
+Section 5.3(b) also confirms the modpack permission of §3(b): once your pull
+request has concluded you may ship Creative Admin in a modpack you publish
+(Official Channel reference, unmodified Official Build, notices preserved).
+Having forked the repository never takes this away. It covers the Official
+Build only — never a build produced from your own fork.
 
 ## What this list means — and what it does not
 
@@ -42,8 +40,8 @@ Being listed here does **not**:
 
 - transfer or dilute the copyright in the Mod as a whole;
 - grant any ownership, co-ownership, or co-maintainership of the project;
-- confer any right to redistribute, relicense, fork, or publish the Mod, which
-  remain governed exclusively by [LICENSE](LICENSE);
+- confer any right to redistribute, relicense, fork, or publish the
+  Mod, which remain governed exclusively by [LICENSE](LICENSE);
 - create any entitlement to be consulted on the project's direction, licensing,
   or releases.
 
@@ -58,14 +56,14 @@ Contributions merged into the official repository are added here at the
 maintainer's discretion. If you contributed and are missing from this list, or
 you would prefer a different name, handle, or no contact address, open an issue:
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
+  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues
 
 ---
 
 # Contributeurs (Version Française)
 
-Arcadia Creative Admin est écrit et maintenu par **THEFricadelle**, qui détient
-le copyright sur le mod dans son ensemble et en est le seul mainteneur.
+Creative Admin est écrit et maintenu par **THEFricadelle**, qui détient le
+copyright sur le mod dans son ensemble et en est le seul mainteneur.
 
 Les personnes ci-dessous ont contribué du code, des correctifs ou de la
 documentation au projet. Leur travail est ici salué avec gratitude.
@@ -76,26 +74,24 @@ documentation au projet. Leur travail est ici salué avec gratitude.
 
 ## Contributeurs
 
-Aucune contribution externe n'a encore été fusionnée.
+Chaque entrée nomme le contributeur, sous le nom ou le pseudonyme qu'il a
+choisi, et ce qu'il a réellement apporté.
+
+Aucune contribution externe n'a encore été fusionnée. C'est ici que les pull
+requests fusionnées sont créditées — voir [CONTRIBUTING.md](CONTRIBUTING.md) si
+vous voulez être le premier.
 
 ## Ce que les contributeurs obtiennent
 
-Au titre de la Section 5.3 de la [LICENSE](LICENSE) :
-
-- **Le crédit.** Toute contribution fusionnée est créditée sur cette page.
-  Aucune contribution ne sera jamais attribuée à un tiers. Ce crédit n'est pas
-  retiré si la licence est ultérieurement résiliée, pour quelque motif que ce
-  soit.
-- **La permission modpack.** Une fois votre pull request terminée, vous pouvez
-  inclure Arcadia Creative Admin dans un modpack que vous publiez, aux mêmes
-  conditions que tout le monde (§3(b)) : le pack doit référencer un canal
-  officiel pour que le fichier soit récupéré depuis ce canal à l'installation,
-  le build officiel non modifié doit être utilisé, et les mentions doivent être
-  préservées. **Avoir forké le dépôt ne vous en prive jamais.**
-
-Une limite à énoncer clairement : vous ne pouvez jamais diffuser un build issu
-de **votre propre fork** — ni dans un modpack, ni ailleurs. La permission ne
-couvre que le build officiel.
+Au titre de la Section 5.3 de la [LICENSE](LICENSE), toute contribution
+fusionnée est créditée sur cette page — la personne **et** le travail, jamais
+attribuée à un tiers, et jamais retirée si la licence est ultérieurement
+résiliée.
+La Section 5.3(b) confirme aussi la permission modpack du §3(b) : une fois votre
+pull request terminée, vous pouvez diffuser Creative Admin dans un modpack que
+vous publiez (canal officiel référencé, build officiel non modifié, mentions
+préservées). Avoir forké le dépôt ne vous en prive jamais. Elle ne couvre que le
+build officiel — jamais un build issu de votre propre fork.
 
 ## Ce que cette liste signifie — et ce qu'elle ne signifie pas
 
@@ -105,10 +101,11 @@ l'auteur qu'aucune contribution ne sera jamais attribuée à un tiers.
 
 Y figurer ne signifie **pas** :
 
-- un transfert ou une dilution du copyright sur le mod dans son ensemble ;
+- un transfert ou une dilution du copyright sur le mod dans son
+  ensemble ;
 - l'octroi d'une propriété, copropriété ou co-maintenance du projet ;
-- un droit de redistribuer, relicencier, forker ou publier le mod, qui restent
-  régis exclusivement par la [LICENSE](LICENSE) ;
+- un droit de redistribuer, relicencier, forker ou publier le mod,
+  qui restent régis exclusivement par la [LICENSE](LICENSE) ;
 - un droit d'être consulté sur l'orientation du projet, sa licence ou ses
   publications.
 
@@ -124,4 +121,4 @@ discrétion du mainteneur. Si vous avez contribué et n'apparaissez pas dans cet
 liste, ou si vous préférez un autre nom, pseudonyme ou aucune adresse de
 contact, ouvrez une issue :
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
+  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues

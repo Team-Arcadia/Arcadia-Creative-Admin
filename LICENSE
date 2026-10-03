@@ -1,425 +1,379 @@
-Arcadia Creative Admin — Proprietary License (All Rights Reserved)
-SPDX-License-Identifier: LicenseRef-Arcadia-Creative-Admin-ARR
-License version: 1.0 — 2026-07-28
+Creative Admin — Proprietary License (All Rights Reserved)
+SPDX-License-Identifier: LicenseRef-Creative-Admin-ARR
+License version: 2.1 — 2026-10-03
 
 Copyright (C) 2026 THEFricadelle. All rights reserved.
 
-This software ("Arcadia Creative Admin", the "Mod") and its source code are
-made publicly viewable for transparency, interoperability, and community
-contribution purposes only. Public visibility of the source does NOT make it
-open-source and does NOT grant any of the rights below unless explicitly stated.
+The source of "Creative Admin" (the "Mod") is publicly viewable for
+transparency, interoperability, and contribution only. Public visibility does
+NOT make it open-source and grants none of the rights below unless stated.
 
-Contributions are welcome: see Section 5 and the CONTRIBUTING.md file for the
-limited fork permission granted for submitting pull requests.
+ALL RIGHTS NOT EXPRESSLY GRANTED HERE ARE RESERVED BY THE AUTHOR. No right is
+granted by implication, estoppel, acquiescence, or otherwise.
 
-ALL RIGHTS NOT EXPRESSLY GRANTED IN THIS LICENSE ARE RESERVED BY THE AUTHOR.
-No right is granted by implication, estoppel, acquiescence, or otherwise.
+Contributions are welcome: Section 5 and CONTRIBUTING.md set out the limited
+fork permission granted for submitting pull requests.
 
-VERSIONING OF THIS LICENSE
-Each release of the Mod is governed by the version of this license distributed
-with that release. A later version of this license does not retroactively
-change the terms applicable to a release you already obtained, and an earlier
-version does not apply to a later release.
+VERSIONING — Each release of the Mod is governed by the version of
+this license shipped with it. A later version does not retroactively change the
+terms of a release You already obtained, and an earlier version does not apply
+to a later release.
 
-====================================================================
+
 1. DEFINITIONS
-====================================================================
+--------------------------------------------------------------------
 
-"Mod" means the Arcadia Creative Admin software in any form, including its
-compiled or packaged artifacts (.jar), source code, configuration templates,
-assets, and documentation.
+"Mod" means the Creative Admin software in any form, including its
+compiled or packaged artifacts (.jar), source code, configuration
+templates, assets, and documentation.
 
 "You" means any individual or entity that accesses, downloads, installs, runs,
-copies, or otherwise deals with the Mod or its source code, whether or not
-acting within the permissions granted here.
+copies, or otherwise deals with the Mod, whether or not acting within
+the permissions granted here.
 
-"Author" means THEFricadelle, who holds the copyright in the Mod as a whole and
-is the sole party entitled to grant, withhold, or withdraw the permissions set
-out in this license.
+"Author" means THEFricadelle, who holds the copyright in the Mod as a
+whole and is the sole party entitled to grant, withhold, or withdraw the
+permissions set out here.
 
 "Contributor" means a person whose contribution has been merged into the Mod.
-Contributors retain the copyright in their own contribution and have licensed
-it to the Author under Section 5.2. Contributors are credited in the
-CONTRIBUTORS.md file and benefit from the modpack permission of Section 5.3.
-That credit is an acknowledgment of authorship of a specific contribution; it
-confers no ownership or co-ownership of the Mod, no co-maintainership, and no
+Contributors retain copyright in their own contribution, license it to the
+Author under Section 5.2, and are credited in CONTRIBUTORS.md and benefit from
+the modpack permission of Section 5.3. That credit acknowledges authorship of a
+specific contribution; it confers no ownership, no co-maintainership, and no
 right to grant any permission under this license.
 
-"Maintaining Organization" means any organization, team, group, or platform
-account under which the official repository, an Official Channel, or the Mod's
-public presence is hosted or operated, whether or not it is a legal entity.
-Hosting the Mod under a Maintaining Organization, holding administrative rights
-over that organization or over the official repository, or being described
-anywhere as a maintainer, team member, or staff of the Mod:
-
-  (a) transfers no copyright or other right in the Mod;
-
-  (b) grants none of the permissions reserved to the Author, and in particular
-      no right to redistribute the Mod, to publish a build of it, or to grant
-      any permission to a third party under this license; and
-
-  (c) does not entitle that organization or person to act as the Author under
-      this license.
-
-A member of a Maintaining Organization who submits a contribution does so as a
-Contributor, on the terms of Section 5.2, exactly as any other person. Where a
-Maintaining Organization is a legal entity, it holds rights in the Mod only to
-the extent of a separate written assignment or license signed by the Author;
-this license neither creates nor evidences such an instrument.
+"Maintaining Organization" means any organization, team, or platform account
+under which the official repository or an Official Channel is hosted. Hosting
+the Mod, administering its repository, or being described as a
+maintainer or team member transfers no copyright, grants none of the
+permissions reserved to the Author, and does not entitle that organization or
+person to act as the Author. A member who contributes does so as a Contributor
+under Section 5.2 like anyone else. Where such an organization is a legal
+entity, it holds rights only under a separate written assignment signed by the
+Author; this license neither creates nor evidences one.
 
 "Official Channel" means a distribution channel operated or authorized by the
 Author — currently CurseForge, Modrinth, and the official GitHub repository and
 its Releases page.
 
-"Official Build" means an exact, unmodified artifact of the Mod as published by
-the Author on an Official Channel.
+"Official Build" means an exact, unmodified artifact of the Mod as
+published by the Author on an Official Channel.
 
 "Server Operator" means a person or entity that runs a Minecraft server whose
 players are expected or invited to install the Mod, including hosting providers
 acting on behalf of their customers.
 
-====================================================================
+
 2. GRANT OF USE
-====================================================================
+--------------------------------------------------------------------
 
 2.1 GRANT
 
-Subject to the restrictions in Section 3, the Author grants You a
-non-exclusive, non-transferable, revocable, royalty-free right to:
-
-  (a) download the Official Build from an Official Channel; and
-
-  (b) install and run the Mod on Minecraft client(s) and Minecraft server(s)
-      that You own or operate, in any singleplayer world and on any server You
-      join, including monetized servers, provided the Mod itself is not sold or
-      paywalled.
+Subject to Section 3, the Author grants You a non-exclusive, non-transferable,
+revocable, royalty-free right to (a) download the Official Build from an
+Official Channel, and (b) install and run the Mod on Minecraft client(s) and
+Minecraft server(s) that You own or operate, in any singleplayer world and on
+any server You join, including monetized servers, provided the Mod itself is
+not sold or paywalled.
 
 2.2 DISTRIBUTION TO PLAYERS BY SERVER OPERATORS
 
 The Mod is installed on the server by the Server Operator and is also useful on
 the client, where launchers, hosting panels, or server-side sync mods may
 deliver it to the players of a given server. Notwithstanding Section 3(a), a
-Server Operator is permitted, without further request, to transmit the Official
-Build to the players connecting to that Operator's own server — including
-through automatic mod-synchronization mechanisms provided by launchers, hosting
-panels, or server-side sync mods — provided that:
+Server Operator may transmit the Official Build to players connecting to that
+Operator's own server — including through launcher, hosting-panel, or sync-mod
+auto-synchronization — provided the build is unmodified, the transmission is
+incidental to joining that specific server rather than a general-purpose
+download, and all copyright, authorship, and license notices are preserved.
 
-  (a) the Official Build is transmitted unmodified;
-
-  (b) the transmission is incidental to joining that specific server and the
-      Mod is not offered as a general-purpose download; and
-
-  (c) all copyright, authorship, and license notices are preserved.
-
-This permission covers delivery to that server's own players only. It does not
-authorize a hosting provider to publish, catalogue, mirror, or offer the Mod as
-a downloadable or "one-click install" product independently of a customer's own
-server instance; that requires the Author's prior written permission.
+This covers that server's own players only. Publishing, cataloguing, mirroring,
+or offering the Mod as a downloadable or "one-click install" product
+independently of a customer's own server instance requires the Author's prior
+written permission.
 
 2.3 REVOCATION
 
-The rights granted in Section 2.1 are revocable, but revocation operates as
-follows:
+The rights granted in Section 2.1 are revocable, but revocation is:
 
-  (a) Revocation is individual. It takes effect only against a specific You,
-      and only upon written notice from the Author to that You. There is no
-      blanket or silent withdrawal of the rights granted to the public at
-      large.
+  (a) individual — effective only against a specific You, only upon written
+      notice from the Author, with no blanket or silent withdrawal of the
+      rights granted to the public at large;
 
-  (b) Revocation is prospective. It does not retroactively make unlawful any
-      use that was compliant at the time it occurred.
+  (b) prospective — it does not retroactively make unlawful any use that was
+      compliant when it occurred; and
 
-  (c) Revocation does not, by itself, affect (i) the modpack permission of
+  (c) limited — it does not, by itself, affect (i) the modpack permission of
       Section 3(b) as it applies to any compliant modpack maintained by a third
-      party, nor (ii) the ability of other users to continue running an
-      Official Build they lawfully obtained.
+      party, nor (ii) the ability of other users to keep running an Official
+      Build they lawfully obtained.
 
-  (d) This Section is without prejudice to Section 6 (Termination), which
-      operates automatically upon breach.
+Withdrawing the modpack permission from a given modpack maintainer requires
+separate written notice to that maintainer, and does not apply retroactively to
+modpack versions already published.
 
-====================================================================
+This Section is without prejudice to Section 6 (Termination), which operates
+automatically upon breach.
+
+
 3. RESTRICTIONS
-====================================================================
+--------------------------------------------------------------------
 
 Except with the Author's prior written permission, You may NOT:
 
   (a) redistribute, re-upload, mirror, repackage, or otherwise make the Mod
       (compiled or source) available to third parties through any channel not
-      authorized by the Author — this includes mod-hosting sites, modpack
-      platforms, forums, file lockers, Discord servers, and torrents — SUBJECT
-      TO the modpack permission of Section 3(b), the server-to-player
-      distribution permitted by Section 2.2, and the contribution fork
-      permitted by Section 5.1;
+      authorized by the Author — including mod-hosting sites, modpack platforms,
+      forums, file lockers, Discord servers, and torrents — SUBJECT TO the
+      modpack permission of Section 3(b), the server-to-player distribution
+      permitted by Section 2.2, and the contribution fork permitted by
+      Section 5.1;
 
-  (b) include the Mod in a modpack EXCEPT under all of the following
-      conditions, which are hereby permitted without further request:
-        (i)   the modpack distributes the Mod by referencing an Official
-              Channel (for example the CurseForge app or Modrinth), so that the
-              file is fetched from that channel at install time;
-        (ii)  the exact, unmodified Official Build is used — the Mod is not
-              altered, patched, recompiled, or repackaged in any way; and
-        (iii) all copyright, authorship, and license notices are preserved.
-      Bundling the file into an exported or offline pack, re-hosting it on
-      any other channel, or including a modified build is NOT covered by this
-      permission and still requires the Author's prior written consent;
+  (b) include the Mod in a modpack, EXCEPT on all of the following
+      conditions, which are permitted without further request: the modpack
+      references an Official Channel so the file is fetched from that channel
+      at install time; the exact, unmodified Official Build is used; and all
+      copyright, authorship, and license notices are preserved. Bundling the
+      file into an exported or offline pack, re-hosting it on any other
+      channel, or including a modified build is NOT covered by this permission
+      and still requires prior written consent. This permission may be
+      withdrawn from a given modpack maintainer as provided in Section 2.3;
 
-  (c) sell, rent, sublicense, or otherwise commercialize the Mod itself, or
-      bundle it with a paid product;
+  (c) sell, rent, sublicense, or otherwise commercialize the Mod
+      itself, or bundle it with a paid product;
 
   (d) create, distribute, or publish derivative works, forks, or modified
-      versions of the Mod or its source code, EXCEPT for the contribution fork
-      permitted by Section 5.1;
+      versions of the Mod or its source, EXCEPT for the contribution
+      fork permitted by Section 5.1;
 
-  (e) remove, alter, or obscure any copyright, authorship, or license notice
-      contained in the Mod or its source, including the SPDX headers at the top
-      of source files;
+  (e) remove, alter, or obscure any copyright, authorship, or license notice,
+      including the SPDX headers at the top of source files;
 
-  (f) claim authorship of the Mod or any part of it, present it as Your own
-      work, or reuse its source code — in whole or in part, verbatim or
+  (f) claim authorship of the Mod or any part of it, present it as
+      Your own work, or reuse its source — in whole or in part, verbatim or
       substantially adapted — inside any other project, product, or service;
 
-  (g) use the name "Arcadia Creative Admin", the Mod's mod id, logo, visual
-      identity, or any confusingly similar designation (i) to identify or
-      promote any other project, product, or service, (ii) in a way that
-      suggests affiliation with, sponsorship by, or endorsement from the Author
-      where none exists, or (iii) as or within a trademark, domain name, or
-      account name. Factual, nominative references to the Mod — such as stating
+  (g) use the name "Creative Admin", its former name "Arcadia Creative
+      Admin", the Mod's current or former mod id, logo, visual identity, or
+      any confusingly similar designation to identify or promote another
+      project, product, or service, to suggest affiliation with or
+      endorsement by the Author where none exists, or as or within a trademark,
+      domain name, or account name. Factual, nominative references — stating
       that a modpack includes it, writing a tutorial, or publishing a review —
       are permitted and are not restricted by this paragraph;
 
-  (h) use the Mod or its source code, in whole or in part, as training,
+  (h) use the Mod or its source, in whole or in part, as training,
       fine-tuning, validation, or retrieval corpus for any machine-learning or
       generative artificial-intelligence system, nor include it in any dataset
       compiled or distributed for that purpose. Ordinary use of AI-assisted
       developer tooling by a contributor working on a contribution under
       Section 5.1 is not restricted by this paragraph.
 
-====================================================================
+
 4. SOURCE CODE AND DECOMPILATION
-====================================================================
+--------------------------------------------------------------------
 
-The publication of the source code (e.g. on a public repository) is provided
-for reference, review, contribution, and interoperability only. It grants no
-license to copy, reuse, redistribute, or create derivative works from that
-source, except as expressly permitted by Section 5.1 (contribution fork) or as
-strictly permitted by mandatory applicable law (for example, decompilation
-strictly necessary to achieve interoperability where such a right cannot be
-lawfully excluded).
+Publication of the source is for reference, review, contribution, and
+interoperability only. It grants no license to copy, reuse, redistribute, or
+derive from that source, except as expressly permitted by Section 5.1
+(contribution fork) or as strictly permitted by mandatory applicable law (for
+example, decompilation strictly necessary to achieve interoperability where
+such a right cannot lawfully be excluded).
 
-====================================================================
+
 5. CONTRIBUTIONS
-====================================================================
+--------------------------------------------------------------------
 
 5.1 CONTRIBUTION FORK (LIMITED PERMISSION)
 
 Notwithstanding Section 3(d), the Author grants You permission to fork the
 official source repository and modify Your fork FOR THE SOLE PURPOSE of
-preparing and submitting a pull request to the official repository. This
-permission is subject to all of the following conditions:
+preparing and submitting a pull request to the official repository, subject to
+all of the following:
 
-  (a) the fork remains a recognizable fork of the official repository and
-      keeps this LICENSE file, the copyright notices, and the Mod's identity
-      (name, mod id, branding) unchanged;
+  (a) the fork stays a recognizable fork of the official repository and keeps
+      this LICENSE file, the copyright notices, and the Mod's
+      identity (name, mod id, branding) unchanged;
 
-  (b) You do not distribute, publish, advertise, or release any build
-      (compiled or source) produced from Your fork to third parties — the
-      fork is for development and review only;
+  (b) You do not distribute, publish, advertise, or release any build —
+      compiled or source — produced from Your fork to third parties; the fork
+      is for development and review only;
 
   (c) You do not use the fork as the basis of a separate, competing, or
       rebranded project; and
 
   (d) once Your pull request is merged, closed, or abandoned, this permission
       covers no further use of the fork beyond keeping it as a historical
-      record. For the purpose of this paragraph, a pull request is deemed
-      "abandoned" if it has received no commit, comment, or other activity
-      from You for ninety (90) consecutive days, or if You publicly state that
-      You no longer intend to pursue it.
+      record. A pull request is "abandoned" if it has received no commit,
+      comment, or other activity from You for ninety (90) consecutive days, or
+      if You publicly state that You no longer intend to pursue it.
 
-Any use of a fork outside these conditions is not licensed and falls back
-under the restrictions of Section 3.
+Any use of a fork outside these conditions is not licensed and falls back under
+the restrictions of Section 3.
 
 5.2 GRANT OVER YOUR CONTRIBUTION
 
-If You submit a contribution (e.g. a pull request, patch, or code suggestion),
-You grant the Author a perpetual, worldwide, irrevocable, non-exclusive,
-royalty-free, sublicensable and transferable license to use, reproduce,
-modify, relicense, and distribute that contribution as part of the Mod under
-this or any other license, without obligation of compensation.
+If You submit a contribution (a pull request, patch, or code suggestion), You
+grant the Author a perpetual, worldwide, irrevocable, non-exclusive,
+royalty-free, sublicensable and transferable license to use, reproduce, modify,
+relicense, and distribute it as part of the Mod under this or any
+other license, without obligation of compensation. You confirm that You are the
+author of the contribution, that You have the right to grant that license, and
+that it includes no third-party code You are not entitled to submit.
 
-You confirm that You are the author of the contribution, that You have the
-right to grant that license, and that the contribution does not include
-third-party code You are not entitled to submit.
+To the fullest extent permitted by applicable law You waive any moral rights
+You hold in Your contribution as against the Author and its licensees. Where
+such rights cannot lawfully be waived, You agree not to assert them in a manner
+that would prevent the Author from exercising the license granted above, it
+being understood that the Author will not misattribute Your contribution to a
+third party.
 
-To the fullest extent permitted by applicable law, You waive any moral rights
-You may hold in Your contribution as against the Author and its licensees.
-Where such rights cannot lawfully be waived, You agree not to assert them in a
-manner that would prevent the Author from exercising the license granted above,
-it being understood that the Author will not misattribute Your contribution to
-a third party.
-
-You retain the copyright on Your own contribution. Submitting a contribution
-grants You no ownership, co-authorship, or any other right over the Mod itself.
+You retain the copyright in Your own contribution. Submitting one grants You no
+ownership, no co-authorship, no right to redistribute, publish, mirror,
+relicense, or fork the Mod, and no other right over it. A
+Contributor's permissions over the Mod are exactly those of any other
+You under Sections 2 and 3, neither more nor less. Having a contribution merged
+does not enlarge them.
 
 5.3 RECOGNITION OF CONTRIBUTORS
 
-  (a) CREDIT. Every Contributor whose contribution is merged into the Mod is
-      credited in the CONTRIBUTORS.md file distributed with it. The Author will
-      not misattribute a contribution to a third party. A Contributor may ask,
-      through the official issue tracker, to be listed under a different name
-      or handle, to have a contact address removed, or not to be listed at all.
+  (a) CREDIT. Every Contributor whose contribution is merged into the
+      Mod is credited in the CONTRIBUTORS.md file distributed with
+      it, by the name or handle they chose and with a description of what they
+      contributed, so the credit identifies the work and not only the person.
+      The Author will not misattribute a contribution to a third party. A
+      Contributor may ask, through the official issue tracker, to be listed
+      under a different name or handle, to have a contact address removed, or
+      not to be listed at all.
 
   (b) MODPACK PERMISSION. Once a Contributor's pull request has concluded —
-      whether merged, closed, or abandoned within the meaning of Section
-      5.1(d) — that Contributor may include the Mod in a modpack they publish,
-      on the same conditions as Section 3(b): the modpack must reference an
-      Official Channel so that the file is fetched from that channel at install
-      time, the exact unmodified Official Build must be used, and all
-      copyright, authorship, and license notices must be preserved.
+      merged, closed, or abandoned within the meaning of Section 5.1(d) — that
+      Contributor may include the Mod in a modpack they publish, on
+      the conditions of Section 3(b): Official Channel reference, exact
+      unmodified Official Build, notices preserved. Having forked under Section
+      5.1 never removes this permission, and Section 5.1(b) continues to bar
+      distributing any build produced from that fork. This Section grants no
+      right beyond what it states; bundling into an exported or offline pack,
+      re-hosting elsewhere, or publishing a modified build still requires prior
+      written permission under Section 3.
 
-      Having forked the repository under Section 5.1 never removes or restricts
-      this permission.
 
-  (c) OFFICIAL BUILD ONLY. For the avoidance of doubt, a Contributor may never
-      distribute a build produced from their own fork, whether in a modpack or
-      by any other means. Section 5.1(b) continues to apply, and the permission
-      in paragraph (b) covers the Official Build and nothing else.
-
-  (d) NO OTHER RIGHT. This Section grants no right beyond what it states. It
-      does not permit bundling the Mod into an exported or offline pack,
-      re-hosting it on any other channel, or publishing a modified build —
-      each of which continues to require the Author's prior written permission
-      under Section 3.
-
-====================================================================
 6. TERMINATION
-====================================================================
+--------------------------------------------------------------------
 
-Any breach of this license automatically and immediately terminates the
-rights granted in Sections 2.1, 2.2, 3(b), 5.1, and 5.3(b). Upon termination
-You must stop using and delete all copies of the Mod in Your possession, and
-cease any distribution then in progress.
+Any breach of this license automatically and immediately terminates the rights
+granted in Sections 2.1, 2.2, 3(b), 5.1, and 5.3(b). You must then stop using
+and delete all copies of the Mod in Your possession, and cease any distribution
+then in progress.
 
-Sections 1, 3, 4, 5.2, 5.3(a), and 7 through 15, together with the reservation
+Sections 1, 3, 4, 5.2, 5.3(a), and 7 through 11, together with the reservation
 of rights stated above, survive termination. A Contributor's credit under
 Section 5.3(a) is an acknowledgment of authorship and is not withdrawn by
-termination.
+termination. Termination is without prejudice to any other remedy available to
+the Author.
 
-Termination under this Section is without prejudice to any other remedy
-available to the Author.
 
-====================================================================
 7. NO WARRANTY
-====================================================================
+--------------------------------------------------------------------
 
-TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, THE MOD IS PROVIDED "AS
-IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, THE MOD IS
+PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
 PURPOSE, AND NONINFRINGEMENT.
 
-The Mod is supplied free of charge. Nothing in this Section excludes any
-warranty that cannot lawfully be excluded.
+The Mod is supplied free of charge. Nothing in this Section excludes
+any warranty that cannot lawfully be excluded.
 
-====================================================================
+
 8. LIMITATION OF LIABILITY
-====================================================================
+--------------------------------------------------------------------
 
 TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, AND IN CONSIDERATION OF THE
 FACT THAT THE MOD IS PROVIDED FREE OF CHARGE, IN NO EVENT SHALL THE AUTHOR BE
 LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE
-MOD OR THE USE OR OTHER DEALINGS IN IT — INCLUDING WITHOUT LIMITATION DATA
-LOSS, LOSS OF CONFIGURATION OR PRESETS, GAME CRASHES, OR INCOMPATIBILITY WITH
-OTHER MODS.
+MOD OR THE USE OR OTHER DEALINGS IN IT — INCLUDING WITHOUT LIMITATION DATA LOSS,
+LOSS OF CONFIGURATION OR PRESETS, GAME CRASHES, OR INCOMPATIBILITY WITH OTHER
+MODS.
 
 Nothing in this Section excludes or limits the Author's liability for death or
 personal injury, for fraud or wilful misconduct (dol), for gross negligence
 (faute lourde), or for any other liability that cannot lawfully be excluded or
 limited under applicable law.
 
-====================================================================
-9. AUTHORSHIP AND MORAL RIGHTS
-====================================================================
 
-The Author asserts the moral rights of authorship in the Mod, including the
+9. AUTHORSHIP AND MORAL RIGHTS
+--------------------------------------------------------------------
+
+The Author asserts the moral rights of authorship in the Mod — the
 right to be identified as its author (droit à la paternité) and the right to
-the integrity of the work (droit au respect de l'œuvre), as recognized under
+the integrity of the work (droit au respect de l'œuvre) — as recognized under
 French law and applicable international conventions. These rights are
 perpetual, inalienable, and imprescriptible, and are not affected, waived, or
 diminished by any permission granted in this license, by the public
 availability of the source code, or by any termination or revocation.
 
 The moral rights of Contributors in their own contributions are addressed in
-Section 5.2, and their credit in the CONTRIBUTORS.md file in Section 5.3(a).
-The Author will not misattribute any contribution to a third party.
+Section 5.2, and their credit in Section 5.3(a). The Author will not
+misattribute any contribution to a third party.
 
-====================================================================
-10. NO WAIVER
-====================================================================
 
-No failure or delay by the Author in exercising any right or remedy under this
-license, and no tolerance of any breach, constitutes a waiver of that right or
-remedy, or of any subsequent breach — whether similar or not.
+10. GENERAL
+--------------------------------------------------------------------
 
-Any permission granted by the Author in a specific case is granted for that
-case only. It creates no precedent, no entitlement, and no expectation for any
-other person, project, or occasion. A waiver is effective only if given in
-writing by the Author and identifying what is waived.
+10.1 NO WAIVER
 
-====================================================================
-11. SEVERABILITY
-====================================================================
+No failure, delay, or tolerance by the Author in exercising any right or remedy
+under this license constitutes a waiver of that right or remedy, or of any
+subsequent breach, whether similar or not. Any permission granted by the Author
+in a specific case is granted for that case only: it creates no precedent, no
+entitlement, and no expectation for any other person, project, or occasion. A
+waiver is effective only if given in writing by the Author and identifying what
+is waived.
 
-If any provision of this license is held invalid, unenforceable, or contrary
-to mandatory law by a competent court, that provision shall be reduced to the
-minimum extent necessary to make it valid and enforceable, or, if that is not
-possible, severed. The remaining provisions remain in full force and effect,
-and shall be interpreted so as to give the greatest possible effect to the
-Author's reservation of rights.
+10.2 SEVERABILITY
 
-====================================================================
-12. ENTIRE AGREEMENT
-====================================================================
+If any provision of this license is held invalid, unenforceable, or contrary to
+mandatory law by a competent court, it shall be reduced to the minimum extent
+necessary to make it valid and enforceable or, if that is not possible,
+severed. The remaining provisions remain in full force and effect, and shall be
+interpreted so as to give the greatest possible effect to the Author's
+reservation of rights.
+
+10.3 ENTIRE AGREEMENT
 
 This license constitutes the entire agreement between You and the Author
-concerning the Mod, and supersedes any prior or contemporaneous statement,
-description, understanding, or communication, including any wording appearing
-on a distribution platform's project page. Nothing on such a page modifies this
-license.
+concerning the Mod, and supersedes any prior or contemporaneous
+statement, description, understanding, or communication, including any wording
+appearing on a distribution platform's project page. Nothing on such a page
+modifies this license. Any modification of these terms in a specific case is
+valid only if made in writing by the Author.
 
-Any modification of these terms in a specific case is valid only if made in
-writing by the Author.
-
-====================================================================
-13. GOVERNING LAW AND JURISDICTION
-====================================================================
+10.4 GOVERNING LAW AND JURISDICTION
 
 This license is governed by and construed in accordance with French law,
-without regard to its conflict-of-law rules.
+without regard to its conflict-of-law rules. Any dispute arising out of or in
+connection with it shall be submitted to the exclusive jurisdiction of the
+competent French courts, to the extent permitted by applicable law. Where
+mandatory consumer-protection rules grant You the right to bring proceedings
+before, or to benefit from the law of, the courts of Your place of residence,
+those rules are unaffected by this Section.
 
-Any dispute arising out of or in connection with this license shall be
-submitted to the exclusive jurisdiction of the competent French courts, to the
-extent permitted by applicable law. Where mandatory consumer-protection rules
-grant You the right to bring proceedings before, or to benefit from the law of,
-the courts of Your place of residence, those rules are unaffected by this
-Section.
-
-====================================================================
-14. LANGUAGE
-====================================================================
+10.5 LANGUAGE
 
 The authoritative version of this license is the English text. Any translation
 is provided for convenience only, and in case of divergence the English text
 prevails, except where mandatory local law requires otherwise.
 
-====================================================================
-15. PERMISSIONS AND CONTACT
-====================================================================
+
+11. PERMISSIONS AND CONTACT
+--------------------------------------------------------------------
 
 For redistribution, modpack inclusion beyond Section 3(b), commercial
 distribution, or any other permission not granted above, contact the Author by
 opening an issue on the official repository:
 
-  https://github.com/Team-Arcadia/Arcadia-Creative-Admin/issues
+  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues
 
 Written permission is required and may be granted at the Author's sole
 discretion. Silence is not consent: absence of a reply, or the Author's failure
@@ -431,9 +385,3 @@ Organization is not a permission, whatever channel it is made on, unless the
 Author has authorized it in writing.
 
 Author: THEFricadelle
-
---------------------------------------------------------------------
-
-Minecraft is a trademark of Mojang Synergies AB. Arcadia Creative Admin is an
-unofficial mod, not affiliated with or endorsed by Mojang Synergies AB or
-Microsoft.

@@ -51,3 +51,7 @@ publishing/*.local.*
 # .mailmap has to spell out the superseded addresses to match on them, so it must
 # never be tracked. It is read from the working tree whether committed or not.
 .mailmap
+
+# JVM crash dumps: they carry the machine environment
+hs_err_pid*.log
+replay_pid*.log

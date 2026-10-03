@@ -21,6 +21,14 @@ All notable changes to Creative Admin (formerly Arcadia Creative Admin) are docu
   too, since the network channel is named after the mod id; an older client keeps playing but no
   longer receives the locked tabs for display.
 
+- **License updated to version 2.1** - The license text moves from version 1.0 to the current 2.1
+  and follows the new name, with the identifier `LicenseRef-Creative-Admin-ARR`. The sections are
+  regrouped (the old sections 10 to 15 become 10.1 to 10.5 and 11), it now states that contributing
+  grants no right to redistribute, and the modpack permission can only be withdrawn from a given
+  maintainer by written notice, never for pack versions already published. The protection of the
+  name also covers the former name and mod id. This applies from this release on: 2.0.0 stays
+  governed by the 1.0 text it shipped with.
+
 ### Fixed (English first)
 
 - **Locked tabs reach Better Creative again after its rename** - Better Creative 2.1.0 changed its
@@ -42,6 +50,14 @@ All notable changes to Creative Admin (formerly Arcadia Creative Admin) are docu
   pas défini pour un joueur, refus explicites compris, aucun serveur ne perd sa configuration. Les
   joueurs ont aussi besoin du client 2.1.0, le canal réseau portant le nom de l'identifiant ; un
   client plus ancien continue de jouer mais ne reçoit plus les onglets verrouillés pour l'affichage.
+
+- **Licence passée en version 2.1** - Le texte de licence passe de la version 1.0 à la 2.1 actuelle
+  et suit le nouveau nom, avec l'identifiant `LicenseRef-Creative-Admin-ARR`. Les sections sont
+  regroupées (les anciennes sections 10 à 15 deviennent 10.1 à 10.5 et 11), elle précise que
+  contribuer ne donne aucun droit de redistribution, et la permission modpack ne peut être retirée
+  à un mainteneur donné que par notification écrite, jamais pour les versions de pack déjà
+  publiées. La protection du nom couvre aussi l'ancien nom et l'ancien identifiant. Cela vaut à
+  partir de cette version : la 2.0.0 reste régie par le texte 1.0 livré avec elle.
 
 ### Corrections (French mirror)
 
