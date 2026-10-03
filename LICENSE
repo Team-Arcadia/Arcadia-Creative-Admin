@@ -1,18 +1,15 @@
 Creative Admin — Proprietary License (All Rights Reserved)
 SPDX-License-Identifier: LicenseRef-Creative-Admin-ARR
-License version: 2.1 — 2026-10-03
+License version: 3.0 — 2026-10-03
 
 Copyright (C) 2026 THEFricadelle. All rights reserved.
 
-The source of "Creative Admin" (the "Mod") is publicly viewable for
-transparency, interoperability, and contribution only. Public visibility does
-NOT make it open-source and grants none of the rights below unless stated.
+The source code of "Creative Admin" (the "Mod") is not published.
+Obtaining the Mod grants no right to its source code beyond what
+Section 5.1 states.
 
 ALL RIGHTS NOT EXPRESSLY GRANTED HERE ARE RESERVED BY THE AUTHOR. No right is
 granted by implication, estoppel, acquiescence, or otherwise.
-
-Contributions are welcome: Section 5 and CONTRIBUTING.md set out the limited
-fork permission granted for submitting pull requests.
 
 VERSIONING — Each release of the Mod is governed by the version of
 this license shipped with it. A later version does not retroactively change the
@@ -53,8 +50,7 @@ entity, it holds rights only under a separate written assignment signed by the
 Author; this license neither creates nor evidences one.
 
 "Official Channel" means a distribution channel operated or authorized by the
-Author — currently CurseForge, Modrinth, and the official GitHub repository and
-its Releases page.
+Author — currently CurseForge and Modrinth.
 
 "Official Build" means an exact, unmodified artifact of the Mod as
 published by the Author on an Official Channel.
@@ -124,10 +120,8 @@ Except with the Author's prior written permission, You may NOT:
   (a) redistribute, re-upload, mirror, repackage, or otherwise make the Mod
       (compiled or source) available to third parties through any channel not
       authorized by the Author — including mod-hosting sites, modpack platforms,
-      forums, file lockers, Discord servers, and torrents — SUBJECT TO the
-      modpack permission of Section 3(b), the server-to-player distribution
-      permitted by Section 2.2, and the contribution fork permitted by
-      Section 5.1;
+      forums, file lockers, Discord servers, and torrents — SUBJECT TO
+      the modpack permission of Section 3(b) and the server-to-player distribution permitted by Section 2.2;
 
   (b) include the Mod in a modpack, EXCEPT on all of the following
       conditions, which are permitted without further request: the modpack
@@ -143,8 +137,7 @@ Except with the Author's prior written permission, You may NOT:
       itself, or bundle it with a paid product;
 
   (d) create, distribute, or publish derivative works, forks, or modified
-      versions of the Mod or its source, EXCEPT for the contribution
-      fork permitted by Section 5.1;
+      versions of the Mod or its source;
 
   (e) remove, alter, or obscure any copyright, authorship, or license notice,
       including the SPDX headers at the top of source files;
@@ -173,43 +166,32 @@ Except with the Author's prior written permission, You may NOT:
 4. SOURCE CODE AND DECOMPILATION
 --------------------------------------------------------------------
 
-Publication of the source is for reference, review, contribution, and
-interoperability only. It grants no license to copy, reuse, redistribute, or
-derive from that source, except as expressly permitted by Section 5.1
-(contribution fork) or as strictly permitted by mandatory applicable law (for
-example, decompilation strictly necessary to achieve interoperability where
-such a right cannot lawfully be excluded).
+The source code of the Mod is not published. You may not decompile,
+disassemble, or otherwise reverse-engineer the Mod, except to the
+extent mandatory applicable law permits it (for example, observing, studying,
+or testing its functioning, or decompilation strictly necessary to achieve
+interoperability, where such rights cannot lawfully be excluded). Holding any
+part of its source code grants You no right beyond those stated in Section 5.1.
 
 
 5. CONTRIBUTIONS
 --------------------------------------------------------------------
 
-5.1 CONTRIBUTION FORK (LIMITED PERMISSION)
+5.1 ACCESS TO THE SOURCE
 
-Notwithstanding Section 3(d), the Author grants You permission to fork the
-official source repository and modify Your fork FOR THE SOLE PURPOSE of
-preparing and submitting a pull request to the official repository, subject to
-all of the following:
+Access to the source code is given only by the Author, or with the Author's
+written authorization, to persons invited to contribute. It permits them to
+read the source and to prepare contributions submitted under Section 5.2, and
+nothing more: it grants no right to share the source with anyone who does not
+hold the same access, to use it for any other purpose, to publish any build
+produced from it, or to keep using it once the access is withdrawn. The Author
+may withdraw it at any time.
 
-  (a) the fork stays a recognizable fork of the official repository and keeps
-      this LICENSE file, the copyright notices, and the Mod's
-      identity (name, mod id, branding) unchanged;
-
-  (b) You do not distribute, publish, advertise, or release any build —
-      compiled or source — produced from Your fork to third parties; the fork
-      is for development and review only;
-
-  (c) You do not use the fork as the basis of a separate, competing, or
-      rebranded project; and
-
-  (d) once Your pull request is merged, closed, or abandoned, this permission
-      covers no further use of the fork beyond keeping it as a historical
-      record. A pull request is "abandoned" if it has received no commit,
-      comment, or other activity from You for ninety (90) consecutive days, or
-      if You publicly state that You no longer intend to pursue it.
-
-Any use of a fork outside these conditions is not licensed and falls back under
-the restrictions of Section 3.
+An earlier version of this license may have published the source and
+permitted a fork for the sole purpose of submitting a pull request. Any
+fork or copy of the source made under such a version remains governed solely
+by the version under which it was made, grants no right over any release
+governed by this version, and is never an Official Channel.
 
 5.2 GRANT OVER YOUR CONTRIBUTION
 
@@ -246,16 +228,14 @@ does not enlarge them.
       under a different name or handle, to have a contact address removed, or
       not to be listed at all.
 
-  (b) MODPACK PERMISSION. Once a Contributor's pull request has concluded —
-      merged, closed, or abandoned within the meaning of Section 5.1(d) — that
-      Contributor may include the Mod in a modpack they publish, on
-      the conditions of Section 3(b): Official Channel reference, exact
-      unmodified Official Build, notices preserved. Having forked under Section
-      5.1 never removes this permission, and Section 5.1(b) continues to bar
-      distributing any build produced from that fork. This Section grants no
-      right beyond what it states; bundling into an exported or offline pack,
-      re-hosting elsewhere, or publishing a modified build still requires prior
-      written permission under Section 3.
+  (b) MODPACK PERMISSION. A Contributor may include the Mod in a
+      modpack they publish, on the conditions of Section 3(b): Official Channel
+      reference, exact unmodified Official Build, notices preserved. Having had
+      access to the source under Section 5.1 never removes this permission, and
+      never permits distributing a build produced from that source. This
+      Section grants no right beyond what it states; bundling into an exported
+      or offline pack, re-hosting elsewhere, or publishing a modified build
+      still requires prior written permission under Section 3.
 
 
 6. TERMINATION
@@ -310,8 +290,8 @@ right to be identified as its author (droit à la paternité) and the right to
 the integrity of the work (droit au respect de l'œuvre) — as recognized under
 French law and applicable international conventions. These rights are
 perpetual, inalienable, and imprescriptible, and are not affected, waived, or
-diminished by any permission granted in this license, by the public
-availability of the source code, or by any termination or revocation.
+diminished by any permission granted in this license, by any access given
+to the source code, or by any termination or revocation.
 
 The moral rights of Contributors in their own contributions are addressed in
 Section 5.2, and their credit in Section 5.3(a). The Author will not
@@ -370,10 +350,9 @@ prevails, except where mandatory local law requires otherwise.
 --------------------------------------------------------------------
 
 For redistribution, modpack inclusion beyond Section 3(b), commercial
-distribution, or any other permission not granted above, contact the Author by
-opening an issue on the official repository:
+distribution, or any other permission notgranted above, contact the Author through the official issue tracker:
 
-  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues
+  https://github.com/THEFricadelle/mc-mods-issues/issues/new?template=permission-request.yml
 
 Written permission is required and may be granted at the Author's sole
 discretion. Silence is not consent: absence of a reply, or the Author's failure

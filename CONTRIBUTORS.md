@@ -24,11 +24,11 @@ to be the first.
 Under Section 5.3 of the [LICENSE](LICENSE), every merged contribution is
 credited on this page — the person **and** the work, never misattributed to
 someone else, and never withdrawn if the license is later terminated.
-Section 5.3(b) also confirms the modpack permission of §3(b): once your pull
-request has concluded you may ship Creative Admin in a modpack you publish
-(Official Channel reference, unmodified Official Build, notices preserved).
-Having forked the repository never takes this away. It covers the Official
-Build only — never a build produced from your own fork.
+Section 5.3(b) also confirms the modpack permission of §3(b): you may ship
+Creative Admin in a modpack you publish (Official Channel reference,
+unmodified Official Build, notices preserved). Having had access to the source
+never takes this away. It covers the Official Build only — never a build
+produced from the source.
 
 ## What this list means — and what it does not
 
@@ -54,9 +54,10 @@ pull request.
 
 Contributions merged into the official repository are added here at the
 maintainer's discretion. If you contributed and are missing from this list, or
-you would prefer a different name, handle, or no contact address, open an issue:
+you would prefer a different name, handle, or no contact address, use the
+official issue tracker:
 
-  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues
+  https://github.com/THEFricadelle/mc-mods-issues/issues/new?template=permission-request.yml
 
 ---
 
@@ -87,11 +88,11 @@ Au titre de la Section 5.3 de la [LICENSE](LICENSE), toute contribution
 fusionnée est créditée sur cette page — la personne **et** le travail, jamais
 attribuée à un tiers, et jamais retirée si la licence est ultérieurement
 résiliée.
-La Section 5.3(b) confirme aussi la permission modpack du §3(b) : une fois votre
-pull request terminée, vous pouvez diffuser Creative Admin dans un modpack que
-vous publiez (canal officiel référencé, build officiel non modifié, mentions
-préservées). Avoir forké le dépôt ne vous en prive jamais. Elle ne couvre que le
-build officiel — jamais un build issu de votre propre fork.
+La Section 5.3(b) confirme aussi la permission modpack du §3(b) : vous pouvez
+diffuser Creative Admin dans un modpack que vous publiez (canal officiel
+référencé, build officiel non modifié, mentions préservées). Avoir eu accès au
+code ne vous en prive jamais. Elle ne couvre que le build officiel — jamais un
+build issu du code source.
 
 ## Ce que cette liste signifie — et ce qu'elle ne signifie pas
 
@@ -119,6 +120,6 @@ request.
 Les contributions fusionnées dans le dépôt officiel sont ajoutées ici à la
 discrétion du mainteneur. Si vous avez contribué et n'apparaissez pas dans cette
 liste, ou si vous préférez un autre nom, pseudonyme ou aucune adresse de
-contact, ouvrez une issue :
+contact, passez par le tracker d'issues officiel :
 
-  https://github.com/Team-Arcadia/mods-mc-creative-admin/issues
+  https://github.com/THEFricadelle/mc-mods-issues/issues/new?template=permission-request.yml
