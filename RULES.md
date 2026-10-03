@@ -32,6 +32,10 @@ visually aligned; a change to one is a change to propose for the other.
   session. Never push after every commit.
 - Commit convention: `type: short imperative message` (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`).
 - **Never** add co-author trailers or any AI/tool attribution to a commit.
+- Issues live in the public `THEFricadelle/mc-mods-issues` repository, not in this one. A commit that
+  fixes one carries `Fixes THEFricadelle/mc-mods-issues#<number>` in its body; the issue closes when
+  the commit reaches `main`, that is at release. Until then, label the issue `fixed next release`.
+  Use `Refs` instead of `Fixes` for a commit that only advances it.
 - Version bumps happen **only** on explicit request.
 
 ## 3. Code Conventions
