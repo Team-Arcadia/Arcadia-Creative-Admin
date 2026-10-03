@@ -1,6 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "${loader_version_range}"
 license = "${mod_license}"
+issueTrackerURL = "https://github.com/THEFricadelle/mc-mods-issues/issues/new?template=bug-creative-admin.yml"
 
 [[mods]]
 modId = "${mod_id}"
