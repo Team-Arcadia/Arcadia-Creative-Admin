@@ -60,7 +60,7 @@ neoForge {
             gameDirectory = project.file('run/gametest')
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
             // Installs the stand-in permission handler of the gametest source set (TestPermissions).
-            systemProperty 'arcadiacreativeadmin.testPermissions', 'true'
+            systemProperty 'creativeadmin.testPermissions', 'true'
         }
         // A real client driven by AdminScreenSmokeTest: a singleplayer world where the host is an
         // admin, the admin screen used through its buttons, then smoke-report.txt and quit. Needs a
@@ -69,7 +69,7 @@ neoForge {
             client()
             sourceSet = sourceSets.gametest
             gameDirectory = project.file('run/adminsmoke')
-            systemProperty 'arcadiacreativeadmin.adminSmoke', 'true'
+            systemProperty 'creativeadmin.adminSmoke', 'true'
         }
     }
 
@@ -86,7 +86,7 @@ repositories {
 }
 
 dependencies {
-    // Test-only, pinned exactly, the same versions Arcadia Better Creative uses. ModDevGradle puts no
+    // Test-only, pinned exactly, the same versions Better Creative uses. ModDevGradle puts no
     // Minecraft on the unit test classpath, so the shipped JSON files need their own parser.
     testImplementation platform('org.junit:junit-bom:5.11.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -210,7 +210,7 @@ tasks.configureEach { Task task ->
     if (task.name == 'runAdminSmoke') {
         task.doFirst {
             // Fresh world, first-start policy, no report from a previous run.
-            project.delete(new File(adminSmokeDir, 'saves'), new File(adminSmokeDir, 'config/arcadia'),
+            project.delete(new File(adminSmokeDir, 'saves'), new File(adminSmokeDir, 'config/creative-admin'),
                     new File(adminSmokeDir, 'smoke-report.txt'), new File(adminSmokeDir, 'logs/latest.log'),
                     new File(adminSmokeDir, 'screenshots'))
             adminSmokeDir.mkdirs()

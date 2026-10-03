@@ -1,6 +1,6 @@
 # Publishing checklist
 
-Everything needed to release Arcadia Creative Admin on CurseForge, Modrinth and GitHub Releases.
+Everything needed to release Creative Admin on CurseForge, Modrinth and GitHub Releases.
 
 ## Current state
 
@@ -74,7 +74,7 @@ Never put them in `gradle.properties`, in a committed file, or in a shell histor
 
 ```bash
 git tag v2.0.0 && git push origin v2.0.0
-gh release create v2.0.0 build/libs/arcadia-creative-admin-2.0.0.jar --title "Arcadia Creative Admin 2.0.0" --notes-file <2.0.0 section of release-notes.md>
+gh release create v2.0.0 build/libs/creative-admin-2.0.0.jar --title "Creative Admin 2.0.0" --notes-file <2.0.0 section of release-notes.md>
 ```
 
 ## 7. After publishing

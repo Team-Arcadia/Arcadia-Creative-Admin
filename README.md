@@ -1,4 +1,4 @@
-# Arcadia Creative Admin
+# Creative Admin
 
 [![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-blue.svg)](LICENSE)
 
@@ -36,19 +36,23 @@ the screen, groups and permissions, the files, the commands, and what the mod do
 
 For each player, first match wins:
 
-1. The **bypass**: permission `arcadiacreativeadmin.bypass`, or op level at or above the configured
+1. The **bypass**: permission `creativeadmin.bypass`, or op level at or above the configured
    level when no permission mod is installed. Never restricted.
 2. A profile **assigned** to that player in the admin screen or with `/creativeadmin profile`.
-3. A profile given by the player's **group**, through the permission `arcadiacreativeadmin.profile`
+3. A profile given by the player's **group**, through the permission `creativeadmin.profile`
    set as meta. Works with LuckPerms and CustomPerm, or any mod implementing NeoForge's permission
    API:
    ```
-   /lp group builders meta set arcadiacreativeadmin.profile event
+   /lp group builders meta set creativeadmin.profile event
    ```
 4. The **default profile**. If there is none, the player is not restricted.
 
-The admin screen and the commands require `arcadiacreativeadmin.admin`, or op level 3 without a
+The admin screen and the commands require `creativeadmin.admin`, or op level 3 without a
 permission mod.
+
+Servers set up before 2.1.0 used the nodes `arcadiacreativeadmin.admin`, `.bypass` and `.profile`.
+They still work: whenever the `creativeadmin.*` node is not set for a player, the former node is
+read instead, explicit denials included. Setting the new node overrides the old one.
 
 ## What is and is not restricted
 
@@ -71,7 +75,7 @@ block entity data and filled containers; container contents follow the same prof
 
 ## Configuration file
 
-`config/arcadia/arcadia-creative-admin-policy.json` is managed by the admin screen. It can still be
+`config/creative-admin/policy.json` is managed by the admin screen. It can still be
 edited by hand and applied with `/creativeadmin reload`, but formatting is rewritten on the next save
 from the screen.
 
@@ -100,7 +104,7 @@ from the screen.
 `exceptions` take single items out of what the tabs, mods and tags select. An item listed in `items`
 is selected whatever else says. Every field except `mode` is optional.
 
-Player assignments live in `arcadia-creative-admin-assignments.json`, written by the screen and the
+Player assignments live in `assignments.json`, written by the screen and the
 commands.
 
 The mod fails closed. An unreadable or malformed file, an unknown key, a flag that is not `true` or
@@ -112,7 +116,7 @@ is written and nothing is enforced.
 
 ## Commands
 
-All require `arcadiacreativeadmin.admin`. Every subcommand works from the console and from a vanilla
+All require `creativeadmin.admin`. Every subcommand works from the console and from a vanilla
 client.
 
 | Command | Effect |
@@ -135,7 +139,7 @@ client.
 
 ## Companion mod
 
-**Arcadia Better Creative** sorts, pins and hides creative tabs, client-side. The two are separate
+**Better Creative** sorts, pins and hides creative tabs, client-side. The two are separate
 jars with no dependency between them, in either direction, and neither needs the other to work.
 Installed together, the tab bar is both filtered and ordered, and a tab the server locks is also left
 out of Better Creative's settings screen, so a player cannot switch it back on. This needs a Better
@@ -162,7 +166,7 @@ Released under [All Rights Reserved](LICENSE). Third-party notices are listed in
 
 ---
 
-# Arcadia Creative Admin (français)
+# Creative Admin (français)
 
 Verrouillez des onglets et des objets créatifs, par groupe de joueurs, depuis une interface
 d'administration en jeu. L'équipe organise des events de construction sans distribuer les objets qui
@@ -201,19 +205,24 @@ de l'interface, les groupes et permissions, les fichiers, les commandes, et ce q
 
 Pour chaque joueur, la première règle qui s'applique l'emporte :
 
-1. Le **contournement** : permission `arcadiacreativeadmin.bypass`, ou niveau d'op supérieur ou égal
+1. Le **contournement** : permission `creativeadmin.bypass`, ou niveau d'op supérieur ou égal
    au niveau réglé sans mod de permissions. Jamais restreint.
 2. Un profil **affecté** à ce joueur dans l'interface ou avec `/creativeadmin profile`.
-3. Un profil donné par le **grade** du joueur, via la permission `arcadiacreativeadmin.profile`
+3. Un profil donné par le **grade** du joueur, via la permission `creativeadmin.profile`
    définie en meta. Fonctionne avec LuckPerms et CustomPerm, ou tout mod qui implémente l'API de
    permissions de NeoForge :
    ```
-   /lp group builders meta set arcadiacreativeadmin.profile event
+   /lp group builders meta set creativeadmin.profile event
    ```
 4. Le **profil par défaut**. S'il n'y en a pas, le joueur n'est pas restreint.
 
-L'interface et les commandes demandent `arcadiacreativeadmin.admin`, ou le niveau d'op 3 sans mod de
+L'interface et les commandes demandent `creativeadmin.admin`, ou le niveau d'op 3 sans mod de
 permissions.
+
+Les serveurs configurés avant la 2.1.0 utilisaient les nœuds `arcadiacreativeadmin.admin`, `.bypass`
+et `.profile`. Ils fonctionnent toujours : quand le nœud `creativeadmin.*` n'est pas défini pour un
+joueur, l'ancien nœud est lu à la place, refus explicites compris. Définir le nouveau nœud prend le
+pas sur l'ancien.
 
 ## Ce qui est restreint, et ce qui ne l'est pas
 
@@ -239,7 +248,7 @@ remplis ; le contenu des conteneurs suit le même profil.
 
 ## Fichier de configuration
 
-`config/arcadia/arcadia-creative-admin-policy.json` est géré par l'interface. Il peut toujours être
+`config/creative-admin/policy.json` est géré par l'interface. Il peut toujours être
 modifié à la main puis appliqué avec `/creativeadmin reload`, mais sa mise en forme est réécrite au
 prochain enregistrement depuis l'interface. Le format est celui de l'exemple de la section anglaise.
 
@@ -248,7 +257,7 @@ prochain enregistrement depuis l'interface. Le format est celui de l'exemple de 
 dans `items` est sélectionné quoi qu'en disent les autres règles. Tous les champs sauf `mode` sont
 facultatifs.
 
-Les affectations des joueurs sont dans `arcadia-creative-admin-assignments.json`, écrit par
+Les affectations des joueurs sont dans `assignments.json`, écrit par
 l'interface et les commandes.
 
 Le mod échoue du côté fermé. Un fichier illisible ou mal formé, une clé inconnue, un drapeau qui n'est
@@ -260,7 +269,7 @@ une première installation : un exemple désactivé est écrit et rien n'est app
 
 ## Commandes
 
-Toutes demandent `arcadiacreativeadmin.admin`. Chaque sous-commande fonctionne depuis la console et
+Toutes demandent `creativeadmin.admin`. Chaque sous-commande fonctionne depuis la console et
 depuis un client vanilla.
 
 | Commande | Effet |
@@ -284,7 +293,7 @@ depuis un client vanilla.
 
 ## Mod compagnon
 
-**Arcadia Better Creative** trie, épingle et masque les onglets créatifs, côté client. Ce sont deux
+**Better Creative** trie, épingle et masque les onglets créatifs, côté client. Ce sont deux
 jars distincts, sans dépendance de l'un vers l'autre ni dans l'autre sens, et aucun n'a besoin de
 l'autre pour fonctionner. Installés ensemble, la barre d'onglets est à la fois filtrée et ordonnée, et
 un onglet verrouillé par le serveur est aussi absent de l'écran de réglages de Better Creative : un

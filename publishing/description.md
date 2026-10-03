@@ -1,4 +1,4 @@
-# Arcadia Creative Admin
+# Creative Admin
 
 **Lock creative tabs and items, per group of players, from an in-game admin screen.**
 **Verrouillez des onglets et objets créatifs, par groupe de joueurs, depuis une interface en jeu.**
@@ -45,12 +45,12 @@ Enforcement is server-side and does not depend on the client. A player who remov
 
 For each player, the first match wins:
 
-1. The **bypass**: permission `arcadiacreativeadmin.bypass`, or an op level at or above the configured one when no permission mod is installed. Never restricted.
+1. The **bypass**: permission `creativeadmin.bypass`, or an op level at or above the configured one when no permission mod is installed. Never restricted.
 2. A profile **assigned** to that player in the admin screen or with `/creativeadmin profile`.
-3. A profile given by the player's **group**, through `arcadiacreativeadmin.profile` set as meta: `/lp group builders meta set arcadiacreativeadmin.profile event`, or `/customperm grade meta builders set arcadiacreativeadmin.profile event`.
+3. A profile given by the player's **group**, through `creativeadmin.profile` set as meta: `/lp group builders meta set creativeadmin.profile event`, or `/customperm grade meta builders set creativeadmin.profile event`.
 4. The **default profile**. Without one, the player is not restricted.
 
-The admin screen and the commands require `arcadiacreativeadmin.admin`, or op level 3 without a permission mod.
+The admin screen and the commands require `creativeadmin.admin`, or op level 3 without a permission mod.
 
 ---
 
@@ -69,7 +69,7 @@ The mod **fails closed**: a broken rules file refuses creative items to restrict
 ### Compatibility
 
 - **LuckPerms**, **CustomPerm**, or any mod implementing NeoForge's permission API: no dependency, no configuration.
-- **Arcadia Better Creative**: installed together, the tab bar is both filtered and sorted, and a locked tab is also left out of Better Creative's settings screen. Neither mod needs the other.
+- **Better Creative**: installed together, the tab bar is both filtered and sorted, and a locked tab is also left out of Better Creative's settings screen. Neither mod needs the other.
 - **Vanilla clients** can join and are restricted like everyone else. With the mod on their client, players simply stop seeing what is locked.
 
 ---
@@ -81,7 +81,7 @@ The mod **fails closed**: a broken rules file refuses creative items to restrict
 - Java 21
 - On the **server**: required. On a **client**: for admins who use the screen, and optionally for players, to hide locked tabs and items.
 
-Rules are stored in `config/arcadia/arcadia-creative-admin-policy.json`, editable by hand and applied with `/creativeadmin reload`.
+Rules are stored in `config/creative-admin/policy.json`, editable by hand and applied with `/creativeadmin reload`.
 
 ---
 ---
@@ -124,12 +124,12 @@ L'application des règles se fait côté serveur et ne dépend pas du client. Un
 
 Pour chaque joueur, la première règle qui correspond l'emporte :
 
-1. Le **contournement** : permission `arcadiacreativeadmin.bypass`, ou un niveau d'op égal ou supérieur à celui configuré quand aucun mod de permissions n'est installé. Jamais restreint.
+1. Le **contournement** : permission `creativeadmin.bypass`, ou un niveau d'op égal ou supérieur à celui configuré quand aucun mod de permissions n'est installé. Jamais restreint.
 2. Un profil **affecté** à ce joueur dans l'interface ou avec `/creativeadmin profile`.
-3. Un profil donné par le **groupe** du joueur, via `arcadiacreativeadmin.profile` en meta : `/lp group builders meta set arcadiacreativeadmin.profile event`, ou `/customperm grade meta builders set arcadiacreativeadmin.profile event`.
+3. Un profil donné par le **groupe** du joueur, via `creativeadmin.profile` en meta : `/lp group builders meta set creativeadmin.profile event`, ou `/customperm grade meta builders set creativeadmin.profile event`.
 4. Le **profil par défaut**. Sans lui, le joueur n'est pas restreint.
 
-L'interface et les commandes demandent `arcadiacreativeadmin.admin`, ou le niveau d'op 3 sans mod de permissions.
+L'interface et les commandes demandent `creativeadmin.admin`, ou le niveau d'op 3 sans mod de permissions.
 
 ---
 
@@ -148,7 +148,7 @@ Le mod **échoue fermé** : un fichier de règles cassé refuse les objets créa
 ### Compatibilité
 
 - **LuckPerms**, **CustomPerm**, ou tout mod implémentant l'API de permissions de NeoForge : aucune dépendance, aucune configuration.
-- **Arcadia Better Creative** : installés ensemble, la barre d'onglets est à la fois filtrée et triée, et un onglet verrouillé est aussi retiré de l'écran de réglages de Better Creative. Aucun des deux n'a besoin de l'autre.
+- **Better Creative** : installés ensemble, la barre d'onglets est à la fois filtrée et triée, et un onglet verrouillé est aussi retiré de l'écran de réglages de Better Creative. Aucun des deux n'a besoin de l'autre.
 - Les **clients vanilla** peuvent se connecter et sont restreints comme les autres. Avec le mod sur leur client, les joueurs ne voient simplement plus ce qui est verrouillé.
 
 ---
@@ -160,12 +160,12 @@ Le mod **échoue fermé** : un fichier de règles cassé refuse les objets créa
 - Java 21
 - Sur le **serveur** : obligatoire. Sur un **client** : pour les admins qui utilisent l'interface, et en option pour les joueurs, afin de masquer les onglets et objets verrouillés.
 
-Les règles sont stockées dans `config/arcadia/arcadia-creative-admin-policy.json`, modifiable à la main et appliqué avec `/creativeadmin reload`.
+Les règles sont stockées dans `config/creative-admin/policy.json`, modifiable à la main et appliqué avec `/creativeadmin reload`.
 
 ---
 
 *Author: THEFricadelle — All rights reserved / Tous droits réservés.*
 
-**Modpacks are welcome** — no need to ask, as long as your pack references the official CurseForge / Modrinth file, unmodified. Re-uploading it elsewhere, bundling the jar in an exported/offline pack, or shipping a modified build still needs written permission. The source is public and pull requests are welcome; it is not open-source. Full terms: [LICENSE](https://github.com/Team-Arcadia/Arcadia-Creative-Admin/blob/main/LICENSE) — plain-language summary: [NOTICE.md](https://github.com/Team-Arcadia/Arcadia-Creative-Admin/blob/main/NOTICE.md).
+**Modpacks are welcome** — no need to ask, as long as your pack references the official CurseForge / Modrinth file, unmodified. Re-uploading it elsewhere, bundling the jar in an exported/offline pack, or shipping a modified build still needs written permission. The source is public and pull requests are welcome; it is not open-source. Full terms: [LICENSE](https://github.com/Team-Arcadia/mods-mc-creative-admin/blob/main/LICENSE) — plain-language summary: [NOTICE.md](https://github.com/Team-Arcadia/mods-mc-creative-admin/blob/main/NOTICE.md).
 
-**Les modpacks sont les bienvenus** — sans rien demander, tant que votre pack référence le fichier officiel CurseForge / Modrinth, non modifié. Le ré-uploader ailleurs, empaqueter le jar dans un pack exporté / hors-ligne ou diffuser un build modifié requiert toujours une autorisation écrite. Le code est public et les pull requests sont bienvenues ; ce n'est pas pour autant de l'open-source. Conditions complètes : [LICENSE](https://github.com/Team-Arcadia/Arcadia-Creative-Admin/blob/main/LICENSE) — résumé en langage clair : [NOTICE.md](https://github.com/Team-Arcadia/Arcadia-Creative-Admin/blob/main/NOTICE.md).
+**Les modpacks sont les bienvenus** — sans rien demander, tant que votre pack référence le fichier officiel CurseForge / Modrinth, non modifié. Le ré-uploader ailleurs, empaqueter le jar dans un pack exporté / hors-ligne ou diffuser un build modifié requiert toujours une autorisation écrite. Le code est public et les pull requests sont bienvenues ; ce n'est pas pour autant de l'open-source. Conditions complètes : [LICENSE](https://github.com/Team-Arcadia/mods-mc-creative-admin/blob/main/LICENSE) — résumé en langage clair : [NOTICE.md](https://github.com/Team-Arcadia/mods-mc-creative-admin/blob/main/NOTICE.md).

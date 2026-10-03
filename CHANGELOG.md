@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Arcadia Creative Admin are documented here.
+All notable changes to Creative Admin (formerly Arcadia Creative Admin) are documented here.
 
 ---
 
@@ -8,11 +8,47 @@ All notable changes to Arcadia Creative Admin are documented here.
 
 ### Added (English first)
 
-- **Mod icon** — The mod list now shows the Arcadia Creative Admin logo.
+- **Mod icon** — The mod list now shows the Creative Admin logo.
+
+### Changed (English first)
+
+- **Renamed to Creative Admin** - The mod is now Creative Admin, mod id `creativeadmin`. The policy
+  and the assignments move to `config/creative-admin/policy.json` and `assignments.json`; files
+  written by an earlier version are moved there automatically on the first start. Permission nodes
+  are now `creativeadmin.admin`, `creativeadmin.bypass` and `creativeadmin.profile`. The former
+  `arcadiacreativeadmin.*` nodes keep working: they are read whenever the new node is not set for
+  a player, explicit denials included, so no server loses its setup. Players need the 2.1.0 client
+  too, since the network channel is named after the mod id; an older client keeps playing but no
+  longer receives the locked tabs for display.
+
+### Fixed (English first)
+
+- **Locked tabs reach Better Creative again after its rename** - Better Creative 2.1.0 changed its
+  mod id. The tabs a server locks are handed to both the renamed mod and releases before the
+  rename, so they stay out of its settings screen either way.
 
 ### Ajouts (French mirror)
 
-- **Icône du mod** — La liste des mods affiche désormais le logo d'Arcadia Creative Admin.
+- **Icône du mod** — La liste des mods affiche désormais le logo de Creative Admin.
+
+### Modifications (French mirror)
+
+- **Renommé en Creative Admin** - Le mod s'appelle désormais Creative Admin, identifiant
+  `creativeadmin`. La politique et les affectations passent dans
+  `config/creative-admin/policy.json` et `assignments.json` ; les fichiers écrits par une version
+  précédente y sont déplacés automatiquement au premier démarrage. Les nœuds de permission sont
+  désormais `creativeadmin.admin`, `creativeadmin.bypass` et `creativeadmin.profile`. Les anciens
+  nœuds `arcadiacreativeadmin.*` fonctionnent toujours : ils sont lus quand le nouveau nœud n'est
+  pas défini pour un joueur, refus explicites compris, aucun serveur ne perd sa configuration. Les
+  joueurs ont aussi besoin du client 2.1.0, le canal réseau portant le nom de l'identifiant ; un
+  client plus ancien continue de jouer mais ne reçoit plus les onglets verrouillés pour l'affichage.
+
+### Corrections (French mirror)
+
+- **Les onglets verrouillés atteignent de nouveau Better Creative après son renommage** - Better
+  Creative 2.1.0 a changé d'identifiant. Les onglets verrouillés par le serveur sont transmis au mod
+  renommé comme aux versions antérieures, ils restent donc absents de son écran de réglages dans
+  les deux cas.
 
 ---
 

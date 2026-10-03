@@ -4,17 +4,17 @@
 
 | Field | Value |
 | --- | --- |
-| Project name | Arcadia Creative Admin |
-| Mod ID | `arcadiacreativeadmin` (FML `ModInfo` enforces `^[a-z][a-z0-9_]{1,63}$` — **hyphens are rejected**) |
-| File slug | `arcadia-creative-admin` (`mod_slug`, used for jar and file names only) |
-| Package | `net.thefricadelle.arcadiacreativeadmin` |
+| Project name | Creative Admin |
+| Mod ID | `creativeadmin` (FML `ModInfo` enforces `^[a-z][a-z0-9_]{1,63}$` — **hyphens are rejected**) |
+| File slug | `creative-admin` (`mod_slug`, used for jar and file names only) |
+| Package | `net.thefricadelle.creativeadmin` |
 | Tech stack | Java 21, Minecraft 1.21.1, NeoForge 21.1.241, ModDevGradle 2.0.142, Gradle 8.12, SpongePowered Mixin + MixinExtras |
 | Author | THEFricadelle |
 | License | All Rights Reserved |
 | Side | **Both** (`side = "BOTH"`): every enforcement path is server-side; the admin screen and the display filter are client-side |
 | Dependencies | NeoForge `[21.1.241,)`, Minecraft `[1.21.1,1.22)` |
 
-Companion project: **Arcadia Better Creative** (client-only tab layout). The two are independent
+Companion project: **Better Creative** (client-only tab layout). The two are independent
 jars with no build or runtime dependency between them. They coexist by chaining on the same
 `@ModifyExpressionValue` hook, at different mixin priorities, and `client.BetterCreativeBridge`
 hands locked tabs to Better Creative's `api.ServerTabPolicy`, looked up by name at runtime. That
@@ -38,10 +38,17 @@ visually aligned; a change to one is a change to propose for the other.
 
 - All code, comments, logs and identifiers in **English**. User-facing strings go through lang files.
 - Naming: `PascalCase` types, `camelCase` members, `UPPER_SNAKE_CASE` constants.
-- Mixin injector methods **must** be prefixed `arcadiacreativeadmin$`.
+- Mixin injector methods **must** be prefixed `creativeadmin$`.
 - Comments explain *why*, never *what*.
 
 **What NOT to do — project-specific:**
+
+- **Never drop the former names.** The mod was renamed from Arcadia Creative Admin
+  (`arcadiacreativeadmin`, files under `config/arcadia/`). `CreativePermissions` keeps the
+  `arcadiacreativeadmin.*` nodes registered and makes each current node fall back to its former one
+  through the default resolver, never through an OR, which would give back a bypass a server
+  explicitly denied. `ConfigPaths` moves the policy and assignments once and reads them in place if
+  the move failed, so a failed move never looks like a fresh install with enforcement off.
 
 - **Never fail open.** This is an enforcement component. A missing profile, an unreadable file, a
   parse error or an unexpected exception must all resolve to a refusal. Failing open hands a full
@@ -82,15 +89,15 @@ visually aligned; a change to one is a change to propose for the other.
 ## 4. Project Structure
 
 ```
-Arcadia-Creative-Admin/
+Creative-Admin/
 ├── build.gradle                  ModDevGradle setup: client, server and gameTestServer runs
 ├── gradle.properties             Version and metadata single source of truth
 ├── RULES.md                      This file
 ├── README.md                     Bilingual EN/FR documentation
 ├── CHANGELOG.md                  Bilingual EN/FR changelog
 ├── src/main/
-│   ├── java/net/thefricadelle/arcadiacreativeadmin/
-│   │   ├── ArcadiaCreativeAdmin.java             Entry point, server, login, permission and reload events
+│   ├── java/net/thefricadelle/creativeadmin/
+│   │   ├── CreativeAdmin.java             Entry point, server, login, permission and reload events
 │   │   ├── PolicyLifecycle.java                  Refresh order: policy, tab index, advice, open screens
 │   │   ├── policy/
 │   │   │   ├── CreativeProfile.java              One profile: mode, selection, exceptions, component rules
@@ -124,8 +131,8 @@ Arcadia-Creative-Admin/
 │   │       └── client/CreativeModeInventoryScreenMixin.java  Display filter and admin button, priority 1300
 │   └── resources/
 │       ├── META-INF/neoforge.mods.toml
-│       ├── arcadia-creative-admin.mixins.json
-│       └── assets/arcadiacreativeadmin/lang/{en_us,fr_fr}.json
+│       ├── creative-admin.mixins.json
+│       └── assets/creativeadmin/lang/{en_us,fr_fr}.json
 └── src/gametest/                 GameTests, never shipped in the jar
 ```
 
@@ -181,7 +188,7 @@ Anything that can be automated is automated; what is left manual says why.
   Screenshots of each page land in `run/adminsmoke/screenshots` for a person to look at. It lives
   in the screens' package, in the GameTest source set, to read their session state; `verifyJar`
   keeps it out of the jar.
-- In the Arcadia Better Creative repository, `runPairSmoke` (both mods on a dedicated server) and
+- In the Better Creative repository, `runPairSmoke` (both mods on a dedicated server) and
   `runArcadiaSmoke` (both mods in the Arcadia pack, LuckPerms and spark included) cover this mod
   next to Better Creative and inside the pack.
 
