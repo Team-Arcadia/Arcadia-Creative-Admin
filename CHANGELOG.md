@@ -6,6 +6,10 @@ All notable changes to Creative Admin (formerly Arcadia Creative Admin) are docu
 
 ## [Unreleased]
 
+---
+
+## [2.1.0] - 2026-10-03
+
 ### Added (English first)
 
 - **Mod icon** — The mod list now shows the Creative Admin logo.

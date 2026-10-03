@@ -34,3 +34,13 @@
 **Root cause:** The kit window is capped at 560x340 GUI pixels, so a larger screen never gives a label more room. The sidebar was 108 px with two buttons side by side, fixed-width footer buttons ignored the length of their label, Rect.split falls back to equal shares on a narrow row, and the notes were anchored to the bottom of the page instead of following the buttons above them.
 **Fix:** Sidebar 128 px with Duplicate and Delete on rows of their own, footer buttons right-aligned at their preferred width, shorter bypass, mode and mode help texts (the explanation stays in the help line and tooltip), notes placed under the profile buttons and "Unsaved changes" moved to the status bar.
 **Prevention:** The smoke run measures every button label, field hint and note of the four admin pages at four real screen sizes, in English and French, and fails on any cut or overlap.
+
+---
+
+## [2026-10-03 14:30] - JVM crash dump committed after a daemon crash
+
+**Context:** Building Creative Admin right after Better Creative, then committing the license update with `git add -A`.
+**Error:** `Gradle build daemon disappeared unexpectedly`; the JVM wrote `hs_err_pid*.log` and `replay_pid*.log` to the repository root, and `git add -A` staged them into the commit.
+**Root cause:** Two projects' Gradle daemons and a Minecraft run kept alive at once exhausted native memory (`Native memory allocation (malloc) failed`). The repository did not ignore JVM crash dumps, unlike Better Creative, and the commit was chained after the build without checking its result.
+**Fix:** Removed the dumps from the unpushed commit, added `hs_err_pid*.log` and `replay_pid*.log` to `.gitignore`, stopped the daemons with `./gradlew --stop`, rebuilt successfully.
+**Prevention:** Never chain a commit after a build without gating on its exit status. Run `./gradlew --stop` in a project before building the other. A crash dump holds the machine's environment variables and must never be committed.
