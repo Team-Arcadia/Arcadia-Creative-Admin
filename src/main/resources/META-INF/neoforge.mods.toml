@@ -26,3 +26,12 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+# The mod before its rename. Both ids would otherwise load side by side and apply everything twice.
+[[dependencies.${mod_id}]]
+modId = "arcadiacreativeadmin"
+type = "incompatible"
+reason = "Arcadia Creative Admin is the former name of this mod. Remove its jar and keep this one."
+versionRange = "[0,)"
+ordering = "NONE"
+side = "BOTH"

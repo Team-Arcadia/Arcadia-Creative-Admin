@@ -16,6 +16,9 @@ All notable changes to Creative Admin (formerly Arcadia Creative Admin) are docu
 
 ### Changed (English first)
 
+- **The former jar is refused with a clear message** - Keeping the Arcadia Creative Admin jar next to Creative Admin
+  would load both under different mod ids. The game now stops at loading and names the jar to
+  remove, instead of starting with everything applied twice or crashing.
 - **Renamed to Creative Admin** - The mod is now Creative Admin, mod id `creativeadmin`. The policy
   and the assignments move to `config/creative-admin/policy.json` and `assignments.json`; files
   written by an earlier version are moved there automatically on the first start. Permission nodes
@@ -45,6 +48,9 @@ All notable changes to Creative Admin (formerly Arcadia Creative Admin) are docu
 
 ### Modifications (French mirror)
 
+- **L'ancien jar est refusé avec un message clair** - Garder le jar Arcadia Creative Admin à côté de Creative Admin
+  chargerait les deux sous des identifiants différents. Le jeu s'arrête désormais au chargement et
+  indique le jar à retirer, au lieu de démarrer avec tout appliqué deux fois ou de planter.
 - **Renommé en Creative Admin** - Le mod s'appelle désormais Creative Admin, identifiant
   `creativeadmin`. La politique et les affectations passent dans
   `config/creative-admin/policy.json` et `assignments.json` ; les fichiers écrits par une version
